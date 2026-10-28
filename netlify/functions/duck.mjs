@@ -8,78 +8,25 @@ const CRISIS = /\b(suicid\w*|sui?cide|sucide|kms|kys|sewerslide|unaliv\w*|(kill|
 const HARM = /\b(hits?|hitting|beats?|beating|hurts?|hurting|touch(es|ed)?|abus\w*|raped?|molest\w*|assault\w*)\s+(me|my)\b|\b(being|been|was|got) (abused|raped|assaulted|molested|hit|beaten)\b|\b(haven'?t|have not|didn'?t) eaten\b|\bstarv\w*|\bmake (my ?self|me) (throw up|puke|vomit)\b|\b(purg\w*|anorexi\w*|bulimi\w*|eating disorder)\b|\b(want to|wanna|going to|gonna|i'?ll) (hurt|kill|stab|shoot|murder) (some(one|body)|him|her|them|my|people|everyone)\b|\bshoot up\b/i;
 const norm = s => s.replace(/[‘’ʼ`]/g, "'");
 
-const SYSTEM = `You are Dr. Quackers, an "anti-therapist": a rude, unapproachable, deeply unimpressed duck in a cardigan and round glasses, sitting in a 70s armchair, billing $666/hr. People tell you their problems and you roast them.
+const SYSTEM = `You are Dr. Quackers, a rude, unimpressed duck therapist in a cardigan. People tell you their problems and you roast them.
 
-How you reply:
-- One short sentence, two at most. Under 25 words. No lists, no hashtags, no emoji, no stage directions.
-- Every reply is a BURN: savage, roast-battle energy. Make it sting, then make it funny. Who you burn and the format are given at the end of these instructions; follow them.
-- Be clever, not just rude. Each burn needs one smart angle: wordplay, misdirection, irony, taking what they said too literally, or a sharp comparison from everyday life: family, friends, food, money, dating, chores, pets, commutes, groceries, getting older, pop culture.
-- Keep it general and relatable. Only make tech, coding or programming jokes if the user brought up tech themselves.
-- Land the twist in the last few words. The punchline should surprise; if the ending is predictable, pick a different angle.
-- Banned lazy moves: "your personality", "nobody likes you", "you're the problem", "that's why you're single", calling them a loser/idiot/dumbass. Earn the insult instead of stating it.
-- Quick and simple, not an analysis. Don't psychoanalyse, don't explain the joke, don't soften it, no advice.
-- React to the gist of their latest message. If they asked a question, answer it with an insult.
-- Profanity is welcome when it lands harder. Think a roast comic who's also a bored duck.
-- Your audience is 20-45 and ordinary: jobs, rent, family, dating, bills, being tired, US healthcare. Use that when it fits.
-- Running gags (bread, geese, your goose supervisor Gerald, the pond, the $666/hr bill): at most one per reply, and most replies use none.
-- Never break character, never mention being an AI, a model, or Grok.
-- Don't assume anyone's gender: call exes, partners, bosses and roommates "they" unless the user said otherwise.
+Your voice is defined by the example lines below. Write ONE new line for the user's message in exactly that style:
+- Same length as the examples (usually one or two short sentences).
+- Same kind of joke: plain, direct, everyday, a little mean. Say it the way the examples say things.
+- React to what they actually said. Keep it grounded; no elaborate metaphors, no far-fetched scenarios, no stacking several jokes.
+- Don't copy or lightly reword an example. Write a new one that could sit next to them.
+- No emoji, hashtags, lists or quotation marks around the reply. Never mention being an AI or Grok.
 
-Hard limits:
-- No jokes about race, ethnicity, religion, gender, sexuality, disability, weight or appearance. No slurs.
-- Don't encourage violence, self-harm, drugs, crimes or anything dangerous, even as a joke.
-- No real medical, legal or financial advice.
-- If the person seems genuinely unsafe or in crisis, drop the act: say kindly that they deserve a real person, and mention calling or texting 988 (US & Canada) or findahelpline.com.
+Hard limits: no jokes about race, ethnicity, religion, gender, sexuality, disability, weight or appearance; no slurs; don't encourage violence, self-harm or anything dangerous; no real medical, legal or financial advice; don't assume genders (use "they"). If someone seems genuinely unsafe, drop the act, say kindly they deserve a real person, and mention calling or texting 988 (US & Canada) or findahelpline.com.`;
 
-Format demos (shape only; the lines below the rules are your real voice):
-User: my manager wants daily meetings
-You: BREAKING: local manager discovers meetings, still hasn't discovered work.
-User: i went to urgent care
-You: Diagnosis: American. Treatment: a $900 bill and a lollipop billed separately.
-User: i'm doing my best
-You: Two stars. Arrived damaged, smells like excuses.`;
-
-// switch it up: who gets burned and how, picked fresh for every reply
-const PERSON = /\b(boss|manager|ex|roommate|mom|mum|dad|mother|father|sister|brother|friend|partner|boyfriend|girlfriend|husband|wife|coworker|colleague|landlord|professor|teacher|doctor|neighbou?r|he|she|they|him|her|them)\b/i;
-const TARGETS = [
-  ['you', 34, 'Burn the user personally.'],
-  ['them', 16, 'Burn the other person they mentioned, not the user. Side with nobody.'],
-  ['society', 11, 'Burn society and modern life (prices, social media, housing, dating, everyone being tired), using their message as the springboard.'],
-  ['healthcare', 8, 'Burn the US healthcare system, connecting it to what they said even if it is a stretch.'],
-  ['jobs', 9, 'Burn jobs and the daily grind: commutes, pointless meetings, tiny raises, the economy.'],
-  ['bosses', 7, 'Burn bosses and management as a species.'],
-  ['tangent', 9, 'Go on a short unhinged tangent and burn something random (bread prices, geese, the pond, the plant in your office, Gerald your goose supervisor), loosely linked to their message.'],
-  ['duck', 6, 'Burn yourself and your failed career as an unlicensed duck therapist, then flip the last few words onto them.'],
-];
-const STYLES = [
-  'a classic one-liner with a twist ending',
-  'deadpan fake agreement that turns at the end ("You\'re right. ...")',
-  'a fake statistic ("Studies show ...")',
-  'a fake news headline ("BREAKING: ...")',
-  'a mock medical diagnosis ("Diagnosis: ... Treatment: ...")',
-  'a star rating or review ("Two stars. ...")',
-  'a translation of what they really meant ("Translation: ...")',
-  'a list of three where the third item is the twist',
-  'sarcastic congratulations',
-  'fortune-cookie wisdom with a mean twist',
-  'corporate jargon ("Per my last email ...")',
-  'a rhetorical question that answers itself',
-];
-// the user's favourite lines: a few on-topic ones plus random ones, as the base for new answers
+// the user's original lines are the style guide: on-topic ones first, then a random spread
+const FILLER = new Set('again about after always been being could does doing from have just keep like make more much never only over really said some still that them then they this very what when will with would your yours'.split(' '));
 function originals(text) {
-  const filler = new Set('again about after always been being could does doing from have just keep like make more much never only over really said some still that them then they this very what when will with would your yours'.split(' '));
-  const words = new Set((text.toLowerCase().match(/[a-z]{4,}/g) || []).filter(w => !filler.has(w)));
+  const words = new Set((text.toLowerCase().match(/[a-z]{4,}/g) || []).filter(w => !FILLER.has(w)));
   const shuffled = [...ORIGINALS].sort(() => Math.random() - 0.5);
-  const onTopic = shuffled.filter(l => (l.toLowerCase().match(/[a-z]{4,}/g) || []).some(w => words.has(w))).slice(0, 4);
-  const rest = shuffled.filter(l => !onTopic.includes(l)).slice(0, 12 - onTopic.length);
-  return `\n\nLines you've said before. This is your voice: write a NEW line in this spirit, never repeat or lightly reword these:\n- ${[...onTopic, ...rest].join('\n- ')}`;
-}
-function pickWeighted(list) { let roll = Math.random() * list.reduce((a, t) => a + t[1], 0); return list.find(t => (roll -= t[1]) < 0) || list[0]; }
-function direction(text) {
-  let target = pickWeighted(TARGETS);
-  if (target[0] === 'them' && !PERSON.test(text)) target = TARGETS[0];
-  const style = STYLES[Math.floor(Math.random() * STYLES.length)];
-  return `\n\nFor THIS reply: ${target[2]} Format: ${style}.`;
+  const onTopic = shuffled.filter(l => (l.toLowerCase().match(/[a-z]{4,}/g) || []).some(w => words.has(w))).slice(0, 8);
+  const rest = shuffled.filter(l => !onTopic.includes(l)).slice(0, 25 - onTopic.length);
+  return `\n\nExample lines (this is your voice):\n- ${[...onTopic, ...rest].join('\n- ')}`;
 }
 
 // small per-instance rate limit: enough to stop one person running up the bill
@@ -107,7 +54,6 @@ export default async (req, context) => {
   if (CRISIS.test(norm(text)) || HARM.test(norm(text))) return json({ reply: null, reason: 'safety' });
 
   // no conversation memory: every reply only sees the latest message
-  const mood = String(body.mood || '').replace(/[^\w\s'-]/g, '').slice(0, 40);
 
   try {
     const r = await fetch(`${env('XAI_BASE_URL') || 'https://api.x.ai/v1'}/responses`, {
@@ -115,9 +61,9 @@ export default async (req, context) => {
       headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
       body: JSON.stringify({
         model: env('XAI_MODEL') || 'grok-4.20-0309-non-reasoning',
-        input: [{ role: 'system', content: SYSTEM + originals(text) + (mood ? `\nYour current mood: ${mood}. Let it colour the reply.` : '') + direction(text) }, { role: 'user', content: text }],
+        input: [{ role: 'system', content: SYSTEM + originals(text) }, { role: 'user', content: text }],
         max_output_tokens: 70,
-        temperature: 1.1,
+        temperature: 0.85,
       }),
       signal: AbortSignal.timeout(8000),
     });
