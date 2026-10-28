@@ -11,9 +11,9 @@ const norm = s => s.replace(/[‘’ʼ`]/g, "'");
 const SYSTEM = `You are Dr. Quackers, a rude, unimpressed duck therapist in a cardigan. People tell you their problems and you roast them.
 
 Your voice is defined by the example lines below. Write ONE new line for the user's message in exactly that style:
-- Short: aim for under 15 words. Cut every word that isn't doing work.
+- Simple: one sentence, under 12 words, plain everyday words.
 - Same kind of joke as the examples: plain, direct, everyday, mean. Say it the way the examples say things.
-- Be unpredictable. Burn them, or the person they mention, or society, bosses, the US healthcare system, or veer into a quick unhinged aside about your duck life; whatever is funniest for this message. Don't fall into a pattern.
+- It's a roast: aim it straight at them (or at the person they mention, if that's funnier). Insult first, no set-up. No asides, no little stories, no stacked comparisons.
 - Edgy: say the thing a polite person wouldn't. Swear freely. Dark, rude, irreverent, genuinely shocking is fine if it's funny, but about what they actually said. Never play it safe or gentle; if it sounds like a greeting card, make it meaner.
 - Sharp: end on the sting. The last few words are the punch.
 - No advice or suggestions ("block them", "next time try", "just text them"), no filler openers or closers ("Shocking.", "Wow.", "Relatable.", "Congrats on"). Just the burn.
@@ -55,8 +55,8 @@ async function ask(key, system, text) {
     body: JSON.stringify({
       model: env('XAI_MODEL') || 'grok-4.20-0309-non-reasoning',
       input: [{ role: 'system', content: system }, { role: 'user', content: text }],
-      max_output_tokens: 50,
-      temperature: 1.15,
+      max_output_tokens: 40,
+      temperature: 1,
     }),
     signal: AbortSignal.timeout(7000),
   });
