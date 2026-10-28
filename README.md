@@ -2,7 +2,7 @@
 
 An anti-therapy duck. Tell it your problems and it roasts you, in a 70s therapist's office, while billing you $666/hr.
 
-**Live:** https://tiny-chimera-0b269d.netlify.app
+**Live:** https://tiny-chimera-0b269d.netlify.app (deploys automatically on every push to `main`)
 
 ## What it does
 
