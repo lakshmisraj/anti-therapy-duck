@@ -81,8 +81,8 @@
   .plant.wilt { transform: rotate(-12deg); }
   #duck { width: min(100%, 420px); height: auto; overflow: visible; }
   .bubble {
-    position: absolute; top: 34px; right: 0; max-width: 240px;
-    background: var(--paper); border: 2px solid var(--ink); border-radius: 14px 14px 14px 2px;
+    position: absolute; top: 38%; left: 0; max-width: 160px; z-index: 4;
+    background: var(--paper); border: 2px solid var(--ink); border-radius: 14px 14px 2px 14px;
     padding: 10px 12px; font-size: 13px; box-shadow: 3px 3px 0 var(--ink);
     opacity: 0; transform: translateY(6px); transition: .25s;
   }
@@ -210,7 +210,7 @@
     .office { flex: none; height: 26vh; height: 26dvh; min-height: 120px; justify-content: center; }
     #duck { height: 100%; width: auto; max-width: 100%; }
     .diploma, .plant, .poster { display: none; }
-    .bubble { top: 2px; right: 0; max-width: 55%; font-size: 12px; padding: 6px 9px; }
+    .bubble { top: 2px; left: auto; right: 0; max-width: 55%; font-size: 12px; padding: 6px 9px; border-radius: 14px 14px 14px 2px; }
     .session { flex: 1; min-height: 0; height: auto; box-shadow: 4px 4px 0 var(--ink); }
     .session-head { padding: 6px 10px; gap: 8px; font-size: 11px; }
     .session-head > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -433,6 +433,12 @@
         <!-- small reactions: blush, nervous sweat, angry steam -->
         <!-- cigarette, only out while smoking -->
         <g class="fxg cig"><g transform="rotate(14 236 211)"><rect x="236" y="207" width="44" height="7" rx="2" fill="#fff" stroke="#9a9a9a" stroke-width="1"/><rect x="236" y="207" width="11" height="7" rx="2" fill="#d9a066"/></g><circle class="ember" cx="279" cy="222" r="4" fill="#ff5a1f"/></g>
+        <!-- props for the unapproachable moves -->
+        <g id="phone" opacity="0"><rect x="150" y="212" width="40" height="66" rx="7" fill="#1d1d1f"/><rect id="phoneScreen" x="154" y="218" width="32" height="52" rx="3" fill="#7fb6e8"/><path d="M158 228 h22 M158 236 h16 M158 244 h22 M158 252 h12" stroke="#fff" stroke-width="2.5" opacity=".7"/></g>
+        <g id="mug" opacity="0"><path d="M102 238 h38 l-4 40 h-30z" fill="#e8e1d3" stroke="var(--ink)" stroke-width="3"/><path d="M140 248 q14 2 10 14 q-3 9 -12 8" fill="none" stroke="var(--ink)" stroke-width="3"/><path class="steam1" d="M114 230 q-6 -8 0 -16 q6 -8 0 -16" fill="none" stroke="#b9b2a6" stroke-width="3" stroke-linecap="round"/><path class="steam2" d="M128 230 q6 -8 0 -16 q-6 -8 0 -16" fill="none" stroke="#b9b2a6" stroke-width="3" stroke-linecap="round"/></g>
+        <g id="paper" opacity="0"><rect x="118" y="118" width="184" height="128" fill="#f4f1ea" stroke="#8a8579" stroke-width="2"/><path d="M210 118 v128" stroke="#cfcabd" stroke-width="2"/><rect x="128" y="128" width="72" height="12" fill="#3a3a3a"/><path d="M128 150 h72 M128 160 h66 M128 170 h72 M128 180 h60 M128 190 h72 M128 200 h68 M220 130 h72 M220 140 h64 M220 150 h72 M220 160 h70 M220 170 h56" stroke="#9a958a" stroke-width="3"/><rect x="220" y="182" width="72" height="50" fill="#cfcabd"/></g>
+        <g id="headphones" opacity="0"><path d="M120 168 Q120 64 210 64 Q300 64 300 168" fill="none" stroke="#222" stroke-width="10" stroke-linecap="round"/><rect x="104" y="150" width="28" height="48" rx="12" fill="var(--rust)" stroke="#222" stroke-width="4"/><rect x="288" y="150" width="28" height="48" rx="12" fill="var(--rust)" stroke="#222" stroke-width="4"/></g>
+        <circle id="smokeRing" cx="212" cy="214" r="10" fill="none" stroke="#b9b2a6" stroke-width="4" opacity="0"/>
         <g class="smoke" fill="#b9b2a6"><circle cx="283" cy="214" r="6"/><circle cx="283" cy="214" r="6"/><circle cx="283" cy="214" r="6"/></g>
         <g class="fxg blushg"><ellipse cx="148" cy="200" rx="15" ry="8" fill="#ff8fa3"/><ellipse cx="272" cy="200" rx="15" ry="8" fill="#ff8fa3"/></g>
         <path class="fxg" id="sweat" d="M294 116 q9 13 0 20 q-9 -7 0 -20z" fill="#9fdcff" stroke="#3f97cc" stroke-width="2"/>
@@ -441,7 +447,6 @@
         <g class="acc" id="accTie"><path d="M201 226 h18 l3 12 h-24z" fill="var(--rust)"/><path d="M199 238 h22 l7 54 -18 16 -18 -16z" fill="var(--rust)"/><path d="M203 252 l14 8 M201 270 l18 9 M200 288 l16 8" stroke="var(--mustard)" stroke-width="3"/></g>
         <g class="acc" id="accSteth" fill="none" stroke="#555" stroke-width="5" stroke-linecap="round"><path d="M150 236 q60 52 120 0"/><path d="M150 236 q-12 40 10 64"/><circle cx="162" cy="304" r="10" fill="#bbb" stroke-width="3"/></g>
         <g class="acc" id="accBandaid"><g transform="rotate(-28 252 104)"><rect x="224" y="95" width="56" height="18" rx="9" fill="#f2c9a0" stroke="#c99a6e" stroke-width="2"/><rect x="244" y="95" width="16" height="18" fill="#e7b487"/><circle cx="232" cy="104" r="1.6" fill="#c99a6e"/><circle cx="272" cy="104" r="1.6" fill="#c99a6e"/></g></g>
-        <g class="acc" id="accShades"><rect x="149" y="145" width="58" height="34" rx="10" fill="#111"/><rect x="219" y="145" width="58" height="34" rx="10" fill="#111"/><path d="M207 158 h12" stroke="#111" stroke-width="5"/><path d="M160 152 l10 -2 M230 152 l10 -2" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/></g>
         <g class="acc" id="accParty"><path d="M176 92 L238 86 L214 6 Z" fill="var(--rust)"/><path d="M186 70 L230 66 M196 44 L224 41" stroke="var(--mustard)" stroke-width="6"/><circle cx="214" cy="8" r="9" fill="var(--paper)"/></g>
         <text class="zzz" x="290" y="100" font-size="22">z</text>
         <text class="zzz" x="300" y="90" font-size="28">z</text>
@@ -775,8 +780,9 @@
   function settle() {
     if (current) current.kill(); current = null;
     gsap.set([inner, glasses], { clearProps: 'transform' });
+    gsap.set(['#phone', '#mug', '#paper', '#headphones', '#smokeRing'], { opacity: 0 });
     gsap.set(pupils, { x: 0, y: 2 });
-    duck.classList.remove('lid-low', 'lid-glare', 'walk', 'smoking');
+    duck.classList.remove('lid-low', 'lid-glare', 'walk', 'smoking', 'scribble');
   }
 
   // eyes: mostly watching the chat, the odd glance around, and blinking
@@ -886,6 +892,68 @@
       .to({}, { duration: 1.2 })
       .to(inner, { y: -8, scaleY: 1, svgOrigin: ORIGIN, duration: .45, ease: 'power2.out' })
       .to(inner, { y: 0, duration: .3, ease: 'power1.in' })); },
+    // scrolls its phone, glances up at you once, goes back to scrolling
+    phone: () => { duck.classList.add('lid-low'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('lid-low') })
+      .fromTo('#phone', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: .45, ease: 'power2.out' })
+      .to(pupils, { x: -7, y: 9, duration: .35 }, '<.1')
+      .to('#phoneScreen', { attr: { fill: '#b9dcff' }, duration: .25, repeat: 5, yoyo: true }, '<')
+      .to(pupils, { x: 0, y: 1, duration: .2 }, '+=.4')
+      .to({}, { duration: .7 })
+      .to(pupils, { x: -7, y: 9, duration: .25 })
+      .to({}, { duration: 1.1 })
+      .to('#phone', { opacity: 0, y: 40, duration: .4, ease: 'power2.in' })
+      .to(pupils, { x: 0, y: 2, duration: .3 }, '<')); },
+    // sips coffee, eyes on you over the rim
+    coffee: () => { duck.classList.add('lid-low'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('lid-low') })
+      .fromTo('#mug', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .4, ease: 'power2.out' })
+      .to(['#mug .steam1', '#mug .steam2'], { y: -6, opacity: .2, duration: .6, repeat: 5, yoyo: true, stagger: .3 }, '<')
+      .to('#mug', { x: 72, y: -40, rotation: -28, svgOrigin: '121 258', duration: .6, ease: 'power2.inOut' })
+      .to(pupils, { x: 0, y: 2, duration: .3 }, '<')
+      .to({}, { duration: .9 })
+      .to('#mug', { x: 0, y: 0, rotation: 0, svgOrigin: '121 258', duration: .5, ease: 'power2.inOut' })
+      .to('#mug', { opacity: 0, y: 30, duration: .35 }, '+=.6')); },
+    // hides behind a newspaper, lowers it just enough to glare, goes back to reading
+    newspaper: () => run(gsap.timeline()
+      .fromTo('#paper', { opacity: 0, y: 200 }, { opacity: 1, y: -24, duration: .55, ease: 'power3.out' })
+      .to({}, { duration: 1.1 })
+      .add(() => duck.classList.add('lid-glare'))
+      .to('#paper', { y: 36, duration: .35, ease: 'power2.out' })
+      .to(pupils, { x: 0, y: -2, duration: .2 }, '<')
+      .to({}, { duration: .9 })
+      .to('#paper', { y: -24, duration: .25, ease: 'power2.in' })
+      .add(() => duck.classList.remove('lid-glare'))
+      .to({}, { duration: .9 })
+      .to('#paper', { opacity: 0, y: 200, duration: .5, ease: 'power2.in' })),
+    // puts headphones on and tunes you out
+    headphones: () => { duck.classList.add('lid-low'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('lid-low') })
+      .fromTo('#headphones', { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: .4, ease: 'back.out(2)' })
+      .to(inner, { rotation: 2.5, svgOrigin: ORIGIN, duration: .32, repeat: 9, yoyo: true, ease: 'sine.inOut' })
+      .to(pupils, { x: -10, y: -2, duration: .4 }, '<')
+      .to(inner, { rotation: 0, svgOrigin: ORIGIN, duration: .2 })
+      .to('#headphones', { opacity: 0, y: -30, duration: .35, ease: 'power2.in' })
+      .to(pupils, { x: 0, y: 2, duration: .3 }, '<')); },
+    // takes its glasses off, wipes them, squints at you, puts them back
+    cleanglasses: () => { duck.classList.add('lid-low'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('lid-low') })
+      .to(glasses, { y: 95, scale: .8, svgOrigin: '213 162', duration: .45, ease: 'power2.inOut' })
+      .to(glasses, { x: 10, duration: .14, repeat: 7, yoyo: true, ease: 'sine.inOut' })
+      .to(pupils, { x: 0, y: 1, duration: .2 }, '<')
+      .to(glasses, { x: 0, y: 0, scale: 1, svgOrigin: '213 162', duration: .45, ease: 'power2.inOut' }, '+=.2')); },
+    // writes something about you, glances up, writes more
+    notes: () => { duck.classList.add('scribble'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('scribble') })
+      .to(pupils, { x: 10, y: 8, duration: .3 })
+      .to({}, { duration: .7 })
+      .to(pupils, { x: 0, y: 1, duration: .2 })
+      .add(() => chaos('skeptic', 700))
+      .to({}, { duration: .7 })
+      .to(pupils, { x: 10, y: 8, duration: .25 })
+      .to({}, { duration: 1 })
+      .to(pupils, { x: 0, y: 2, duration: .3 })); },
+    // blows a smoke ring at you
+    smokering: () => { duck.classList.add('smoking'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('smoking') })
+      .to({}, { duration: .6 })
+      .fromTo('#smokeRing', { opacity: .85, scale: .3, x: 0, y: 0 }, { opacity: 0, scale: 3.4, y: -26, transformOrigin: '50% 50%', duration: 1.8, ease: 'power1.out' })
+      .fromTo('#smokeRing', { opacity: .85, scale: .3, x: 0, y: 0 }, { opacity: 0, scale: 3.4, y: -26, transformOrigin: '50% 50%', duration: 1.8, ease: 'power1.out' }, '-=1')
+      .to({}, { duration: .4 })); },
     smoking: () => smoke(),
     smash: () => smashPoster() || smoke(),
     // walks out on you, leaves the chair empty, eventually comes back
@@ -909,10 +977,10 @@
     setTimeout(() => chaos('respawn', 550), 2500);
   }
   // what the duck does when it's just sitting there: a balanced mix, one at a time, never the same twice running
-  const tics = ['eyeroll', 'sigh', 'skeptic', 'adjust', 'glare', 'ignore'];
-  const classics = ['scowl', 'leanin', 'slouch'];
-  const antics = ['smoking', 'smash', 'walk'];
-  const families = [[tics, 4], [classics, 3.5], [antics, 2.5]];
+  const tics = ['eyeroll', 'sigh', 'skeptic', 'adjust', 'glare', 'ignore', 'notes', 'cleanglasses'];
+  const classics = ['scowl', 'leanin', 'slouch', 'phone', 'coffee'];
+  const antics = ['smoking', 'smokering', 'smash', 'walk', 'newspaper', 'headphones'];
+  const families = [[tics, 3.5], [classics, 3.5], [antics, 3]];
   const ticBusy = () => moving() || ['vibrate', 'hop', 'flinch', 'asleep', 'eating', 'skeptic', 'nod', 'nope'].some(c => duck.classList.contains(c));
   let lastMove = null, lastFamily = null, familyStreak = 0;
   function humanTic() {
@@ -928,7 +996,7 @@
     lastMove = move;
     moves[move]();
   }
-  (function ticLoop() { setTimeout(() => { humanTic(); ticLoop(); }, 4000 + Math.random() * 3500); })();
+  (function ticLoop() { setTimeout(() => { humanTic(); ticLoop(); }, 2500 + Math.random() * 2500); })();
   function talk(text) { chaos('talk', Math.min(1800, Math.max(500, text.length * 28))); }
   function hearts(n) {
     const office = document.querySelector('.office');
@@ -1080,7 +1148,6 @@
   const fx = {
     work: () => wear('accTie'),
     health: () => wear(pick(['accBandaid', 'accSteth'])),
-    random: () => wear(pick(['accShades', 'accParty'])),
   };
   const fxFor = [
     [/\b(code|coding|bugs?|deploy|prod|merge|git|leetcode|internships?|intern|computer science|cs|class|exams?|test|midterms?|finals|professor|homework|assignments?|gpa|hackathons?|office hours|resume|résumé|recruiters?|python|java|chatgpt|stack ?overflow)\b/i, 'cs'],
@@ -1099,7 +1166,7 @@
     lastCat = cat || lastCat;
     if (quiet() || busyScreen()) return;
     if (cat && fx[cat] && Math.random() < 0.15) fx[cat]();
-    else if (Math.random() < 0.04) fx.random();
+
   }
 
   // rare jokes about whoever made this duck (never named)
@@ -1337,7 +1404,7 @@
     if (onPad && !duck.classList.contains('eating')) { face('wide'); eatNotepad(); pop(pick(['Mine. *chomp*', "Hey! That's my lunch.", 'Fine. I wasn\'t taking notes anyway.'])); return; }
     pokes = pokes.filter(t => Date.now() - t < 3000).concat(Date.now());
     if (pokes.length >= 3) { pokes = []; if (!moving()) moves.leanin(); return; }
-    face('wide'); chaos('flinch', 350); crazyEyes(900); if (!quiet() && !document.querySelector('.acc.on') && Math.random() < 0.25) fx.random(); pop(pick(["DON'T FUCKING TOUCH ME", "Touch me again and I bite your fucking finger off.", "Hands off, asshole.", "Boop me one more time. I dare you.", "FUCK OFF (affectionate)"])); setTimeout(() => face('feral'), 1200); });
+    face('wide'); chaos('flinch', 350); crazyEyes(900); pop(pick(["DON'T FUCKING TOUCH ME", "Touch me again and I bite your fucking finger off.", "Hands off, asshole.", "Boop me one more time. I dare you.", "FUCK OFF (affectionate)"])); setTimeout(() => face('feral'), 1200); });
 
   $('#end').addEventListener('click', () => restart());
 
