@@ -527,6 +527,18 @@
   // Your donation page (Ko-fi, Buy Me a Coffee, PayPal.me...). Leave empty to keep the coffee pop-up off.
   const COFFEE_URL = 'https://ko-fi.com/lakshmisraj';
   const $ = s => document.querySelector(s);
+  // anonymous usage counts (no cookies, no message text), batched and sent a few times per visit
+  const statQueue = [];
+  const track = (e, extra = {}) => statQueue.push({ e, ...extra });
+  function flushStats() {
+    if (!statQueue.length || location.protocol === 'file:') return;
+    const body = JSON.stringify({ device: matchMedia('(max-width: 820px)').matches ? 'phone' : 'desktop', events: statQueue.splice(0) });
+    if (!(navigator.sendBeacon && navigator.sendBeacon('/api/track', body))) fetch('/api/track', { method: 'POST', body, keepalive: true }).catch(() => {});
+  }
+  setInterval(flushStats, 20000);
+  addEventListener('pagehide', flushStats);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushStats(); });
+  try { if (!sessionStorage.getItem('duck-visit')) { sessionStorage.setItem('duck-visit', '1'); track('visit'); } } catch { track('visit'); }
   const log = $('#log'), input = $('#input'), duck = $('#duck'), bubble = $('#bubble');
   const pupils = [...document.querySelectorAll('.pupil')];
   const lids = [$('#lidL'), $('#lidR')];
@@ -1361,6 +1373,7 @@
   const memeAlt = { drake: 'Drake rejecting processing your feelings like an adult, approving trauma dumping on a duck that hates you', distracted: 'Distracted boyfriend: Dr. Quackers ignores your problems to look at bread', buttons: 'Two buttons: be a good therapist, or keep billing $666/hr', brain: 'Galaxy brain: friends, therapist, duck, becoming the duck', pigeon: 'Is this a pigeon: me, a duck that hates me, is this healing?', fine: 'This is fine: you after 3 sessions with a duck', exit: 'Car swerving off the exit to complain to a duck instead of fixing your life', cat: 'Woman yelling at cat: your trauma vs. got any bread?', harold: 'Hide the pain Harold: when the duck you trusted calls you a dipshit', gru: "Gru's plan: tell the duck my problems, expect sympathy, duck says skill issue", rollsafe: "Roll safe: can't have problems if you never stop talking about them", mordor: 'One does not simply get sympathy from a duck', sponge: 'Mocking SpongeBob: i ThInK i NeEd HeLp', panik: 'Panik kalm panik: the duck is being nice, it is a phase, it learned your address', astronaut: 'Always has been: the duck never cared', afraid: "Afraid to ask where this duck got its degree", wonka: "Condescending Wonka: tell me how unique your problems are", fry: 'Not sure if therapy or just a duck yelling at me', 'cs-drake': 'Drake rejecting studying all semester, approving learning it the night before at 2x speed', 'cs-fry': 'Not sure if bug or a feature I forgot I wrote', 'cs-astronaut': 'Always has been: senior engineers google everything too', 'cs-exit': 'CS students swerving from finishing the assignment to rewriting it in Rust', 'job-cat': "Manager: we're a family here. Me: then why can't I take PTO", 'job-mordor': 'One does not simply take PTO without checking Slack', 'health-harold': "Harold smiling through the ER bill, and that's after insurance", 'health-rollsafe': "Can't have medical bills if you never go to the doctor" };
   const memeH = {"afraid":510,"astronaut":292,"brain":734,"buttons":776,"cat":334,"cs-astronaut":292,"cs-drake":813,"cs-exit":465,"cs-fry":389,"distracted":346,"drake":813,"exit":465,"fine":504,"fry":389,"gru":333,"harold":346,"health-harold":346,"health-rollsafe":290,"job-cat":334,"job-mordor":306,"mordor":306,"panik":727,"pigeon":312,"rollsafe":290,"sponge":365,"wonka":373};
   function postMeme() {
+    track('meme');
     face('wide');
     const el = document.createElement('div'); el.className = 'msg meme-wrap';
     // lean towards a meme about whatever you were just talking about
@@ -1478,6 +1491,7 @@
     input.value = ''; fitInput();
     face('scribble');
     const serious = isSerious(text);
+    track('message'); if (crisis.test(norm(text))) track('crisis');
     if (!serious) said.push(text.trim());
     if (serious) { hush(); quietTurns = crisis.test(norm(text)) ? Infinity : 3; }
     else if (quietTurns > 0) quietTurns--;
@@ -1485,6 +1499,7 @@
     const started = Date.now(), session = sessionId;
     const wantsAI = aiOn && !serious && !quiet() && !persona.neutral;
     (wantsAI ? askDuck(text) : Promise.resolve(null)).then(aiLine => {
+      if (wantsAI) track(aiLine ? 'ai_reply' : 'fallback_reply');
       if (session !== sessionId) return;
       later(Math.max(0, 900 + Math.random() * 1100 - (Date.now() - started)), () => { typing.remove(); try { respond(text, aiLine); } finally { busy = false; resetIdle(); if (matchMedia('(hover: hover)').matches) input.focus(); } });
     });
@@ -1522,6 +1537,7 @@
   duck.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); duck.dispatchEvent(new Event('click')); } });
   let pokes = [];
   duck.addEventListener('click', e => {
+    track('poke');
     const nb = $('#notepad').getBoundingClientRect();
     const onPad = e.clientX >= nb.left && e.clientX <= nb.right && e.clientY >= nb.top && e.clientY <= nb.bottom;
     if (onPad && !duck.classList.contains('eating')) { face('wide'); eatNotepad(); pop(pick(['Mine. *chomp*', "Hey! That's my lunch.", 'Fine. I wasn\'t taking notes anyway.'])); return; }
@@ -1529,10 +1545,10 @@
     if (pokes.length >= 3) { pokes = []; if (!moving()) moves.leanin(); return; }
     face('wide'); chaos('flinch', 350); crazyEyes(900); pop(pick(["DON'T FUCKING TOUCH ME", "Touch me again and I bite your fucking finger off.", "Hands off, asshole.", "Boop me one more time. I dare you.", "FUCK OFF (affectionate)"])); setTimeout(() => face('feral'), 1200); });
 
-  $('#end').addEventListener('click', () => restart());
+  $('#end').addEventListener('click', () => { track('new_session'); restart(); });
   const info = $('#infoPanel'), infoBtn = $('#infoBtn');
   const showInfo = open => { info.hidden = !open; infoBtn.setAttribute('aria-expanded', String(open)); };
-  infoBtn.addEventListener('click', e => { e.stopPropagation(); showInfo(info.hidden); });
+  infoBtn.addEventListener('click', e => { e.stopPropagation(); if (info.hidden) track('info_open'); showInfo(info.hidden); });
   document.addEventListener('click', e => { if (!info.hidden && !info.contains(e.target)) showInfo(false); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !info.hidden) { showInfo(false); infoBtn.focus(); } });
 
@@ -1553,6 +1569,7 @@
   // re-render without replaying every row's entrance; only the newest row animates
   function renderBill(animateFrom = rows.length) { $('#items').innerHTML = rows.map((r, i) => rowHTML(r, i >= animateFrom)).join('') + totalRow(true); }
   function openBill() {
+    track('bill_open');
     billTimers.forEach(clearTimeout); billTimers = [];
     const secs = (Date.now() - start) / 1000;
     rows = [[`Session time (${Math.max(1, Math.round(secs / 60))} min @ $666/hr)`, secs * RATE], [`Complaints heard: ${turns}`, turns * 15]];
@@ -1603,17 +1620,19 @@
     if (!COFFEE_URL || quiet() || $('#bill').open) return;
     try { if (sessionStorage.getItem('duck-coffee')) return; sessionStorage.setItem('duck-coffee', '1'); } catch {}
     $('#coffeeLink').href = COFFEE_URL;
+    track('coffee_shown');
     hideToast();
     $('#coffeeToast').hidden = false;
     coffeeTimer = setTimeout(hideCoffee, 10000);
   }
   $('#coffeeX').addEventListener('click', hideCoffee);
-  $('#coffeeLink').addEventListener('click', () => setTimeout(hideCoffee, 300));
+  $('#coffeeLink').addEventListener('click', () => { track('coffee_click'); flushStats(); setTimeout(hideCoffee, 300); });
   $('#billToastX').addEventListener('click', hideToast);
   $('#bill').addEventListener('close', () => { billTimers.forEach(clearTimeout); $('#billBtn').focus(); });
 
   const rulings = [["Dispute denied. Dispute fee added.", "Dispute fee", 25], ["Dispute reviewed by the plant. Plant says no.", "Plant review fee", 40], ["Wow. Rude. Attitude surcharge added.", "Attitude surcharge", 66.6], ["I'm not reading that. Reading fee added.", "Reading fee (did not read)", 19.99], ["Disputing is a cry for help. Billing it.", "Cry for help", 50], ["Objection overruled. I'm also the judge.", "Court costs (I am the court)", 99], ["Claim denied. Reason: you.", "Claim review fee", 35], ["Your dispute was forwarded to a call center. Hold time: eternal.", "Hold music licensing fee", 22], ["Disputing requires prior authorization.", "Prior authorization (for disputing)", 80]];
   $('#dispute').addEventListener('click', () => {
+    track('dispute');
     const [msg, item, cost] = pick(rulings);
     rows.push([item, cost]); renderBill(rows.length - 1);
     $('#verdict').textContent = msg; chaos('nope', 600);
@@ -1635,6 +1654,7 @@
     soul: ["Soul received. Pretty shitty soul, honestly. Small. Damp. I'll keep it anyway. 👻", "Your soul has been added to the pond. It's in there with 400 others. Gerald says hi."],
   };
   document.querySelectorAll('[data-pay]').forEach(b => b.addEventListener('click', () => {
+    track('bill_paid', { how: b.dataset.pay });
     billTimers.forEach(clearTimeout);
     $('#bill').close(); face('feral'); if (!moving()) smoke(); // paid. lights one up.
     say(pick(paid[b.dataset.pay]), 'duck', 'Notes: "PAID. buy 40 loaves."');

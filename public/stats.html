@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Duck stats</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦆</text></svg>">
+<style>
+  :root { --wall: #f1e3c4; --paper: #fffaf0; --ink: #3a2414; --ink-soft: #6a4a30; --muted: #8a7560; --rust: #b8481f; --grid: #e6d8bd; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--wall); color: var(--ink); font: 14px/1.45 ui-monospace, "DM Mono", Menlo, monospace; padding: 24px 16px 48px; }
+  main { max-width: 1000px; margin: 0 auto; display: grid; gap: 20px; }
+  header { display: flex; justify-content: space-between; align-items: end; gap: 12px; flex-wrap: wrap; }
+  h1 { font: 800 28px/1.1 Georgia, serif; }
+  .sub { color: var(--ink-soft); font-size: 12px; }
+  .range { display: flex; gap: 6px; }
+  .range button { font: inherit; font-size: 12px; padding: 5px 10px; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--paper); color: var(--ink); cursor: pointer; }
+  .range button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .tile, .card { background: var(--paper); border: 2px solid var(--ink); border-radius: 8px; box-shadow: 3px 3px 0 var(--ink); padding: 14px 16px; }
+  .tile .label { font-size: 12px; color: var(--ink-soft); }
+  .tile .value { font: 800 30px/1.1 Georgia, serif; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .tile .note { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .card h2 { font: 700 15px/1.2 Georgia, serif; margin-bottom: 10px; }
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .chart { position: relative; }
+  .chart svg { display: block; width: 100%; height: 170px; overflow: visible; }
+  .chart .bar { fill: var(--rust); }
+  .chart .hit { fill: transparent; cursor: default; }
+  .chart .hit:hover + .bar, .chart .bar.on { fill: #8f3412; }
+  .axis { font-size: 10px; fill: var(--muted); }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--paper); font-size: 12px; padding: 5px 8px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -110%); opacity: 0; transition: opacity .1s; }
+  .lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .rows { display: grid; gap: 6px; }
+  .row { display: grid; grid-template-columns: 112px 1fr 44px; align-items: center; gap: 8px; font-size: 13px; }
+  .row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .track { display: block; height: 10px; background: var(--grid); border-radius: 0 4px 4px 0; overflow: hidden; }
+  .row .fill { display: block; height: 100%; background: var(--rust); border-radius: 0 4px 4px 0; }
+  .row .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+  .empty { color: var(--muted); font-size: 13px; }
+  details summary { cursor: pointer; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 5px 6px; border-bottom: 1px solid var(--grid); }
+  th:first-child, td:first-child { text-align: left; }
+  .err { background: var(--paper); border: 2px solid var(--rust); border-radius: 8px; padding: 12px 14px; color: var(--rust); }
+  button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>🦆 Duck stats</h1>
+      <p class="sub">Anonymous counts only: no cookies, no message text. Times in UTC.</p>
+    </div>
+    <div class="range" role="group" aria-label="Date range">
+      <button type="button" data-days="7">7 days</button>
+      <button type="button" data-days="30" aria-pressed="true">30 days</button>
+      <button type="button" data-days="90">90 days</button>
+    </div>
+  </header>
+  <div id="err" class="err" hidden></div>
+  <section class="tiles" id="tiles" aria-label="Totals"></section>
+  <section class="charts">
+    <div class="card"><h2>Visits per day</h2><div class="chart" id="visitsChart"></div></div>
+    <div class="card"><h2>Messages per day</h2><div class="chart" id="messagesChart"></div></div>
+  </section>
+  <section class="lists">
+    <div class="card"><h2>Devices</h2><div class="rows" id="devices"></div></div>
+    <div class="card"><h2>Top countries</h2><div class="rows" id="countries"></div></div>
+    <div class="card"><h2>How people paid the bill</h2><div class="rows" id="payments"></div></div>
+  </section>
+  <section class="card">
+    <details><summary>Day-by-day table</summary><div id="table"></div></details>
+  </section>
+</main>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const fmt = n => n.toLocaleString();
+  const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '–';
+  const sum = (days, key) => days.reduce((a, d) => a + (d.events[key] || 0), 0);
+  const merge = (days, field) => days.reduce((acc, d) => { for (const [k, v] of Object.entries(d[field] || {})) acc[k] = (acc[k] || 0) + v; return acc; }, {});
+  const flag = cc => /^[A-Z]{2}$/.test(cc) ? String.fromCodePoint(...[...cc].map(c => 127397 + c.charCodeAt(0))) + ' ' + cc : 'Unknown';
+
+  function tiles(days) {
+    const visits = sum(days, 'visit'), msgs = sum(days, 'message'), ai = sum(days, 'ai_reply'), fb = sum(days, 'fallback_reply');
+    const items = [
+      ['Visits', fmt(visits), 'one per browser session'],
+      ['Messages', fmt(msgs), visits ? (msgs / visits).toFixed(1) + ' per visit' : ''],
+      ['AI replies', pct(ai, ai + fb), `${fmt(ai)} from Grok, ${fmt(fb)} fallback`],
+      ['Memes shown', fmt(sum(days, 'meme')), ''],
+      ['Bills paid', fmt(sum(days, 'bill_paid')), `of ${fmt(sum(days, 'bill_open'))} opened · ${fmt(sum(days, 'dispute'))} disputes`],
+      ['Ko-fi clicks', fmt(sum(days, 'coffee_click')), `pop-up shown ${fmt(sum(days, 'coffee_shown'))}×`],
+      ['Duck pokes', fmt(sum(days, 'poke')), ''],
+      ['Crisis breaks', fmt(sum(days, 'crisis')), 'helplines shown'],
+    ];
+    $('#tiles').innerHTML = items.map(([l, v, n]) => `<div class="tile"><div class="label">${l}</div><div class="value">${v}</div><div class="note">${n}</div></div>`).join('');
+  }
+
+  // single-series daily bars with a per-bar hover tooltip
+  function bars(el, days, key, noun) {
+    const W = 600, H = 170, pad = { l: 28, r: 4, t: 8, b: 22 };
+    const vals = days.map(d => d.events[key] || 0), max = Math.max(1, ...vals);
+    const top = Math.ceil(max / 4) * 4 || 4, bw = (W - pad.l - pad.r) / days.length, gap = Math.min(2, bw * .2);
+    const y = v => pad.t + (H - pad.t - pad.b) * (1 - v / top);
+    let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${noun} per day">`;
+    for (let i = 0; i <= 4; i++) { const v = top / 4 * i, yy = y(v); svg += `<line class="gridline" x1="${pad.l}" x2="${W - pad.r}" y1="${yy}" y2="${yy}"/><text class="axis" x="${pad.l - 4}" y="${yy + 3}" text-anchor="end">${fmt(v)}</text>`; }
+    vals.forEach((v, i) => {
+      const x = pad.l + i * bw + gap / 2, w = Math.max(1, bw - gap), yy = y(v), h = H - pad.b - yy, r = Math.min(4, w / 2, h);
+      const path = h > 0 ? `M${x},${H - pad.b} V${yy + r} Q${x},${yy} ${x + r},${yy} H${x + w - r} Q${x + w},${yy} ${x + w},${yy + r} V${H - pad.b} Z` : '';
+      svg += `<rect class="hit" x="${pad.l + i * bw}" y="${pad.t}" width="${bw}" height="${H - pad.t - pad.b}" data-i="${i}"/>` + (path ? `<path class="bar" d="${path}"/>` : '<path class="bar" d=""/>');
+    });
+    const ticks = [0, Math.floor(days.length / 2), days.length - 1];
+    ticks.forEach(i => { svg += `<text class="axis" x="${pad.l + i * bw + bw / 2}" y="${H - 6}" text-anchor="middle">${days[i].day.slice(5)}</text>`; });
+    el.innerHTML = svg + '</svg><div class="tip"></div>';
+    const tip = el.querySelector('.tip');
+    el.querySelectorAll('.hit').forEach(h => {
+      h.addEventListener('mouseenter', () => {
+        const i = +h.dataset.i, r = h.getBoundingClientRect(), box = el.getBoundingClientRect();
+        tip.textContent = `${days[i].day}: ${fmt(vals[i])} ${noun}`;
+        tip.style.left = (r.left - box.left + r.width / 2) + 'px'; tip.style.top = (y(vals[i]) / H * box.height) + 'px'; tip.style.opacity = 1;
+      });
+      h.addEventListener('mouseleave', () => { tip.style.opacity = 0; });
+    });
+  }
+
+  function rows(el, obj, label = k => k) {
+    const list = Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    if (!list.length) { el.innerHTML = '<p class="empty">No data yet.</p>'; return; }
+    const max = list[0][1];
+    el.innerHTML = list.map(([k, v]) => `<div class="row"><span>${label(k)}</span><span class="track"><span class="fill" style="width:${v / max * 100}%"></span></span><span class="n">${fmt(v)}</span></div>`).join('');
+  }
+
+  function table(days) {
+    const cols = [['visit', 'Visits'], ['message', 'Messages'], ['ai_reply', 'AI'], ['fallback_reply', 'Fallback'], ['bill_paid', 'Paid'], ['coffee_click', 'Ko-fi']];
+    $('#table').innerHTML = `<table><thead><tr><th>Day</th>${cols.map(c => `<th>${c[1]}</th>`).join('')}</tr></thead><tbody>${[...days].reverse().map(d => `<tr><td>${d.day}</td>${cols.map(c => `<td>${fmt(d.events[c[0]] || 0)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  }
+
+  async function load(n) {
+    document.querySelectorAll('.range button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.days === n)));
+    try {
+      const r = await fetch(`/api/stats?days=${n}`, { cache: 'no-store' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const days = await r.json();
+      $('#err').hidden = true;
+      tiles(days);
+      bars($('#visitsChart'), days, 'visit', 'visits');
+      bars($('#messagesChart'), days, 'message', 'messages');
+      rows($('#devices'), merge(days, 'devices'), k => k === 'phone' ? '📱 Phone' : '💻 Desktop');
+      rows($('#countries'), merge(days, 'countries'), flag);
+      rows($('#payments'), merge(days, 'payments'), k => ({ bread: '🍞 Bread', coins: '🪙 Pennies', soul: '👻 Soul', insurance: '🏥 Insurance' }[k] || k));
+      table(days);
+    } catch (e) {
+      $('#err').hidden = false; $('#err').textContent = `Couldn't load stats (${e.message}). This page only works on the live site.`;
+    }
+  }
+  document.querySelectorAll('.range button').forEach(b => b.addEventListener('click', () => load(+b.dataset.days)));
+  load(30);
+})();
+</script>
+</body>
+</html>
