@@ -41,6 +41,42 @@ function limited(ip) {
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
 const env = name => (globalThis.Netlify?.env?.get?.(name)) ?? process.env[name];
 
+// one call to xAI; returns a cleaned-up reply or null
+async function ask(key, system, text) {
+  const r = await fetch(`${env('XAI_BASE_URL') || 'https://api.x.ai/v1'}/responses`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      model: env('XAI_MODEL') || 'grok-4.20-0309-non-reasoning',
+      input: [{ role: 'system', content: system }, { role: 'user', content: text }],
+      max_output_tokens: 70,
+      temperature: 0.85,
+    }),
+    signal: AbortSignal.timeout(7000),
+  });
+  if (!r.ok) throw new Error(`upstream ${r.status}`);
+  const data = await r.json();
+  const out = data.output_text || (data.output || [])
+    .filter(o => o.type === 'message')
+    .flatMap(o => o.content || [])
+    .filter(c => c.type === 'output_text')
+    .map(c => c.text).join(' ');
+  let reply = String(out || '').replace(/\s+/g, ' ').replace(/^["“](.*)["”]$/, '$1').trim();
+  // keep it a quick burn: if it rambles past ~30 words, keep just the first full sentence
+  if (reply.split(' ').length > 30) {
+    const first = reply.match(/^.+?[.!?](?=\s|$)/);
+    if (first && first[0].split(' ').length >= 5) reply = first[0];
+  }
+  return reply.slice(0, 320) || null;
+}
+// the original line a reply mostly repeats, if any (70%+ of its words)
+const wordsOf = t => (t.toLowerCase().match(/[a-z']+/g) || []);
+function copiedFrom(reply) {
+  if (!reply) return null;
+  const mine = new Set(wordsOf(reply));
+  return ORIGINALS.find(o => { const w = wordsOf(o); return w.length && w.filter(x => mine.has(x)).length / w.length >= 0.7; }) || null;
+}
+
 export default async (req, context) => {
   if (req.method !== 'POST') return json({ reply: null, reason: 'method' }, 405);
   const key = env('XAI_API_KEY');
@@ -56,31 +92,11 @@ export default async (req, context) => {
   // no conversation memory: every reply only sees the latest message
 
   try {
-    const r = await fetch(`${env('XAI_BASE_URL') || 'https://api.x.ai/v1'}/responses`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
-      body: JSON.stringify({
-        model: env('XAI_MODEL') || 'grok-4.20-0309-non-reasoning',
-        input: [{ role: 'system', content: SYSTEM + originals(text) }, { role: 'user', content: text }],
-        max_output_tokens: 70,
-        temperature: 0.85,
-      }),
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!r.ok) return json({ reply: null, reason: `upstream ${r.status}` }, 502);
-    const data = await r.json();
-    const out = data.output_text || (data.output || [])
-      .filter(o => o.type === 'message')
-      .flatMap(o => o.content || [])
-      .filter(c => c.type === 'output_text')
-      .map(c => c.text).join(' ');
-    let reply = String(out || '').replace(/\s+/g, ' ').replace(/^["“](.*)["”]$/, '$1').trim();
-    // keep it a quick burn: if it rambles past ~30 words, keep just the first full sentence
-    if (reply.split(' ').length > 30) {
-      const first = reply.match(/^.+?[.!?](?=\s|$)/);
-      if (first && first[0].split(' ').length >= 5) reply = first[0];
-    }
-    reply = reply.slice(0, 320);
+    const system = SYSTEM + originals(text);
+    let reply = await ask(key, system, text);
+    // it sometimes hands back one of the example lines verbatim: ask once more for a new one
+    const copied = copiedFrom(reply);
+    if (copied) reply = (await ask(key, system + `\n\nDon't use this line, it's already taken: "${copied}". Write a different one.`, text)) || reply;
     return json({ reply: reply || null });
   } catch {
     return json({ reply: null, reason: 'upstream error' }, 502);
