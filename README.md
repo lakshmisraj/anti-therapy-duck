@@ -14,12 +14,12 @@ An anti-therapy duck. Tell it your problems and it roasts you, in a 70s therapis
 
 One static `index.html` with inline CSS and JavaScript, plus one Netlify Function. Animations use GSAP and its plugins (vendored in `vendor/`). Memes are pre-rendered WebP files in `memes/`. Hosted on Netlify; `netlify.toml` sets security and caching headers.
 
-Replies for ordinary messages are written by xAI's Grok through `netlify/functions/duck.mjs` (served at `/api/duck`), which holds the API key, rate-limits, and re-checks for crisis messages. If the function isn't configured or fails, the duck falls back to its pre-written lines. Crisis, abuse and sad messages are always handled in the page and never sent to the AI.
+Replies for ordinary messages are written by xAI's Grok through `netlify/functions/duck/duck.mjs` (served at `/api/duck`), which holds the API key, rate-limits, and re-checks for crisis messages. If the function isn't configured or fails, the duck falls back to its pre-written lines. Crisis, abuse and sad messages are always handled in the page and never sent to the AI.
 
 ### Layout
 
 - `public/`: the site (`index.html`, memes, vendored GSAP, `stats.html`). Netlify publishes only this folder.
-- `netlify/functions/`: `duck.mjs` (AI replies), `track.mjs` and `stats.mjs` (analytics).
+- `netlify/functions/`: `duck/` (AI replies: `duck.mjs`, plus the example lines in `lines.mjs` and `best.mjs`), `track.mjs` and `stats.mjs` (analytics).
 
 ### Analytics
 

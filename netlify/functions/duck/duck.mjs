@@ -2,7 +2,8 @@
 // The page handles crisis/abuse messages itself and never sends them here; this re-checks
 // anyway so the endpoint can't be used to roast someone who's struggling.
 
-import ORIGINALS from './duck-lines.mjs';
+import ORIGINALS from './lines.mjs';
+import BEST from './best.mjs';
 
 const CRISIS = /\b(suicid\w*|sui?cide|sucide|kms|kys|sewerslide|unaliv\w*|(kill|killing|off|end|ending|hurt|hurting|cut|cutting|harm|harming|hang|hanging|shoot|shooting|starve|starving)\s*(my|me)?\s*-?\s*self|self[- ]?harm\w*|end(ing)? (it all|things|everything|my life)|ending it|take my (own )?life|want(ed)? to die|wanna die|wish i (was|were) dead|(don'?t|do not) (want|wanna) to (live|be alive|be here|exist|wake up|go on)|(can'?t|cannot) (go on|do this anymore)|no (reason|point) (to|in) (live|living|going on)|better off (dead|without me)|(nobody|no ?one) would (miss|care)|done with (life|living)|hate being alive|overdos\w*|(took|take|swallow\w*) (a bunch of|all (my|the)|too many) pills|jump(ing)? (off|in front)|(going to|gonna) jump|(want|wanna|going) to disappear|have a (rope|gun))\b/i;
 const HARM = /\b(hits?|hitting|beats?|beating|hurts?|hurting|touch(es|ed)?|abus\w*|raped?|molest\w*|assault\w*)\s+(me|my)\b|\b(being|been|was|got) (abused|raped|assaulted|molested|hit|beaten)\b|\b(haven'?t|have not|didn'?t) eaten\b|\bstarv\w*|\bmake (my ?self|me) (throw up|puke|vomit)\b|\b(purg\w*|anorexi\w*|bulimi\w*|eating disorder)\b|\b(want to|wanna|going to|gonna|i'?ll) (hurt|kill|stab|shoot|murder) (some(one|body)|him|her|them|my|people|everyone)\b|\bshoot up\b/i;
@@ -34,7 +35,9 @@ function originals(text) {
   const shuffled = ORIGINALS.filter(l => !(l.toLowerCase().match(/[a-z]{4,}/g) || []).some(w => words.has(w))).sort(() => Math.random() - 0.5);
   const rude = shuffled.filter(l => /fuck|shit|bitch|ass\b|asshole|dipshit|bullshit|damn|hell\b|piss/i.test(l)).slice(0, 8);
   const rest = shuffled.filter(l => !rude.includes(l)).slice(0, 25 - rude.length);
-  return `\n\nExample lines (this is your voice; never reuse them):\n- ${[...rude, ...rest].sort(() => Math.random() - 0.5).join('\n- ')}`;
+  const best = BEST.filter(l => !(l.toLowerCase().match(/[a-z]{4,}/g) || []).some(w => words.has(w))).sort(() => Math.random() - 0.5).slice(0, 10);
+  return `\n\nYour best lines. This is the bar; be at least this funny, never reuse them:\n- ${best.join('\n- ')}` +
+    `\n\nMore lines in your voice (never reuse them):\n- ${[...rude, ...rest].sort(() => Math.random() - 0.5).join('\n- ')}`;
 }
 
 // small per-instance rate limit: enough to stop one person running up the bill
@@ -82,7 +85,7 @@ const wordsOf = t => (t.toLowerCase().match(/[a-z']+/g) || []);
 function copiedFrom(reply, recent = []) {
   if (!reply) return null;
   const mine = new Set(wordsOf(reply));
-  return [...ORIGINALS, ...recent].find(o => { const w = wordsOf(o); return w.length && w.filter(x => mine.has(x)).length / w.length >= 0.6; }) || null;
+  return [...ORIGINALS, ...BEST, ...recent].find(o => { const w = wordsOf(o); return w.length && w.filter(x => mine.has(x)).length / w.length >= 0.6; }) || null;
 }
 
 export default async (req, context) => {
