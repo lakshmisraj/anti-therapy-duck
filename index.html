@@ -1442,10 +1442,11 @@
   const chat = [];
   async function askDuck(text) {
     try {
-      const r = await fetch('/api/duck', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text, mood: persona.name }), signal: AbortSignal.timeout(9000) });
+      const r = await fetch('/api/duck', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text, mood: persona.name, avoid: recentDuck.slice(-8) }), signal: AbortSignal.timeout(9000) });
       if (r.status === 503 || r.status === 404) aiOn = false; // not set up on this host: stop asking for this visit
       const data = await r.json().catch(() => ({}));
-      return typeof data.reply === 'string' && data.reply.trim() ? data.reply.trim() : null;
+      const line = typeof data.reply === 'string' ? data.reply.trim() : '';
+      return line && !recentDuck.some(r => r.toLowerCase() === line.toLowerCase()) ? line : null;
     } catch { return null; }
   }
   function aiReply(t, line) {

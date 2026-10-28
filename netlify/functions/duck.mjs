@@ -26,13 +26,13 @@ Hard limits: no jokes about race, ethnicity, religion, gender, sexuality, disabi
 
 // the user's original lines are the style guide: on-topic ones first, then a random spread
 const FILLER = new Set('again about after always been being could does doing from have just keep like make more much never only over really said some still that them then they this very what when will with would your yours'.split(' '));
-function originals(text, skip = null) {
+function originals(text) {
   const words = new Set((text.toLowerCase().match(/[a-z]{4,}/g) || []).filter(w => !FILLER.has(w)));
-  const shuffled = ORIGINALS.filter(l => l !== skip).sort(() => Math.random() - 0.5);
-  const onTopic = shuffled.filter(l => (l.toLowerCase().match(/[a-z]{4,}/g) || []).some(w => words.has(w))).slice(0, 5);
-  const rude = shuffled.filter(l => !onTopic.includes(l) && /fuck|shit|bitch|ass\b|asshole|dipshit|bullshit|damn|hell\b|piss/i.test(l)).slice(0, 8);
-  const rest = shuffled.filter(l => !onTopic.includes(l) && !rude.includes(l)).slice(0, 25 - onTopic.length - rude.length);
-  return `\n\nExample lines (this is your voice):\n- ${[...onTopic, ...rude, ...rest].sort(() => Math.random() - 0.5).join('\n- ')}`;
+  // lines about the same topic get copied, so they're left out: it has to write a fresh one
+  const shuffled = ORIGINALS.filter(l => !(l.toLowerCase().match(/[a-z]{4,}/g) || []).some(w => words.has(w))).sort(() => Math.random() - 0.5);
+  const rude = shuffled.filter(l => /fuck|shit|bitch|ass\b|asshole|dipshit|bullshit|damn|hell\b|piss/i.test(l)).slice(0, 8);
+  const rest = shuffled.filter(l => !rude.includes(l)).slice(0, 25 - rude.length);
+  return `\n\nExample lines (this is your voice; never reuse them):\n- ${[...rude, ...rest].sort(() => Math.random() - 0.5).join('\n- ')}`;
 }
 
 // small per-instance rate limit: enough to stop one person running up the bill
@@ -77,10 +77,10 @@ async function ask(key, system, text) {
 }
 // the original line a reply mostly repeats, if any (70%+ of its words)
 const wordsOf = t => (t.toLowerCase().match(/[a-z']+/g) || []);
-function copiedFrom(reply) {
+function copiedFrom(reply, recent = []) {
   if (!reply) return null;
   const mine = new Set(wordsOf(reply));
-  return ORIGINALS.find(o => { const w = wordsOf(o); return w.length && w.filter(x => mine.has(x)).length / w.length >= 0.7; }) || null;
+  return [...ORIGINALS, ...recent].find(o => { const w = wordsOf(o); return w.length && w.filter(x => mine.has(x)).length / w.length >= 0.6; }) || null;
 }
 
 export default async (req, context) => {
@@ -98,10 +98,13 @@ export default async (req, context) => {
   // no conversation memory: every reply only sees the latest message
 
   try {
-    let reply = await ask(key, SYSTEM + originals(text), text);
-    // it sometimes hands back one of the example lines verbatim: ask once more, without that line in the examples
-    const copied = copiedFrom(reply);
-    if (copied) reply = (await ask(key, SYSTEM + originals(text, copied) + `\n\nAlready used, don't repeat: "${copied}"`, text)) || reply;
+    const avoid = (Array.isArray(body.avoid) ? body.avoid : []).filter(x => typeof x === 'string').slice(-8).map(x => x.slice(0, 200));
+    const avoidNote = avoid.length ? `\n\nYou already said these in this chat. Don't repeat or reword any of them:\n- ${avoid.join('\n- ')}` : '';
+    let reply = await ask(key, SYSTEM + originals(text) + avoidNote, text);
+    // it sometimes repeats an original or something it just said: ask once more, naming the line
+    const copied = copiedFrom(reply, avoid);
+    if (copied) reply = (await ask(key, SYSTEM + originals(text) + avoidNote + `\n\nAlready used, don't repeat: "${copied}"`, text)) || reply;
+    if (copiedFrom(reply, avoid)) reply = null; // still a repeat: let the page use a fresh pre-written line
     return json({ reply: reply || null });
   } catch {
     return json({ reply: null, reason: 'upstream error' }, 502);
