@@ -126,17 +126,17 @@
     height: min(620px, 78vh);
     min-height: 420px;
   }
-  .session-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 2px dashed var(--ink-soft); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+  .session-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 2px solid var(--ink); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
   .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--rust); margin-right: 6px; animation: blink 3s ease-in-out infinite; }
   @keyframes blink { 50% { opacity: .2; } }
-  .log { flex: 1; overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px;
+  .log { flex: 1; overflow-y: auto; scroll-behavior: smooth; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px;
     background-image: repeating-linear-gradient(transparent 0 25px, #ecdcc0 25px 26px); }
-  .msg { max-width: 85%; padding: 8px 12px; border-radius: 10px; white-space: pre-wrap; overflow-wrap: anywhere; animation: pop .2s ease-out; }
+  .msg { max-width: 85%; padding: 10px 14px; border-radius: 16px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; animation: pop .2s ease-out; }
   @keyframes pop { from { opacity: 0; transform: translateY(4px); } }
-  .msg.you { align-self: flex-end; background: #e9ddc4; border: 1.5px solid var(--ink-soft); }
-  .msg.duck { align-self: flex-start; background: var(--duck); border: 1.5px solid var(--ink); font-family: "Fraunces", serif; font-size: 16px; }
+  .msg.you { align-self: flex-end; background: #e9ddc4; border: 1.5px solid var(--ink-soft); border-bottom-right-radius: 4px; }
+  .msg.duck { align-self: flex-start; background: var(--duck); border: 1.5px solid var(--ink); border-bottom-left-radius: 4px; font-family: "Fraunces", serif; font-size: 16px; }
   .msg.duck small { display: block; font-family: "DM Mono", monospace; font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
-  .msg.sys { align-self: center; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--rust); border: 1.5px dashed var(--rust); background: var(--paper); padding: 4px 10px; }
+  .msg.sys { align-self: center; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--rust); border: 1.5px solid var(--rust); border-radius: 999px; background: var(--paper); padding: 4px 12px; }
   .msg.plantmsg { align-self: flex-start; background: #dfe8c8; border: 1.5px solid var(--olive); font-style: italic; }
   .heart { position: absolute; pointer-events: none; font-size: 26px; animation: float 2.2s ease-out forwards; }
   @keyframes float { from { opacity: 1; transform: translateY(0) scale(.6); } to { opacity: 0; transform: translateY(-160px) scale(1.3) rotate(20deg); } }
@@ -146,14 +146,15 @@
   .meme-intro { font-size: 13px; font-weight: 500; color: var(--ink-soft); margin-bottom: 4px; font-family: "DM Mono", monospace; }
   .rate { display: flex; gap: 6px; margin-top: 8px; font-family: "DM Mono", monospace; }
   .rate button { padding: 2px 10px; font-size: 13px; background: var(--paper); color: var(--ink); box-shadow: none; }
-  .msg.typing { font-style: italic; background: transparent; border: 1.5px dashed var(--ink-soft); color: var(--ink-soft); font-family: "DM Mono", monospace; font-size: 13px; }
+  .msg.typing { font-style: italic; background: var(--paper); border: 1.5px solid var(--ink-soft); color: var(--ink-soft); font-family: "DM Mono", monospace; font-size: 13px; }
   .msg.real { align-self: stretch; max-width: none; background: #fff; border: 2px solid var(--olive); font-family: "DM Mono", monospace; font-size: 14px; }
   .msg.real a { color: var(--olive); font-weight: 500; }
   form { display: flex; gap: 8px; padding: 12px; border-top: 2px solid var(--ink); }
   textarea {
     flex: 1; resize: none; font: inherit; color: var(--ink);
-    background: #fff; border: 1.5px solid var(--ink); border-radius: 6px; padding: 9px 10px; height: 44px;
+    background: #fff; border: 1.5px solid var(--ink); border-radius: 10px; padding: 10px 12px; height: 44px; max-height: 120px; line-height: 1.35;
   }
+  form button[type="submit"]:disabled { opacity: .45; cursor: default; }
   textarea:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 6px var(--mustard); }
   #duck { cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   #duck:focus:not(:focus-visible) { outline: none; }
@@ -167,8 +168,12 @@
   button.ghost { background: transparent; color: var(--ink); font-size: 12px; padding: 4px 10px; box-shadow: none; }
   .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 12px 12px; }
   .chips button { background: #f4e9d2; color: var(--ink); font-size: 12px; padding: 4px 9px; box-shadow: none; border-width: 1.5px; font-weight: 400; }
-  footer { grid-column: 1 / -1; font-size: 12px; color: var(--ink-soft); text-align: center; }
-  footer a { color: inherit; }
+  /* the disclaimer lives behind a small "i" so it doesn't take up a row */
+  .info-btn { position: absolute; left: 6px; bottom: 6px; z-index: 5; width: 24px; height: 24px; padding: 0; border-radius: 50%; background: transparent; border: 1.5px solid var(--ink-soft); color: var(--ink-soft); box-shadow: none; font: italic 700 13px/1 "Fraunces", serif; opacity: .45; }
+  .info-btn:hover, .info-btn[aria-expanded="true"] { opacity: 1; }
+  .info-panel { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 25; width: min(360px, calc(100% - 32px)); background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-radius: 6px; box-shadow: 4px 4px 0 var(--ink); padding: 12px 14px; font-size: 13px; line-height: 1.45; }
+  .info-panel[hidden] { display: none; }
+  .info-panel a { color: var(--rust); }
 
   .meter { text-align: right; font-size: 13px; color: var(--ink-soft); }
   .meter b { display: block; font-size: 26px; color: var(--rust); font-variant-numeric: tabular-nums; }
@@ -209,8 +214,11 @@
     .meter b { font-size: 18px; }
     .office { flex: none; height: 26vh; height: 26dvh; min-height: 120px; justify-content: center; }
     #duck { height: 100%; width: auto; max-width: 100%; }
-    .diploma, .plant, .poster { display: none; }
-    .bubble { top: 2px; left: auto; right: 0; max-width: 55%; font-size: 12px; padding: 6px 9px; border-radius: 14px 14px 14px 2px; }
+    .diploma { width: 76px; left: 4px; top: 4px; padding: 3px 4px; font-size: 6px; border-width: 3px; }
+    .diploma strong { font-size: 7.5px; }
+    .office .poster { width: 58px; right: 6px; top: 4px; padding: 4px 4px 3px; font-size: 7px; border-width: 3px; }
+    .plant { font-size: 34px; right: 3%; bottom: 2px; }
+    .bubble { top: auto; bottom: 34px; left: 4px; right: auto; max-width: 48%; font-size: 12px; padding: 6px 9px; border-radius: 14px 14px 14px 2px; }
     .session { flex: 1; min-height: 0; height: auto; box-shadow: 4px 4px 0 var(--ink); }
     .session-head { padding: 6px 10px; gap: 8px; font-size: 11px; }
     .session-head > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -223,7 +231,6 @@
     .chips { flex-wrap: nowrap; overflow-x: auto; padding: 0 10px 8px; }
     .chips button { flex: none; }
     form { padding: 8px; }
-    footer { flex: none; font-size: 11px; line-height: 1.35; }
     .foot-joke { display: none; }
   }
   /* phone on its side: duck left, chat right */
@@ -239,8 +246,8 @@
     .office { grid-column: 1; grid-row: 2; min-height: 0; height: auto; justify-content: center; }
     #duck { height: 100%; width: auto; max-width: 100%; }
     .session { grid-column: 2; grid-row: 1 / 4; height: auto; min-height: 0; }
-    footer { grid-column: 1; grid-row: 3; font-size: 10px; line-height: 1.3; }
-    .diploma, .plant, .chips, .foot-joke { display: none; }
+    .diploma, .chips, .foot-joke { display: none; }
+    .plant { font-size: 30px; right: 2%; bottom: 0; }
   }
   /* feral */
   /* talking: the beak moves while a reply lands */
@@ -382,6 +389,7 @@
     </div>
     <div class="diploma"><strong>Doctor of Quackology</strong>Pond University<br><s>Accredited</s> Drawn in crayon<br>Est. in a dream</div>
     <div class="bubble" id="bubble" aria-hidden="true"></div>
+    <button type="button" class="info-btn" id="infoBtn" aria-expanded="false" aria-controls="infoPanel" aria-label="About this site and where to get real help">i</button>
     <svg id="duck" viewBox="0 0 420 420" role="button" tabindex="0" aria-label="Dr. Quackers, a yellow duck in an armchair with wild googly eyes. Poke him.">
       <!-- chair -->
       <rect x="40" y="200" width="340" height="190" rx="40" fill="var(--chair)"/>
@@ -438,6 +446,10 @@
         <g id="mug" opacity="0"><path d="M102 238 h38 l-4 40 h-30z" fill="#e8e1d3" stroke="var(--ink)" stroke-width="3"/><path d="M140 248 q14 2 10 14 q-3 9 -12 8" fill="none" stroke="var(--ink)" stroke-width="3"/><path class="steam1" d="M114 230 q-6 -8 0 -16 q6 -8 0 -16" fill="none" stroke="#b9b2a6" stroke-width="3" stroke-linecap="round"/><path class="steam2" d="M128 230 q6 -8 0 -16 q-6 -8 0 -16" fill="none" stroke="#b9b2a6" stroke-width="3" stroke-linecap="round"/></g>
         <g id="paper" opacity="0"><rect x="118" y="118" width="184" height="128" fill="#f4f1ea" stroke="#8a8579" stroke-width="2"/><path d="M210 118 v128" stroke="#cfcabd" stroke-width="2"/><rect x="128" y="128" width="72" height="12" fill="#3a3a3a"/><path d="M128 150 h72 M128 160 h66 M128 170 h72 M128 180 h60 M128 190 h72 M128 200 h68 M220 130 h72 M220 140 h64 M220 150 h72 M220 160 h70 M220 170 h56" stroke="#9a958a" stroke-width="3"/><rect x="220" y="182" width="72" height="50" fill="#cfcabd"/></g>
         <g id="headphones" opacity="0"><path d="M120 168 Q120 64 210 64 Q300 64 300 168" fill="none" stroke="#222" stroke-width="10" stroke-linecap="round"/><rect x="104" y="150" width="28" height="48" rx="12" fill="var(--rust)" stroke="#222" stroke-width="4"/><rect x="288" y="150" width="28" height="48" rx="12" fill="var(--rust)" stroke="#222" stroke-width="4"/></g>
+        <g id="folder" opacity="0"><rect x="138" y="214" width="146" height="78" rx="4" fill="#d9b46a" stroke="#8a6a2e" stroke-width="2.5"/><path d="M138 214 h46 l8 -10 h34 l6 10" fill="#d9b46a" stroke="#8a6a2e" stroke-width="2.5"/><rect x="150" y="224" width="122" height="60" fill="#fffaf0"/><path d="M158 236 h96 M158 246 h104 M158 256 h86 M158 266 h100 M158 276 h70" stroke="#9a958a" stroke-width="2.5"/><rect id="folderFlap" x="138" y="214" width="146" height="78" rx="4" fill="#cfa85c" stroke="#8a6a2e" stroke-width="2.5" opacity="0"/></g>
+        <g id="cash" opacity="0"><rect x="146" y="252" width="72" height="34" rx="3" fill="#7fae6a" stroke="#3d6b33" stroke-width="2"/><rect x="146" y="246" width="72" height="34" rx="3" fill="#8dbd77" stroke="#3d6b33" stroke-width="2"/><g id="cashTop"><rect x="146" y="240" width="72" height="34" rx="3" fill="#9ccb85" stroke="#3d6b33" stroke-width="2"/><circle cx="182" cy="257" r="9" fill="none" stroke="#3d6b33" stroke-width="2"/><path d="M179 252 q6 -2 6 3 q0 4 -6 3 q-6 0 -1 5" fill="none" stroke="#3d6b33" stroke-width="2"/></g></g>
+        <g id="mask" opacity="0"><path d="M126 150 Q120 162 130 170" fill="none" stroke="#222" stroke-width="5"/><path d="M296 150 Q302 162 292 170" fill="none" stroke="#222" stroke-width="5"/><rect x="138" y="138" width="146" height="46" rx="22" fill="#2b2b33" stroke="#111" stroke-width="3"/><path d="M162 164 q16 10 32 0 M228 164 q16 10 32 0" fill="none" stroke="#5a5a66" stroke-width="3" stroke-linecap="round"/></g>
+        <g id="whiskey" opacity="0"><path d="M100 240 h40 l-4 36 h-32z" fill="rgba(220,235,245,.55)" stroke="var(--ink)" stroke-width="3"/><path d="M103 256 h34 l-2.5 18 h-29z" fill="#c9832e" opacity=".9"/><rect x="110" y="248" width="12" height="12" rx="2" fill="rgba(255,255,255,.75)" stroke="#9fb6c4" stroke-width="1.5" transform="rotate(12 116 254)"/></g>
         <circle id="smokeRing" cx="212" cy="214" r="10" fill="none" stroke="#b9b2a6" stroke-width="4" opacity="0"/>
         <g class="smoke" fill="#b9b2a6"><circle cx="283" cy="214" r="6"/><circle cx="283" cy="214" r="6"/><circle cx="283" cy="214" r="6"/></g>
         <g class="fxg blushg"><ellipse cx="148" cy="200" rx="15" ry="8" fill="#ff8fa3"/><ellipse cx="272" cy="200" rx="15" ry="8" fill="#ff8fa3"/></g>
@@ -463,11 +475,10 @@
     <form id="form">
       <label for="input" class="sr">Tell the duck your problem</label>
       <textarea id="input" placeholder="What's your problem?" maxlength="500"></textarea>
-      <button type="submit">Vent</button>
+      <button type="submit" disabled>Vent</button>
     </form>
   </section>
 
-  <footer><span class="foot-joke">Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br></span>Entertainment only, not medical or mental-health advice. Messages are sent to an AI (xAI's Grok) to write the duck's replies; this site doesn't store them. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.</footer>
 </div>
 
 <dialog id="bill" aria-labelledby="billTitle">
@@ -490,6 +501,8 @@
     </div>
   </div>
 </dialog>
+
+<div class="info-panel" id="infoPanel" role="dialog" aria-label="About Dr. Quackers" hidden>Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br>Entertainment only, not medical or mental-health advice. Messages are sent to an AI (xAI's Grok) to write the duck's replies; this site doesn't store them. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.</div>
 
 <div class="billtoast" id="billToast" role="status" hidden>
   <span id="billToastText">🧾 Your bill is ready.</span>
@@ -780,7 +793,7 @@
   function settle() {
     if (current) current.kill(); current = null;
     gsap.set([inner, glasses], { clearProps: 'transform' });
-    gsap.set(['#phone', '#mug', '#paper', '#headphones', '#smokeRing'], { opacity: 0 });
+    gsap.set(['#phone', '#mug', '#paper', '#headphones', '#smokeRing', '#folder', '#cash', '#mask', '#whiskey'], { opacity: 0 });
     gsap.set(pupils, { x: 0, y: 2 });
     duck.classList.remove('lid-low', 'lid-glare', 'walk', 'smoking', 'scribble');
   }
@@ -954,6 +967,66 @@
       .fromTo('#smokeRing', { opacity: .85, scale: .3, x: 0, y: 0 }, { opacity: 0, scale: 3.4, y: -26, transformOrigin: '50% 50%', duration: 1.8, ease: 'power1.out' })
       .fromTo('#smokeRing', { opacity: .85, scale: .3, x: 0, y: 0 }, { opacity: 0, scale: 3.4, y: -26, transformOrigin: '50% 50%', duration: 1.8, ease: 'power1.out' }, '-=1')
       .to({}, { duration: .4 })); },
+    // reads your file, eyes scanning line by line, slow head-shake, snaps it shut
+    readfile: () => { duck.classList.add('lid-low'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('lid-low') })
+      .fromTo('#folder', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: .45, ease: 'power2.out' })
+      .to(pupils, { x: -8, y: 9, duration: .3 }, '<.1')
+      .to(pupils, { x: 8, duration: .55, ease: 'none', repeat: 3, yoyo: true, repeatDelay: .05 })
+      .to(inner, { rotation: -3, svgOrigin: ORIGIN, duration: .22, repeat: 3, yoyo: true, ease: 'sine.inOut' })
+      .set('#folderFlap', { opacity: 1 })
+      .to(pupils, { x: 0, y: 1, duration: .25 })
+      .to('#folder', { opacity: 0, y: 40, duration: .35, ease: 'power2.in' }, '+=.3')
+      .set('#folderFlap', { opacity: 0 })
+      .to(pupils, { y: 2, duration: .2 }, '<')); },
+    // counts its money, flicking through the bills
+    countmoney: () => { duck.classList.add('lid-low'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('lid-low') })
+      .fromTo('#cash', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .4, ease: 'power2.out' })
+      .to(pupils, { x: -5, y: 9, duration: .3 }, '<')
+      .to('#cashTop', { y: -9, rotation: -8, svgOrigin: '182 257', duration: .14, repeat: 11, yoyo: true, ease: 'power1.inOut' })
+      .to(pupils, { x: 0, y: 1, duration: .2 })
+      .to({}, { duration: .5 })
+      .to('#cash', { opacity: 0, y: 30, duration: .35, ease: 'power2.in' })
+      .to(pupils, { y: 2, duration: .2 }, '<')); },
+    // pulls a sleep mask down over its eyes, then lifts it to check you're still here
+    sleepmask: () => run(gsap.timeline()
+      .fromTo('#mask', { opacity: 0, y: -60 }, { opacity: 1, y: -46, duration: .35, ease: 'power2.out' })
+      .to('#mask', { y: 0, duration: .4, ease: 'power2.inOut' })
+      .to({}, { duration: 1.8 })
+      .to('#mask', { y: -40, duration: .3, ease: 'power2.out' })
+      .add(() => duck.classList.add('lid-glare'))
+      .to(pupils, { x: 0, y: 1, duration: .2 }, '<')
+      .to({}, { duration: .8 })
+      .to('#mask', { y: 0, duration: .3, ease: 'power2.in' })
+      .add(() => duck.classList.remove('lid-glare'))
+      .to({}, { duration: .9 })
+      .to('#mask', { y: -60, opacity: 0, duration: .4, ease: 'power2.in' })),
+    // a slow sip of whiskey, eyes on you
+    whiskey: () => { duck.classList.add('lid-low'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('lid-low') })
+      .fromTo('#whiskey', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .4, ease: 'power2.out' })
+      .to('#whiskey', { x: 76, y: -42, rotation: -24, svgOrigin: '120 258', duration: .7, ease: 'power2.inOut' })
+      .to(pupils, { x: 0, y: 1, duration: .3 }, '<')
+      .to({}, { duration: 1.1 })
+      .to('#whiskey', { x: 0, y: 0, rotation: 0, svgOrigin: '120 258', duration: .55, ease: 'power2.inOut' })
+      .to('#whiskey', { opacity: 0, y: 30, duration: .35 }, '+=.5')); },
+    // would rather look at the plant than at you
+    plantstare: () => { duck.classList.add('lid-low'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('lid-low') })
+      .to(inner, { rotation: 6, x: 6, svgOrigin: ORIGIN, duration: .6, ease: 'power2.out' })
+      .to(pupils, { x: 12, y: 9, duration: .45 }, '<')
+      .to({}, { duration: 2.2 })
+      .to(pupils, { x: 0, y: 1, duration: .25 })
+      .to({}, { duration: .4 })
+      .to(pupils, { x: 12, y: 9, duration: .25 })
+      .to({}, { duration: .8 })
+      .to(inner, { rotation: 0, x: 0, svgOrigin: ORIGIN, duration: .5, ease: 'power2.inOut' })
+      .to(pupils, { x: 0, y: 2, duration: .4 }, '<')); },
+    // tosses its notes on you over its shoulder; a fresh notepad appears
+    tossnotepad: () => run(gsap.timeline()
+      .to(notepad, { x: -20, y: 20, rotation: 25, svgOrigin: '303 300', duration: .3, ease: 'power2.in' })
+      .to(notepad, { motionPath: { path: [{ x: -20, y: 20 }, { x: -60, y: -200 }, { x: -230, y: -120 }], curviness: 1.3 }, rotation: -340, scale: .55, duration: .75, ease: 'power1.out' })
+      .to(notepad, { opacity: 0, duration: .15 }, '-=.15')
+      .add(() => chaos('skeptic', 900))
+      .set(notepad, { x: 0, y: 46, rotation: 0, scale: .3 }, '+=.5')
+      .to(notepad, { y: 0, scale: 1, opacity: 1, duration: .5, ease: 'back.out(2)' })),
     smoking: () => smoke(),
     smash: () => smashPoster() || smoke(),
     // walks out on you, leaves the chair empty, eventually comes back
@@ -977,9 +1050,9 @@
     setTimeout(() => chaos('respawn', 550), 2500);
   }
   // what the duck does when it's just sitting there: a balanced mix, one at a time, never the same twice running
-  const tics = ['eyeroll', 'sigh', 'skeptic', 'adjust', 'glare', 'ignore', 'notes', 'cleanglasses'];
-  const classics = ['scowl', 'leanin', 'slouch', 'phone', 'coffee'];
-  const antics = ['smoking', 'smokering', 'smash', 'walk', 'newspaper', 'headphones'];
+  const tics = ['eyeroll', 'sigh', 'skeptic', 'adjust', 'glare', 'ignore', 'notes', 'cleanglasses', 'plantstare', 'readfile'];
+  const classics = ['scowl', 'leanin', 'slouch', 'phone', 'coffee', 'whiskey', 'countmoney', 'sleepmask'];
+  const antics = ['smoking', 'smokering', 'smash', 'walk', 'newspaper', 'headphones', 'tossnotepad'];
   const families = [[tics, 3.5], [classics, 3.5], [antics, 3]];
   const ticBusy = () => moving() || ['vibrate', 'hop', 'flinch', 'asleep', 'eating', 'skeptic', 'nod', 'nope'].some(c => duck.classList.contains(c));
   let lastMove = null, lastFamily = null, familyStreak = 0;
@@ -1387,7 +1460,7 @@
     if (busy || !text.trim()) return;
     busy = true; turns++;
     say(text, 'you');
-    input.value = '';
+    input.value = ''; fitInput();
     face('scribble');
     const serious = isSerious(text);
     if (!serious) said.push(text.trim());
@@ -1398,7 +1471,7 @@
     const wantsAI = aiOn && !serious && !quiet() && !persona.neutral;
     (wantsAI ? askDuck(text) : Promise.resolve(null)).then(aiLine => {
       if (session !== sessionId) return;
-      later(Math.max(0, 900 + Math.random() * 1100 - (Date.now() - started)), () => { typing.remove(); try { respond(text, aiLine); } finally { busy = false; resetIdle(); } });
+      later(Math.max(0, 900 + Math.random() * 1100 - (Date.now() - started)), () => { typing.remove(); try { respond(text, aiLine); } finally { busy = false; resetIdle(); if (matchMedia('(hover: hover)').matches) input.focus(); } });
     });
     $('#plant').classList.toggle('wilt', turns > 4);
     if (serious || quiet()) return;
@@ -1415,6 +1488,10 @@
   }
 
   $('#form').addEventListener('submit', e => { e.preventDefault(); send(input.value); });
+  // the box grows with what you type, Vent only lights up when there's something to send
+  const sendBtn = document.querySelector('form button[type="submit"]');
+  function fitInput() { if (!input.value) { input.style.height = ''; sendBtn.disabled = true; return; } input.style.height = 'auto'; input.style.height = Math.min(120, Math.max(44, input.scrollHeight + 2)) + 'px'; sendBtn.disabled = !input.value.trim(); }
+  input.addEventListener('input', fitInput);
   input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(input.value); } });
   input.addEventListener('input', () => {
     // takes notes while you type
@@ -1437,6 +1514,11 @@
     face('wide'); chaos('flinch', 350); crazyEyes(900); pop(pick(["DON'T FUCKING TOUCH ME", "Touch me again and I bite your fucking finger off.", "Hands off, asshole.", "Boop me one more time. I dare you.", "FUCK OFF (affectionate)"])); setTimeout(() => face('feral'), 1200); });
 
   $('#end').addEventListener('click', () => restart());
+  const info = $('#infoPanel'), infoBtn = $('#infoBtn');
+  const showInfo = open => { info.hidden = !open; infoBtn.setAttribute('aria-expanded', String(open)); };
+  infoBtn.addEventListener('click', e => { e.stopPropagation(); showInfo(info.hidden); });
+  document.addEventListener('click', e => { if (!info.hidden && !info.contains(e.target)) showInfo(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !info.hidden) { showInfo(false); infoBtn.focus(); } });
 
   // billing meter
   const RATE = 666 / 3600; // $666/hr, billed per second
