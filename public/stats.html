@@ -70,7 +70,6 @@
   <section class="lists">
     <div class="card"><h2>Devices</h2><div class="rows" id="devices"></div></div>
     <div class="card"><h2>Top countries</h2><div class="rows" id="countries"></div></div>
-    <div class="card"><h2>How people paid the bill</h2><div class="rows" id="payments"></div></div>
   </section>
   <section class="card">
     <details><summary>Day-by-day table</summary><div id="table"></div></details>
@@ -92,7 +91,6 @@
       ['Messages', fmt(msgs), visits ? (msgs / visits).toFixed(1) + ' per visit' : ''],
       ['AI replies', pct(ai, ai + fb), `${fmt(ai)} from Grok, ${fmt(fb)} fallback`],
       ['Memes shown', fmt(sum(days, 'meme')), ''],
-      ['Bills paid', fmt(sum(days, 'bill_paid')), `of ${fmt(sum(days, 'bill_open'))} opened · ${fmt(sum(days, 'dispute'))} disputes`],
       ['Ko-fi clicks', fmt(sum(days, 'coffee_click')), `pop-up shown ${fmt(sum(days, 'coffee_shown'))}×`],
       ['Duck pokes', fmt(sum(days, 'poke')), ''],
       ['Crisis breaks', fmt(sum(days, 'crisis')), 'helplines shown'],
@@ -135,7 +133,7 @@
   }
 
   function table(days) {
-    const cols = [['visit', 'Visits'], ['message', 'Messages'], ['ai_reply', 'AI'], ['fallback_reply', 'Fallback'], ['bill_paid', 'Paid'], ['coffee_click', 'Ko-fi']];
+    const cols = [['visit', 'Visits'], ['message', 'Messages'], ['ai_reply', 'AI'], ['fallback_reply', 'Fallback'], ['coffee_click', 'Ko-fi']];
     $('#table').innerHTML = `<table><thead><tr><th>Day</th>${cols.map(c => `<th>${c[1]}</th>`).join('')}</tr></thead><tbody>${[...days].reverse().map(d => `<tr><td>${d.day}</td>${cols.map(c => `<td>${fmt(d.events[c[0]] || 0)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
   }
 
@@ -151,7 +149,6 @@
       bars($('#messagesChart'), days, 'message', 'messages');
       rows($('#devices'), merge(days, 'devices'), k => k === 'phone' ? '📱 Phone' : '💻 Desktop');
       rows($('#countries'), merge(days, 'countries'), flag);
-      rows($('#payments'), merge(days, 'payments'), k => ({ bread: '🍞 Bread', coins: '🪙 Pennies', soul: '👻 Soul', insurance: '🏥 Insurance' }[k] || k));
       table(days);
     } catch (e) {
       $('#err').hidden = false; $('#err').textContent = `Couldn't load stats (${e.message}). This page only works on the live site.`;

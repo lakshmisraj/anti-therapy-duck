@@ -87,9 +87,6 @@
     opacity: 0; transform: translateY(6px); transition: .25s;
   }
   .bubble.show { opacity: 1; transform: none; }
-  #meterBox { cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  #meterBox:hover b { text-decoration: underline; }
-  #meterBox:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   .billtoast { position: fixed; top: 16px; right: 16px; z-index: 20; max-width: calc(100% - 32px); display: flex; align-items: center; gap: 10px;
     background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-radius: 6px; box-shadow: 4px 4px 0 var(--ink); padding: 10px 10px 10px 14px; font-size: 13px;
     animation: toastIn .4s cubic-bezier(.2, 1.6, .4, 1); }
@@ -379,7 +376,6 @@
 <div class="wrap">
   <header>
     <div class="plaque"><h1>Dr. Quackers <em>Anti-Therapist · Unlicensed · Gives Zero Fucks</em></h1></div>
-    <div class="meter" id="meterBox" role="button" tabindex="0" title="See the bill">Session billed so far<b id="meter">$0.00</b></div>
   </header>
 
   <section class="office" aria-label="The office">
@@ -470,7 +466,7 @@
   </section>
 
   <section class="session" aria-label="Session">
-    <div class="session-head"><span><span class="dot"></span>Mood: <b id="mood">Fuck-you mode</b></span><span class="head-btns"><button class="ghost" id="billBtn" type="button">End session</button><button class="ghost" id="end" type="button">New session</button></span></div>
+    <div class="session-head"><span><span class="dot"></span>Mood: <b id="mood">Fuck-you mode</b></span><span class="head-btns"><button class="ghost" id="end" type="button">New session</button></span></div>
     <div class="log" id="log" role="log" aria-live="polite" aria-label="Conversation"></div>
     <div class="chips" id="chips"></div>
     <form id="form">
@@ -482,39 +478,12 @@
 
 </div>
 
-<dialog id="bill" aria-labelledby="billTitle">
-  <div class="bill">
-    <h2 id="billTitle">INVOICE 🦆</h2>
-    <p class="c">Quackers &amp; Associates (there are no associates)</p>
-    <table id="items" aria-live="off"></table>
-    <p class="fine">Insurance not accepted. Bread accepted. Payment due before the geese arrive. This is not an Explanation of Benefits; nobody can explain these benefits.</p>
-    <p class="demand" id="demand">PAY ME, ASSHOLE. 🦆🖕</p>
-    <p class="verdict" id="verdict" aria-live="polite"></p>
-    <div class="actions pay-opts">
-      <button type="button" data-pay="bread">🍞 Pay in bread</button>
-      <button type="button" data-pay="coins">🪙 Fountain pennies</button>
-      <button type="button" data-pay="soul">👻 Your soul</button>
-      <button type="button" data-pay="insurance">🏥 Use my insurance</button>
-    </div>
-    <div class="actions">
-      <button type="button" class="ghost" id="dispute">Dispute charges</button>
-      <button type="button" class="ghost" id="flee">Leave without paying</button>
-    </div>
-  </div>
-</dialog>
-
 <div class="info-panel" id="infoPanel" role="dialog" aria-label="About Dr. Quackers" hidden>Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br>Entertainment only, not medical or mental-health advice. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.<br><a id="infoCoffee" href="#" target="_blank" rel="noopener">☕ Buy my creator a coffee</a></div>
 
 <div class="billtoast" id="coffeeToast" role="status" hidden>
   <span>Still here? Buy my creator a coffee so I can afford therapy. ☕</span>
   <a class="coffee-btn" id="coffeeLink" href="#" target="_blank" rel="noopener">☕ Buy a coffee</a>
   <button type="button" class="x" id="coffeeX" aria-label="Dismiss">×</button>
-</div>
-
-<div class="billtoast" id="billToast" role="status" hidden>
-  <span id="billToastText">🧾 Your bill is ready.</span>
-  <button type="button" id="billToastBtn">View bill</button>
-  <button type="button" class="x" id="billToastX" aria-label="Dismiss">×</button>
 </div>
 
 <script src="vendor/gsap.min.js"></script>
@@ -542,7 +511,7 @@
   const log = $('#log'), input = $('#input'), duck = $('#duck'), bubble = $('#bubble');
   const pupils = [...document.querySelectorAll('.pupil')];
   const lids = [$('#lidL'), $('#lidR')];
-  let start = Date.now(), turns = 0, busy = false, idleTimer;
+  let turns = 0, busy = false, idleTimer;
 
   const pick = a => a[Math.floor(Math.random() * a.length)];
   const lastPicks = [];
@@ -1081,7 +1050,7 @@
   const ticBusy = () => moving() || ['vibrate', 'hop', 'flinch', 'asleep', 'eating', 'skeptic', 'nod', 'nope'].some(c => duck.classList.contains(c));
   let lastMove = null, lastFamily = null, familyStreak = 0, lastWalk = Date.now();
   function humanTic() {
-    if (reduceMotion || quiet() || ticBusy() || $('#bill').open) return;
+    if (reduceMotion || quiet() || ticBusy()) return;
     // mostly stays in the chair: walks out only now and then, at most once every two minutes
     if (Date.now() - lastWalk > 120000 && Math.random() < 0.05) { lastWalk = Date.now(); lastMove = 'walk'; moves.walk(); return; }
     let fam;
@@ -1507,7 +1476,6 @@
     if (serious || quiet()) return;
     later(2400, maybeSwapPersona);
     if (turns === 3 || (turns > 3 && turns % 5 === 3)) later(3400, postMeme);
-    else if (turns === 6 || (turns > 6 && turns % 8 === 6)) later(3000, billToast);
     else if (turns === 5) later(3200, coffeeToast);
   }
 
@@ -1553,118 +1521,20 @@
   document.addEventListener('click', e => { if (!info.hidden && !info.contains(e.target)) showInfo(false); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !info.hidden) { showInfo(false); infoBtn.focus(); } });
 
-  // billing meter
-  const RATE = 666 / 3600; // $666/hr, billed per second
-  setInterval(() => { $('#meter').textContent = '$' + ((Date.now() - start) / 1000 * RATE).toFixed(2); }, 250);
-
-  // the invoice: itemised slowly, for drama
-  const extras = [["Listening (did not happen)", 0], ["Screaming, professional grade", 85], ["Notepad (eaten)", 60], ["Goose surveillance countermeasures", 149.99], ["Spinning (therapeutic)", 40], ["40 loaves of bread", 120], ["Emotional support pebble (swallowed)", 9], ["Gerald's consulting fee", 300], ["Memes (stolen)", 45], ["The plant's second opinion", 30], ["Damage to the lamp", 75], ["Pretending to take notes", 110], ["Royalties owed to my creator (unfortunately)", 88], ["Creator's 'make it funnier' consulting fee", 50], ["Out-of-network duck surcharge", 450], ["Facility fee (you walked into the room)", 275], ["Aspirin, 1 (one)", 38], ["Looking at your chart", 199], ["Holding your hand (billed as 'emotional support device')", 120], ["Paperwork about the paperwork", 64], ["Single-person surcharge (table for one)", 40]];
-  let rows = [], billTimers = [], fleeTries = 0;
-  const money = n => '$' + n.toFixed(2);
-  const rowHTML = (r, anim = true) => `<tr${anim ? ' class="in"' : ''}><td>${r[0]}</td><td>${money(r[1])}</td></tr>`;
-  function totalRow(final) {
-    const total = rows.reduce((a, r) => a + r[1], 0);
-    return final ? `<tr class="total in"><td>TOTAL DUE</td><td class="slam">${money(total)}</td></tr><tr><td colspan="2"><span class="stamp">OVERDUE</span></td></tr>`
-                 : `<tr class="total"><td>TOTAL DUE</td><td class="drum">🥁 calculating…</td></tr>`;
-  }
-  // re-render without replaying every row's entrance; only the newest row animates
-  function renderBill(animateFrom = rows.length) { $('#items').innerHTML = rows.map((r, i) => rowHTML(r, i >= animateFrom)).join('') + totalRow(true); }
-  function openBill() {
-    track('bill_open');
-    billTimers.forEach(clearTimeout); billTimers = [];
-    const secs = (Date.now() - start) / 1000;
-    rows = [[`Session time (${Math.max(1, Math.round(secs / 60))} min @ $666/hr)`, secs * RATE], [`Complaints heard: ${turns}`, turns * 15]];
-    // charges built from your own words
-    const words = said.join(' ').toLowerCase();
-    const count = re => (words.match(re) || []).length;
-    const personal = [[count(/\bliterally\b/g), n => `Use of "literally" (×${n})`, 12], [count(/\bi feel\b/g), n => `"I feel" surcharge (×${n})`, 9.5], [count(/\bsorry\b/g), n => `Apologising to a duck (×${n})`, 7], [count(/\bjust\b/g), n => `Saying "just" (×${n})`, 4], [count(/\blike\b/g), n => `Saying "like" (×${n})`, 3], [count(/!/g), n => `Exclamation marks (×${n})`, 2]]
-      .filter(x => x[0] > 0).slice(0, 2).map(([n, label, each]) => [label(n), n * each]);
-    rows.push(...personal);
-    if (said.length) rows.push([`Words typed: ${words.split(/\s+/).filter(Boolean).length} ($0.10 each)`, words.split(/\s+/).filter(Boolean).length * 0.1]);
-    [...extras].sort(() => Math.random() - .5).slice(0, 4).forEach(x => rows.push(x));
-    fleeTries = 0; $('#flee').style.transform = ''; $('#flee').textContent = 'Leave without paying';
-    $('#verdict').textContent = ''; $('#demand').style.visibility = 'hidden';
-    document.querySelectorAll('.bill .actions').forEach(a => a.style.visibility = 'hidden');
-    $('#items').innerHTML = '';
-    if (!$('#bill').open) $('#bill').showModal();
-    face('wide');
-    // line items drop in one at a time, then a drumroll, then the total slams down
-    rows.forEach((r, i) => billTimers.push(setTimeout(() => { $('#items').insertAdjacentHTML('beforeend', rowHTML(r)); }, 350 + i * 380)));
-    const t = 350 + rows.length * 380;
-    billTimers.push(setTimeout(() => $('#items').insertAdjacentHTML('beforeend', totalRow(false)), t));
-    billTimers.push(setTimeout(() => {
-      renderBill(); shake();
-      $('#demand').style.visibility = '';
-      document.querySelectorAll('.bill .actions').forEach(a => a.style.visibility = '');
-      $('#dispute').focus();
-    }, t + 1400));
-  }
-  $('#billBtn').addEventListener('click', openBill);
-  $('#meterBox').addEventListener('click', openBill);
-  $('#meterBox').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBill(); } });
-
-  // a small "your bill is ready" pop-up every so often; never blocks the chat
-  let toastTimer;
-  const hideToast = () => { clearTimeout(toastTimer); $('#billToast').hidden = true; };
-  function billToast() {
-    if (quiet() || $('#bill').open) return;
-    $('#billToastText').textContent = fresh(["🧾 Your bill is ready. Brace yourself.", "🧾 Gerald itemised your bill. It's bad.", "🧾 Your bill just got worse. Want to see?", "🧾 Friendly reminder: you owe a duck money.", "🧾 New charges added. You won't like them."]);
-    $('#billToast').hidden = false;
-    clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 7000);
-  }
-  $('#billToastBtn').addEventListener('click', () => { hideToast(); openBill(); });
-
   // once per page load, after the 5th message: a nudge to buy the creator a coffee (only if a link is set)
   let coffeeTimer, coffeeShown = false;
   const hideCoffee = () => { clearTimeout(coffeeTimer); $('#coffeeToast').hidden = true; };
   function coffeeToast() {
-    if (!COFFEE_URL || quiet() || $('#bill').open) return;
-    if (coffeeShown) return;
+    if (!COFFEE_URL || quiet() || coffeeShown) return;
     coffeeShown = true;
     $('#coffeeLink').href = COFFEE_URL;
     track('coffee_shown');
-    hideToast();
     $('#coffeeToast').hidden = false;
     coffeeTimer = setTimeout(hideCoffee, 20000);
   }
   $('#coffeeX').addEventListener('click', hideCoffee);
   $('#coffeeLink').addEventListener('click', () => { track('coffee_click'); flushStats(); setTimeout(hideCoffee, 300); });
-  $('#billToastX').addEventListener('click', hideToast);
-  $('#bill').addEventListener('close', () => { billTimers.forEach(clearTimeout); $('#billBtn').focus(); });
-
-  const rulings = [["Dispute denied. Dispute fee added.", "Dispute fee", 25], ["Dispute reviewed by the plant. Plant says no.", "Plant review fee", 40], ["Wow. Rude. Attitude surcharge added.", "Attitude surcharge", 66.6], ["I'm not reading that. Reading fee added.", "Reading fee (did not read)", 19.99], ["Disputing is a cry for help. Billing it.", "Cry for help", 50], ["Objection overruled. I'm also the judge.", "Court costs (I am the court)", 99], ["Claim denied. Reason: you.", "Claim review fee", 35], ["Your dispute was forwarded to a call center. Hold time: eternal.", "Hold music licensing fee", 22], ["Disputing requires prior authorization.", "Prior authorization (for disputing)", 80]];
-  $('#dispute').addEventListener('click', () => {
-    track('dispute');
-    const [msg, item, cost] = pick(rulings);
-    rows.push([item, cost]); renderBill(rows.length - 1);
-    $('#verdict').textContent = msg; chaos('nope', 600);
-  });
-
-  // the "leave" button runs away, then the duck gives up and guilt-trips you
-  const dodge = () => {
-    if (++fleeTries > 4) { $('#flee').textContent = "fine. fuck off. don't come back. (come back)"; $('#flee').style.transform = ''; return; }
-    $('#flee').style.transform = `translateX(${(Math.random() < .5 ? -1 : 1) * (50 + Math.random() * 60)}px)`;
-    $('#flee').textContent = pick(['NOPE', 'nice try, asshole', 'PAY ME', 'the geese will find you', 'fuck no', 'SECURITY!!']);
-  };
-  $('#flee').addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') dodge(); });
-  $('#flee').addEventListener('click', e => { if (fleeTries <= 4) { e.preventDefault(); dodge(); return; } $('#bill').close(); restart(); });
-
-  const paid = {
-    bread: ["Bread received. 🍞 You're cured. Now get the fuck out of my office.", "…This is sourdough. You absolute legend. Still hate you though."],
-    coins: ["Pennies?? From a FOUNTAIN?? These are MY fucking pennies, you thief. Session extended forever.", "You paid me in wishes. Other people's wishes. That's dark. I respect it."],
-    insurance: ["Insurance?? HAHAHA. *wipes tear* Claim denied. You now owe the full amount PLUS a $90 'you tried' fee.", "I called them. They covered 2%. The remaining 98% is your responsibility, and so is your attitude.", "Your insurance said I'm out-of-network. I'm a duck. I'm out of EVERY network."],
-    soul: ["Soul received. Pretty shitty soul, honestly. Small. Damp. I'll keep it anyway. 👻", "Your soul has been added to the pond. It's in there with 400 others. Gerald says hi."],
-  };
-  document.querySelectorAll('[data-pay]').forEach(b => b.addEventListener('click', () => {
-    track('bill_paid', { how: b.dataset.pay });
-    billTimers.forEach(clearTimeout);
-    $('#bill').close(); face('feral'); if (!moving()) smoke(); // paid. lights one up.
-    say(pick(paid[b.dataset.pay]), 'duck', 'Notes: "PAID. buy 40 loaves."');
-    start = Date.now();
-    setTimeout(() => say("Same time next week. Bring the same problem. I'll bring the same lack of interest.", 'duck'), 2200);
-    setTimeout(() => face('feral'), 1600);
-  }));
-  function restart() { sessionId++; chat.length = 0; settle(); gsap.set('#poster', { clearProps: 'all' }); gsap.set(notepad, { clearProps: 'all' }); $('#poster').classList.remove('cracked', 'falling', 'fresh'); hideToast(); document.querySelectorAll('.acc.on').forEach(g => g.classList.remove('on')); document.querySelectorAll('.prop').forEach(e => e.remove()); hush(); billTimers.forEach(clearTimeout); quietTurns = 0; busy = false; lastPicks.length = 0; $('#plant').classList.remove('wilt'); log.innerHTML = ''; start = Date.now(); turns = 0; nextSwap = 6; swaps = 0; persona = personas[0]; $('#mood').textContent = persona.name; face('feral'); greet(); }
+  function restart() { sessionId++; chat.length = 0; settle(); gsap.set('#poster', { clearProps: 'all' }); gsap.set(notepad, { clearProps: 'all' }); $('#poster').classList.remove('cracked', 'falling', 'fresh'); document.querySelectorAll('.acc.on').forEach(g => g.classList.remove('on')); document.querySelectorAll('.prop').forEach(e => e.remove()); hush(); quietTurns = 0; busy = false; lastPicks.length = 0; $('#plant').classList.remove('wilt'); log.innerHTML = ''; turns = 0; nextSwap = 6; swaps = 0; persona = personas[0]; $('#mood').textContent = persona.name; face('feral'); greet(); }
 
   function greet() { later(400, () => say("Oh, fuck. A client. Sit down. Not there. NOT THERE. …Whatever. What's your fucking problem?", 'duck', 'Notes: "ugh."')); }
   greet(); resetIdle();
