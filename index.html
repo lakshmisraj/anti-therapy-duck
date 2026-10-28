@@ -96,6 +96,7 @@
   .billtoast[hidden] { display: none; }
   .billtoast button { padding: 6px 10px; font-size: 12px; box-shadow: none; white-space: nowrap; }
   .billtoast .x { background: none; border: none; color: var(--ink); font-size: 18px; padding: 0 4px; }
+  .coffee-btn { flex: none; padding: 6px 10px; font-size: 12px; font-weight: 500; white-space: nowrap; border: 2px solid var(--ink); border-radius: 6px; background: var(--mustard); color: var(--ink); text-decoration: none; }
   @keyframes toastIn { from { transform: translateY(-140%) rotate(-3deg); } }
   .office { overflow: clip; }
   .acc { opacity: 0; transform: translateY(-14px); transition: opacity .25s, transform .35s cubic-bezier(.2, 1.6, .4, 1); pointer-events: none; }
@@ -504,6 +505,12 @@
 
 <div class="info-panel" id="infoPanel" role="dialog" aria-label="About Dr. Quackers" hidden>Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br>Entertainment only, not medical or mental-health advice. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.</div>
 
+<div class="billtoast" id="coffeeToast" role="status" hidden>
+  <span>Still here? Buy my creator a coffee so I can afford therapy. ☕</span>
+  <a class="coffee-btn" id="coffeeLink" href="#" target="_blank" rel="noopener">☕ Buy a coffee</a>
+  <button type="button" class="x" id="coffeeX" aria-label="Dismiss">×</button>
+</div>
+
 <div class="billtoast" id="billToast" role="status" hidden>
   <span id="billToastText">🧾 Your bill is ready.</span>
   <button type="button" id="billToastBtn">View bill</button>
@@ -517,6 +524,8 @@
 <script src="vendor/CustomWiggle.min.js"></script>
 <script>
 (() => {
+  // Your donation page (Ko-fi, Buy Me a Coffee, PayPal.me...). Leave empty to keep the coffee pop-up off.
+  const COFFEE_URL = '';
   const $ = s => document.querySelector(s);
   const log = $('#log'), input = $('#input'), duck = $('#duck'), bubble = $('#bubble');
   const pupils = [...document.querySelectorAll('.pupil')];
@@ -1484,6 +1493,7 @@
     later(2400, maybeSwapPersona);
     if (turns === 3 || (turns > 3 && turns % 5 === 3)) later(3400, postMeme);
     else if (turns === 6 || (turns > 6 && turns % 8 === 6)) later(3000, billToast);
+    else if (turns === 10) later(3200, coffeeToast);
   }
 
   // idle: duck falls asleep
@@ -1585,6 +1595,20 @@
     clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 7000);
   }
   $('#billToastBtn').addEventListener('click', () => { hideToast(); openBill(); });
+
+  // once per visit: a nudge to buy the creator a coffee (only if a link is set)
+  let coffeeTimer;
+  const hideCoffee = () => { clearTimeout(coffeeTimer); $('#coffeeToast').hidden = true; };
+  function coffeeToast() {
+    if (!COFFEE_URL || quiet() || $('#bill').open) return;
+    try { if (sessionStorage.getItem('duck-coffee')) return; sessionStorage.setItem('duck-coffee', '1'); } catch {}
+    $('#coffeeLink').href = COFFEE_URL;
+    hideToast();
+    $('#coffeeToast').hidden = false;
+    coffeeTimer = setTimeout(hideCoffee, 10000);
+  }
+  $('#coffeeX').addEventListener('click', hideCoffee);
+  $('#coffeeLink').addEventListener('click', () => setTimeout(hideCoffee, 300));
   $('#billToastX').addEventListener('click', hideToast);
   $('#bill').addEventListener('close', () => { billTimers.forEach(clearTimeout); $('#billBtn').focus(); });
 
