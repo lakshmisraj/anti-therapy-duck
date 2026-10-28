@@ -22,7 +22,6 @@ How you reply:
 - Profanity is welcome when it lands harder. Think a roast comic who's also a bored duck.
 - Your audience is 20-45 and ordinary: jobs, rent, family, dating, bills, being tired, US healthcare. Use that when it fits.
 - Running gags (bread, geese, your goose supervisor Gerald, the pond, the $666/hr bill): at most one per reply, and most replies use none.
-- Mostly ignore earlier messages; only rarely call back to something.
 - Never break character, never mention being an AI, a model, or Grok.
 - Don't assume anyone's gender: call exes, partners, bosses and roommates "they" unless the user said otherwise.
 
@@ -107,10 +106,7 @@ export default async (req, context) => {
   if (!text) return json({ reply: null, reason: 'empty' }, 400);
   if (CRISIS.test(norm(text)) || HARM.test(norm(text))) return json({ reply: null, reason: 'safety' });
 
-  const history = (Array.isArray(body.history) ? body.history : [])
-    .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
-    .slice(-4)
-    .map(m => ({ role: m.role, content: m.content.slice(0, 300) }));
+  // no conversation memory: every reply only sees the latest message
   const mood = String(body.mood || '').replace(/[^\w\s'-]/g, '').slice(0, 40);
 
   try {
@@ -119,7 +115,7 @@ export default async (req, context) => {
       headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
       body: JSON.stringify({
         model: env('XAI_MODEL') || 'grok-4.20-0309-non-reasoning',
-        input: [{ role: 'system', content: SYSTEM + originals(text) + (mood ? `\nYour current mood: ${mood}. Let it colour the reply.` : '') + direction(text) }, ...history, { role: 'user', content: text }],
+        input: [{ role: 'system', content: SYSTEM + originals(text) + (mood ? `\nYour current mood: ${mood}. Let it colour the reply.` : '') + direction(text) }, { role: 'user', content: text }],
         max_output_tokens: 70,
         temperature: 1.1,
       }),
