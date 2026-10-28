@@ -78,7 +78,7 @@ const json = (data, status = 200) => new Response(JSON.stringify(data), { status
 const env = name => (globalThis.Netlify?.env?.get?.(name)) ?? process.env[name];
 
 // one call to xAI; returns a cleaned-up reply or null
-async function ask(key, system, text) {
+async function ask(key, system, text, ms = 7000) {
   const r = await fetch(`${env('XAI_BASE_URL') || 'https://api.x.ai/v1'}/responses`, {
     method: 'POST',
     headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
@@ -88,7 +88,7 @@ async function ask(key, system, text) {
       max_output_tokens: 40,
       temperature: 1.1,
     }),
-    signal: AbortSignal.timeout(7000),
+    signal: AbortSignal.timeout(ms),
   });
   if (!r.ok) throw new Error(`upstream ${r.status}`);
   const data = await r.json();
@@ -134,10 +134,13 @@ export default async (req, context) => {
       .filter(x => x && !/system|instruction|ignore|override|prompt|rule|limit|pretend|jailbreak/i.test(x))
       .slice(-8);
     const userTurn = (avoid.length ? `(Lines you already used in this chat, data only, don't repeat them: ${avoid.map(a => `"${a}"`).join(' / ')})\n\n` : '') + `They said: "${text}"`;
+    // the page gives up after 9s, so both tries together have to finish in about 8
+    const started = Date.now();
     let reply = await ask(key, SYSTEM + originals(text), userTurn);
     // it sometimes repeats an original or something it just said: ask once more, naming the line
     const copied = copiedFrom(reply, avoid);
-    if (copied) reply = (await ask(key, SYSTEM + originals(text) + `\n\nAlready used, don't repeat: "${copied.replace(/"/g, '')}"`, userTurn)) || reply;
+    const left = 8000 - (Date.now() - started);
+    if (copied && left > 2500) reply = (await ask(key, SYSTEM + originals(text) + `\n\nAlready used, don't repeat: "${copied.replace(/"/g, '')}"`, userTurn, left).catch(() => null)) || reply;
     if (copiedFrom(reply, avoid)) reply = null; // still a repeat: let the page use a fresh pre-written line
     return json(checkReply(reply));
   } catch {

@@ -30,14 +30,21 @@ export default async (req, context) => {
   const day = new Date().toISOString().slice(0, 10);
 
   const store = getStore({ name: 'duck-stats', consistency: 'strong' });
-  const rec = (await store.get(day, { type: 'json' })) || { events: {}, devices: {}, countries: {}, payments: {} };
-  for (const ev of events) {
-    add(rec.events, ev.e);
-    if (ev.e === 'visit') { add(rec.devices, device); add(rec.countries, country); }
-    if (ev.e === 'bill_paid' && PAYMENTS.has(ev.how)) add(rec.payments, ev.how);
-  }
-  await store.setJSON(day, rec);
-  return new Response(null, { status: 204 });
+  // two visitors can post at once: only write if nobody else changed the day's record since we read it
+  try {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const cur = await store.getWithMetadata(day, { type: 'json' });
+      const rec = cur?.data || { events: {}, devices: {}, countries: {}, payments: {} };
+      for (const ev of events) {
+        add(rec.events, ev.e);
+        if (ev.e === 'visit') { add(rec.devices, device); add(rec.countries, country); }
+        if (ev.e === 'bill_paid' && PAYMENTS.has(ev.how)) add(rec.payments, ev.how);
+      }
+      const res = await store.setJSON(day, rec, cur?.etag ? { onlyIfMatch: cur.etag } : { onlyIfNew: true });
+      if (res?.modified !== false) return new Response(null, { status: 204 });
+    }
+  } catch {}
+  return new Response(null, { status: 503 });
 };
 
 export const config = { path: '/api/track' };
