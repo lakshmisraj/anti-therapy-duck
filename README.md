@@ -12,7 +12,14 @@ An anti-therapy duck. Tell it your problems and it roasts you, in a 70s therapis
 
 ## How it works
 
-One static `index.html` with inline CSS and JavaScript. No framework, no build step, no backend and no AI: every reply is pre-written and chosen in the browser, so nothing you type is stored or sent anywhere. Memes are pre-rendered WebP files in `memes/`. Hosted on Netlify; `netlify.toml` sets security and caching headers.
+One static `index.html` with inline CSS and JavaScript, plus one Netlify Function. Animations use GSAP and its plugins (vendored in `vendor/`). Memes are pre-rendered WebP files in `memes/`. Hosted on Netlify; `netlify.toml` sets security and caching headers.
+
+Replies for ordinary messages are written by xAI's Grok through `netlify/functions/duck.mjs` (served at `/api/duck`), which holds the API key, rate-limits, and re-checks for crisis messages. If the function isn't configured or fails, the duck falls back to its pre-written lines. Crisis, abuse and sad messages are always handled in the page and never sent to the AI.
+
+### Configuration (Netlify environment variables)
+
+- `XAI_API_KEY` (required for AI replies)
+- `XAI_MODEL` (optional, defaults to `grok-4.20-0309-non-reasoning`)
 
 ## Safety
 

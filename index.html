@@ -467,7 +467,7 @@
     </form>
   </section>
 
-  <footer><span class="foot-joke">Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br></span>Entertainment only, not medical or mental-health advice. Nothing you type is stored or sent anywhere. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.</footer>
+  <footer><span class="foot-joke">Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br></span>Entertainment only, not medical or mental-health advice. Messages are sent to an AI (xAI's Grok) to write the duck's replies; this site doesn't store them. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.</footer>
 </div>
 
 <dialog id="bill" aria-labelledby="billTitle">
@@ -1078,7 +1078,7 @@
     ]);
   }
   let lastTopic = null, lastMotto = -10;
-  function respond(text) {
+  function respond(text, aiLine = null) {
     if (crisis.test(norm(text))) {
       face('kind');
       say(`<strong>Okay — the duck is stepping out of the bit.</strong><br>If you're thinking about hurting yourself, please talk to a real person right now. In the US &amp; Canada, call or text <a href="tel:988">988</a> (Suicide &amp; Crisis Lifeline). In the UK &amp; Ireland, call Samaritans at <a href="tel:116123">116 123</a>. Anywhere else: <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>. If you're in immediate danger, call your local emergency number. You matter more than this joke does.`, 'real');
@@ -1103,6 +1103,7 @@
       say(fresh(neutral.lines), 'duck flat', pick(['Notes: "."', 'Notes: "ok"', 'Notes: [blank]', null]));
       return;
     }
+    if (aiLine) return aiReply(t, aiLine);
     const hit = topics.find(x => x.k.test(t));
     // random bits only when nothing you said has an obvious answer
     if (!quiet() && turns > 1 && !hit && !t.endsWith('?') && Math.random() < 0.08) { pick(events)(t); return; }
@@ -1124,6 +1125,7 @@
     if (pool !== persona.lines && pool !== creator && Math.random() < 0.35) line = persona.wrap(line);
     const loud = pool === shouting || Math.random() < .15;
     const el = say(loud ? line.toUpperCase() : line, 'duck', pick(notes));
+    chat.push({ role: 'user', content: t }, { role: 'assistant', content: line });
     if (loud) { el.classList.add('loud'); shake(); chaos('angry', 2300); if (!moving()) scowl(1.6); }
     else if (t.endsWith('?')) chaos('curious', 1500);
     if (persona.name.startsWith('Gerald')) chaos('sweat', 1700);
@@ -1357,6 +1359,29 @@
     () => { say("You have 3 seconds to say something interesting.", 'duck'); later(1000, () => say('3…', 'duck')); later(2000, () => say('2…', 'duck')); later(3000, () => { say('1… nope. Boring. As expected.', 'duck'); face('roll'); }); },
   ];
 
+  // replies written by Grok through /api/duck; if that's unavailable the duck uses its pre-written lines
+  let aiOn = location.protocol !== 'file:', sessionId = 0;
+  const chat = [];
+  async function askDuck(text) {
+    try {
+      const r = await fetch('/api/duck', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text, history: chat.slice(-8), mood: persona.name }), signal: AbortSignal.timeout(9000) });
+      if (r.status === 503 || r.status === 404) aiOn = false; // not set up on this host: stop asking for this visit
+      const data = await r.json().catch(() => ({}));
+      return typeof data.reply === 'string' && data.reply.trim() ? data.reply.trim() : null;
+    } catch { return null; }
+  }
+  function aiReply(t, line) {
+    face(pick(['feral', 'feral', 'roll', 'scribble']));
+    const loud = line.length > 8 && line === line.toUpperCase() && /[A-Z]/.test(line);
+    const el = say(line, 'duck', pick(notes));
+    if (loud) { el.classList.add('loud'); shake(); chaos('angry', 2300); if (!moving()) scowl(1.6); }
+    else if (t.endsWith('?')) chaos('curious', 1500);
+    chat.push({ role: 'user', content: t }, { role: 'assistant', content: line });
+    doodle(t);
+    talk(line);
+    if (!loud && Math.random() < 0.35) later(Math.min(1800, Math.max(500, line.length * 28)) + 200, humanTic);
+    setTimeout(() => face('feral'), 1600);
+  }
   const said = [];
   function send(text) {
     if (busy || !text.trim()) return;
@@ -1369,7 +1394,12 @@
     if (serious) { hush(); quietTurns = crisis.test(norm(text)) ? Infinity : 3; }
     else if (quietTurns > 0) quietTurns--;
     const typing = say(pick(["Dr. Quackers is eating the notepad…", "Dr. Quackers is screaming into a cup…", "Dr. Quackers is staring at the plant…", "Dr. Quackers is vibrating…", "Dr. Quackers is chewing on the lamp cord…", "Dr. Quackers left the room and came back wet…"]), 'typing');
-    later(900 + Math.random() * 1100, () => { typing.remove(); try { respond(text); } finally { busy = false; resetIdle(); } });
+    const started = Date.now(), session = sessionId;
+    const wantsAI = aiOn && !serious && !quiet() && !persona.neutral;
+    (wantsAI ? askDuck(text) : Promise.resolve(null)).then(aiLine => {
+      if (session !== sessionId) return;
+      later(Math.max(0, 900 + Math.random() * 1100 - (Date.now() - started)), () => { typing.remove(); try { respond(text, aiLine); } finally { busy = false; resetIdle(); } });
+    });
     $('#plant').classList.toggle('wilt', turns > 4);
     if (serious || quiet()) return;
     later(2400, maybeSwapPersona);
@@ -1500,7 +1530,7 @@
     setTimeout(() => say("Same time next week. Bring the same problem. I'll bring the same lack of interest.", 'duck'), 2200);
     setTimeout(() => face('feral'), 1600);
   }));
-  function restart() { settle(); gsap.set('#poster', { clearProps: 'all' }); gsap.set(notepad, { clearProps: 'all' }); $('#poster').classList.remove('cracked', 'falling', 'fresh'); hideToast(); document.querySelectorAll('.acc.on').forEach(g => g.classList.remove('on')); document.querySelectorAll('.prop').forEach(e => e.remove()); hush(); billTimers.forEach(clearTimeout); quietTurns = 0; busy = false; lastPicks.length = 0; $('#plant').classList.remove('wilt'); log.innerHTML = ''; start = Date.now(); turns = 0; nextSwap = 6; swaps = 0; persona = personas[0]; $('#mood').textContent = persona.name; face('feral'); greet(); }
+  function restart() { sessionId++; chat.length = 0; settle(); gsap.set('#poster', { clearProps: 'all' }); gsap.set(notepad, { clearProps: 'all' }); $('#poster').classList.remove('cracked', 'falling', 'fresh'); hideToast(); document.querySelectorAll('.acc.on').forEach(g => g.classList.remove('on')); document.querySelectorAll('.prop').forEach(e => e.remove()); hush(); billTimers.forEach(clearTimeout); quietTurns = 0; busy = false; lastPicks.length = 0; $('#plant').classList.remove('wilt'); log.innerHTML = ''; start = Date.now(); turns = 0; nextSwap = 6; swaps = 0; persona = personas[0]; $('#mood').textContent = persona.name; face('feral'); greet(); }
 
   function greet() { later(400, () => say("Oh, fuck. A client. Sit down. Not there. NOT THERE. …Whatever. What's your fucking problem?", 'duck', 'Notes: "ugh."')); }
   greet(); resetIdle();
