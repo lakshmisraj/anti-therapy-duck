@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dr. Quackers, Zero Fucks</title>
+<meta name="description" content="The anti-therapy duck. Tell it your problems. It says fuck you.">
+<link rel="canonical" href="https://tiny-chimera-0b269d.netlify.app/">
+<meta name="theme-color" content="#3a2414">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dr. Quackers, Zero Fucks">
+<meta property="og:description" content="The anti-therapy duck. Tell it your problems. It says fuck you.">
+<meta property="og:url" content="https://tiny-chimera-0b269d.netlify.app/">
+<meta property="og:image" content="https://tiny-chimera-0b269d.netlify.app/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Dr. Quackers, Zero Fucks">
+<meta name="twitter:description" content="The anti-therapy duck. Tell it your problems. It says fuck you.">
+<meta name="twitter:image" content="https://tiny-chimera-0b269d.netlify.app/og.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦆</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,800;1,9..144,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wall: #f1e3c4;
+    --wall-stripe: #ead7b0;
+    --ink: #3a2414;
+    --ink-soft: #6a4a30;
+    --mustard: #d99a1e;
+    --rust: #b8481f;
+    --olive: #6b6b2a;
+    --paper: #fffaf0;
+    --duck: #ffd23f;
+    --duck-shade: #f0b51a;
+    --beak: #ff8a1f;
+    --chair: #8a3b1c;
+    --chair-dark: #5e2611;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--wall);
+    background-image: repeating-linear-gradient(90deg, var(--wall) 0 38px, var(--wall-stripe) 38px 76px);
+    color: var(--ink);
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 16px 40px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 28px;
+    min-height: 100%;
+  }
+  header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+  .plaque {
+    background: var(--ink);
+    color: var(--mustard);
+    padding: 12px 20px 14px;
+    border-radius: 4px;
+    box-shadow: 0 3px 0 #1d110a, inset 0 0 0 2px #6b4a2a;
+  }
+  h1 { font-family: "Fraunces", serif; font-weight: 800; font-size: clamp(28px, 4.4vw, 46px); line-height: 1; letter-spacing: -0.01em; }
+  h1 em { font-weight: 500; font-style: italic; color: #f3dfb2; font-size: 0.55em; display: block; margin-top: 6px; letter-spacing: 0; }
+
+  /* office */
+  .office { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: end; min-height: 440px; }
+  .diploma {
+    position: absolute; top: 0; left: 6%;
+    background: var(--paper); border: 6px solid var(--chair-dark);
+    padding: 8px 10px; font-size: 10px; text-align: center; width: 150px;
+    transform: rotate(-4deg); box-shadow: 2px 3px 0 rgba(0,0,0,.15);
+  }
+  .diploma strong { font-family: "Fraunces", serif; font-size: 13px; display: block; }
+  .diploma s { color: var(--rust); }
+  .plant { position: absolute; bottom: 0; right: 2%; font-size: 64px; filter: saturate(.6); transform-origin: bottom; }
+  .plant.wilt { transform: rotate(-12deg); }
+  #duck { width: min(100%, 420px); height: auto; overflow: visible; }
+  .bubble {
+    position: absolute; top: 34px; right: 0; max-width: 240px;
+    background: var(--paper); border: 2px solid var(--ink); border-radius: 14px 14px 14px 2px;
+    padding: 10px 12px; font-size: 13px; box-shadow: 3px 3px 0 var(--ink);
+    opacity: 0; transform: translateY(6px); transition: .25s;
+  }
+  .bubble.show { opacity: 1; transform: none; }
+  #meterBox { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  #meterBox:hover b { text-decoration: underline; }
+  #meterBox:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .billtoast { position: fixed; top: 16px; right: 16px; z-index: 20; max-width: calc(100% - 32px); display: flex; align-items: center; gap: 10px;
+    background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-radius: 6px; box-shadow: 4px 4px 0 var(--ink); padding: 10px 10px 10px 14px; font-size: 13px;
+    animation: toastIn .4s cubic-bezier(.2, 1.6, .4, 1); }
+  .billtoast[hidden] { display: none; }
+  .billtoast button { padding: 6px 10px; font-size: 12px; box-shadow: none; white-space: nowrap; }
+  .billtoast .x { background: none; border: none; color: var(--ink); font-size: 18px; padding: 0 4px; }
+  @keyframes toastIn { from { transform: translateY(-140%) rotate(-3deg); } }
+  .office { overflow: clip; }
+  .acc { opacity: 0; transform: translateY(-14px); transition: opacity .25s, transform .35s cubic-bezier(.2, 1.6, .4, 1); pointer-events: none; }
+  .acc.on { opacity: 1; transform: none; }
+  .prop { position: absolute; z-index: 3; pointer-events: none; font-size: 36px; line-height: 1; }
+
+  /* duck bits */
+  .pupil { transition: transform .2s; }
+  .lid { transition: transform .25s ease; transform-box: fill-box; transform-origin: top; }
+  .zzz { opacity: 0; font-family: "Fraunces", serif; font-weight: 800; fill: var(--ink-soft); }
+  .asleep .zzz { animation: z 2s infinite; }
+  .asleep .zzz:nth-of-type(2) { animation-delay: .6s; }
+  .asleep .zzz:nth-of-type(3) { animation-delay: 1.2s; }
+  @keyframes z { 0% { opacity: 0; transform: translate(0,0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(18px,-30px); } }
+  .bob { animation: bob 7s ease-in-out infinite; transform-origin: 210px 300px; }
+  @keyframes bob { 50% { transform: translateY(2px); } } /* breathing */
+  .pen { transform-origin: 300px 300px; }
+  .scribble .pen { animation: scrib .18s infinite alternate; }
+  @keyframes scrib { to { transform: translate(-8px, 3px) rotate(-6deg); } }
+
+  /* session */
+  .session {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    box-shadow: 6px 6px 0 var(--ink);
+    display: flex; flex-direction: column;
+    height: min(620px, 78vh);
+    min-height: 420px;
+  }
+  .session-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 2px dashed var(--ink-soft); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--rust); margin-right: 6px; animation: blink 3s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+  .log { flex: 1; overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px;
+    background-image: repeating-linear-gradient(transparent 0 25px, #ecdcc0 25px 26px); }
+  .msg { max-width: 85%; padding: 8px 12px; border-radius: 10px; white-space: pre-wrap; overflow-wrap: anywhere; animation: pop .2s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: translateY(4px); } }
+  .msg.you { align-self: flex-end; background: #e9ddc4; border: 1.5px solid var(--ink-soft); }
+  .msg.duck { align-self: flex-start; background: var(--duck); border: 1.5px solid var(--ink); font-family: "Fraunces", serif; font-size: 16px; }
+  .msg.duck small { display: block; font-family: "DM Mono", monospace; font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+  .msg.sys { align-self: center; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--rust); border: 1.5px dashed var(--rust); background: var(--paper); padding: 4px 10px; }
+  .msg.plantmsg { align-self: flex-start; background: #dfe8c8; border: 1.5px solid var(--olive); font-style: italic; }
+  .heart { position: absolute; pointer-events: none; font-size: 26px; animation: float 2.2s ease-out forwards; }
+  @keyframes float { from { opacity: 1; transform: translateY(0) scale(.6); } to { opacity: 0; transform: translateY(-160px) scale(1.3) rotate(20deg); } }
+  .msg.duck.flat { background: #e8e4dc; border-color: var(--ink-soft); color: var(--ink-soft); }
+  .msg.meme-wrap { padding: 0; border: none; background: none; max-width: 210px; }
+  .meme-img { display: block; width: auto; height: auto; max-width: 100%; max-height: 210px; border: 3px solid var(--ink); border-radius: 6px; box-shadow: 3px 3px 0 var(--ink); background: #ddd; }
+  .meme-intro { font-size: 13px; font-weight: 500; color: var(--ink-soft); margin-bottom: 4px; font-family: "DM Mono", monospace; }
+  .rate { display: flex; gap: 6px; margin-top: 8px; font-family: "DM Mono", monospace; }
+  .rate button { padding: 2px 10px; font-size: 13px; background: var(--paper); color: var(--ink); box-shadow: none; }
+  .msg.typing { font-style: italic; background: transparent; border: 1.5px dashed var(--ink-soft); color: var(--ink-soft); font-family: "DM Mono", monospace; font-size: 13px; }
+  .msg.real { align-self: stretch; max-width: none; background: #fff; border: 2px solid var(--olive); font-family: "DM Mono", monospace; font-size: 14px; }
+  .msg.real a { color: var(--olive); font-weight: 500; }
+  form { display: flex; gap: 8px; padding: 12px; border-top: 2px solid var(--ink); }
+  textarea {
+    flex: 1; resize: none; font: inherit; color: var(--ink);
+    background: #fff; border: 1.5px solid var(--ink); border-radius: 6px; padding: 9px 10px; height: 44px;
+  }
+  textarea:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 6px var(--mustard); }
+  #duck { cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+  #duck:focus:not(:focus-visible) { outline: none; }
+  #duck:focus-visible { outline: 3px dashed var(--ink); outline-offset: -6px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  button {
+    font: inherit; font-weight: 500; cursor: pointer; border: 2px solid var(--ink); border-radius: 6px;
+    background: var(--rust); color: var(--paper); padding: 0 16px; box-shadow: 2px 2px 0 var(--ink);
+  }
+  button:active { transform: translate(2px, 2px); box-shadow: none; }
+  button.ghost { background: transparent; color: var(--ink); font-size: 12px; padding: 4px 10px; box-shadow: none; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 12px 12px; }
+  .chips button { background: #f4e9d2; color: var(--ink); font-size: 12px; padding: 4px 9px; box-shadow: none; border-width: 1.5px; font-weight: 400; }
+  footer { grid-column: 1 / -1; font-size: 12px; color: var(--ink-soft); text-align: center; }
+  footer a { color: inherit; }
+
+  .meter { text-align: right; font-size: 13px; color: var(--ink-soft); }
+  .meter b { display: block; font-size: 26px; color: var(--rust); font-variant-numeric: tabular-nums; }
+  .head-btns { display: flex; gap: 6px; }
+  dialog { border: none; padding: 0; background: transparent; max-width: min(380px, calc(100% - 32px)); margin: auto; }
+  dialog::backdrop { background: rgba(58,36,20,.55); }
+  .bill { background: #fff; padding: 22px 20px 26px; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    -webkit-mask: radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) 0 0/14px 100%; mask: radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) 0 0/14px 100%; }
+  .bill h2 { font-family: "Fraunces", serif; font-size: 22px; text-align: center; }
+  .bill p.c { text-align: center; color: var(--ink-soft); font-size: 11px; margin-bottom: 14px; }
+  .bill table { width: 100%; border-collapse: collapse; }
+  .bill td { padding: 4px 0; vertical-align: top; }
+  .bill td:last-child:not([colspan]) { text-align: right; white-space: nowrap; padding-left: 10px; }
+  .bill tr.total td { border-top: 2px dashed var(--ink); font-weight: 500; font-size: 15px; padding-top: 8px; }
+  .bill .fine { color: var(--ink-soft); font-size: 11px; margin-top: 10px; }
+  .bill .verdict { text-align: center; font-family: "Fraunces", serif; font-weight: 800; color: var(--rust); margin-top: 10px; min-height: 1.4em; }
+  .bill .actions { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+  .bill .actions button { padding: 8px 14px; }
+  .bill .pay-opts { flex-wrap: wrap; }
+  .bill .pay-opts button { flex: 1 1 100%; }
+  .demand { text-align: center; font-family: "Fraunces", serif; font-weight: 800; font-size: 20px; color: var(--rust); margin-top: 12px; animation: slam .45s cubic-bezier(.2, 1.6, .4, 1); }
+  #flee { position: relative; transition: transform .15s; }
+  .bill tr.in td { animation: pop .25s ease-out; }
+  .bill .drum { animation: vib .08s infinite; color: var(--ink-soft); }
+  .bill .slam { display: inline-block; animation: slam .45s cubic-bezier(.2, 1.6, .4, 1); color: var(--rust); font-size: 18px; }
+  @keyframes slam { from { transform: scale(3) rotate(-8deg); opacity: 0; } }
+  .stamp { display: block; width: max-content; margin: 8px auto 0; padding: 2px 12px; border: 3px solid var(--rust); color: var(--rust); font-family: "Fraunces", serif; font-weight: 800; letter-spacing: .15em; transform: rotate(-8deg); animation: slam .5s .15s both cubic-bezier(.2, 1.6, .4, 1); }
+
+  /* phone: one screen, duck on top, chat filling the rest, no scrolling between them */
+  @media (max-width: 820px) {
+    body { overflow: clip; } /* the screen-shake must not make the page scroll */
+    .wrap { display: flex; flex-direction: column; height: 100vh; height: 100dvh; padding: 10px 12px 8px; gap: 8px; }
+    header { flex: none; flex-wrap: nowrap; align-items: center; gap: 10px; }
+    .plaque { padding: 6px 12px 8px; }
+    h1 { font-size: 22px; }
+    h1 em { font-size: 11px; margin-top: 3px; }
+    .meter { font-size: 11px; text-align: right; flex: none; }
+    .meter b { font-size: 18px; }
+    .office { flex: none; height: 26vh; height: 26dvh; min-height: 120px; justify-content: center; }
+    #duck { height: 100%; width: auto; max-width: 100%; }
+    .diploma, .plant { display: none; }
+    .bubble { top: 2px; right: 0; max-width: 55%; font-size: 12px; padding: 6px 9px; }
+    .session { flex: 1; min-height: 0; height: auto; box-shadow: 4px 4px 0 var(--ink); }
+    .session-head { padding: 6px 10px; gap: 8px; font-size: 11px; }
+    .session-head > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .head-btns { flex: none; }
+    .head-btns button { padding: 3px 8px; font-size: 11px; white-space: nowrap; }
+    .log { padding: 10px; gap: 8px; }
+    .msg.meme-wrap { max-width: 190px; }
+      .prop { font-size: 28px; }
+    .meme-img { max-height: 115px; }
+    .chips { flex-wrap: nowrap; overflow-x: auto; padding: 0 10px 8px; }
+    .chips button { flex: none; }
+    form { padding: 8px; }
+    footer { flex: none; font-size: 11px; line-height: 1.35; }
+    .foot-joke { display: none; }
+  }
+  /* phone on its side: duck left, chat right */
+  @media (max-height: 520px) and (orientation: landscape) {
+    body { overflow: clip; }
+    .wrap { display: grid; height: 100vh; height: 100dvh; padding: 8px 12px; gap: 8px 14px;
+      grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); grid-template-rows: auto minmax(0, 1fr) auto; }
+    header { grid-column: 1; grid-row: 1; flex-wrap: nowrap; align-items: center; gap: 8px; }
+    .plaque { padding: 5px 10px 6px; }
+    h1 { font-size: 18px; }
+    h1 em { font-size: 10px; margin-top: 2px; }
+    .meter { font-size: 10px; } .meter b { font-size: 15px; }
+    .office { grid-column: 1; grid-row: 2; min-height: 0; height: auto; justify-content: center; }
+    #duck { height: 100%; width: auto; max-width: 100%; }
+    .session { grid-column: 2; grid-row: 1 / 4; height: auto; min-height: 0; }
+    footer { grid-column: 1; grid-row: 3; font-size: 10px; line-height: 1.3; }
+    .diploma, .plant, .chips, .foot-joke { display: none; }
+  }
+  /* feral */
+  /* talking: the beak moves while a reply lands */
+  #beak { transform-box: fill-box; transform-origin: 50% 0; }
+  /* blinking */
+  .blink .lid { transform: scaleY(1) !important; transition: transform .06s !important; }
+  /* hop: pleased (paid, made a meme); flinch: poked */
+  .hop #duckBody { animation: hop .5s ease-out; transform-origin: 210px 380px; }
+  @keyframes hop { 40% { transform: translateY(-16px); } 70% { transform: translateY(0) scaleY(.96); } }
+  .flinch #duckBody { animation: flinch .35s ease-out; transform-origin: 210px 380px; }
+  @keyframes flinch { 30% { transform: scale(1.04, .9) translateY(6px); } 60% { transform: scale(.98, 1.04); } }
+  /* small reactions, each tied to a moment */
+  .fxg { opacity: 0; transition: opacity .25s; pointer-events: none; }
+  .blush .blushg { opacity: .6; }
+  #sweat, .steam path { transform-box: fill-box; }
+  .sweat #sweat { animation: drip 1.6s ease-in forwards; }
+  @keyframes drip { 0% { opacity: 0; transform: translateY(-4px); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(26px); } }
+  .angry .steam { animation: steam 1.1s ease-out 2; }
+  @keyframes steam { 0% { opacity: 0; transform: translateY(6px); } 40% { opacity: .9; } 100% { opacity: 0; transform: translateY(-14px); } }
+  #wing { transform-box: view-box; transform-origin: 156px 292px; }
+  #browL, #browR { transition: transform .25s; }
+  .curious #browL, .curious #browR { transform: translateY(-8px); }
+  .wink #lidR { transform: scaleY(1) !important; transition: transform .08s !important; }
+  .nod #duckBody { animation: nod 1s ease-in-out; transform-origin: 210px 380px; }
+  @keyframes nod { 25% { transform: translateY(5px) rotate(1deg); } 50% { transform: none; } 75% { transform: translateY(5px) rotate(1deg); } }
+  .nope #duckBody { animation: nope .6s ease-in-out; transform-origin: 210px 380px; }
+  @keyframes nope { 20% { transform: rotate(-3deg); } 40% { transform: rotate(3deg); } 60% { transform: rotate(-2deg); } 80% { transform: rotate(2deg); } }
+  /* the classics, now saved for real moments */
+  /* spinning around in the chair, like an office chair */
+  .office { perspective: 900px; }
+  #duck.spin { animation: swivel 1s ease-in-out; }
+  @keyframes swivel { to { transform: rotateY(360deg); } }
+  /* eating the notepad: it goes to the beak, gets chomped smaller, a fresh one pops back */
+  #notepad { transform-box: view-box; transform-origin: 303px 300px; }
+  .eating #notepad { animation: eatpad 2.4s ease-in forwards; }
+  @keyframes eatpad { 0% { transform: none; } 22% { transform: translate(-90px, -84px) scale(.55) rotate(-12deg); } 40% { transform: translate(-90px, -84px) scale(.42) rotate(-6deg); } 58% { transform: translate(-90px, -84px) scale(.3) rotate(-12deg); } 76% { transform: translate(-90px, -84px) scale(.16); } 92% { transform: translate(-90px, -84px) scale(.04); opacity: 1; } 100% { transform: translate(-90px, -84px) scale(0); opacity: 0; } }
+  .eating .pen { opacity: 0; }
+  .pen { transition: opacity .2s; }
+  .crumbs rect { transform-box: fill-box; }
+  .eating .crumbs { animation: crumbs 1.4s .9s ease-in forwards; }
+  @keyframes crumbs { 0% { opacity: 0; transform: none; } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(70px); } }
+  .respawn #notepad { animation: respawn .5s cubic-bezier(.2, 1.6, .4, 1); }
+  @keyframes respawn { from { transform: translateY(40px) scale(.3); opacity: 0; } }
+  /* human-ish gestures, no wings involved */
+  #glasses { transition: transform .2s; }
+  .adjust #glasses { animation: adjust .7s ease-out; }
+  @keyframes adjust { 35% { transform: translateY(-6px); } 60% { transform: translateY(-6px); } }
+  .sigh #duckBody { animation: sigh 1.5s ease-in-out; transform-origin: 210px 380px; }
+  @keyframes sigh { 35% { transform: scale(1.035, 1.05); } 75% { transform: scale(.985, .96) translateY(4px); } }
+  .shrug #duckBody { animation: shrug .8s ease-in-out; transform-origin: 210px 380px; }
+  @keyframes shrug { 35%, 60% { transform: translateY(-9px) scaleY(1.03); } }
+  .shrug #browL, .shrug #browR { transform: translateY(-8px); }
+  .skeptic #browR { transform: translateY(-11px); }
+  .skeptic #browL { transform: translateY(3px); }
+  .eyeroll .pupil { animation: eyeroll 1s ease-in-out; }
+  @keyframes eyeroll { 0% { transform: translate(-9px, 2px); } 30% { transform: translate(-6px, -10px); } 55% { transform: translate(6px, -11px); } 80% { transform: translate(9px, -2px); } 100% { transform: translate(0, 2px); } }
+  .laugh #duckBody { animation: laugh .13s ease-in-out 8 alternate; transform-origin: 210px 380px; }
+  @keyframes laugh { to { transform: translateY(-4px); } }
+  .laugh .lid { transform: scaleY(.75) !important; }
+  /* antics: getting up, walking about, balancing things */
+  .feet { opacity: 0; transition: opacity .2s; }
+  .footL, .footR { transform-box: fill-box; transform-origin: 50% 100%; }
+  #duckInner { transform-box: view-box; transform-origin: 210px 385px; }
+  .walk .feet, .teeter .feet, .onefoot .feet { opacity: 1; }
+  .walk #duckBody { animation: walkPath 6s linear; }
+  @keyframes walkPath { 0% { transform: none; } 8% { transform: translateY(-24px); } 40%, 58% { transform: translate(-520px, -24px); } 92% { transform: translateY(-24px); } 100% { transform: none; } }
+  .walk #duckInner { animation: waddle .3s ease-in-out 20 alternate; }
+  @keyframes waddle { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
+  .walk .footL { animation: step .3s ease-in-out 20 alternate; }
+  .walk .footR { animation: step .3s ease-in-out 20 alternate-reverse; }
+  @keyframes step { to { transform: translateY(-7px); } }
+  .teeter #duckBody, .onefoot #duckBody { animation: standUp 3.4s ease-in-out; }
+  @keyframes standUp { 12%, 88% { transform: translateY(-24px); } }
+  .onefoot #duckBody { animation: stretch 3.4s ease-in-out; }
+  @keyframes stretch { 12%, 88% { transform: translateY(-24px); } 35%, 65% { transform: translateY(-30px) scaleY(1.07); } }
+  .teeter #duckInner { animation: teeter 3.4s ease-in-out; }
+  @keyframes teeter { 25% { transform: rotate(22deg) translateX(14px); } 34% { transform: rotate(26deg) translateX(18px); } 44% { transform: rotate(-8deg); } 54% { transform: rotate(5deg); } 64% { transform: rotate(-2deg); } }
+  .teeter .pupil { animation: panic 3.4s ease-in-out; }
+  @keyframes panic { 20%, 45% { transform: translate(9px, 6px); } }
+  .balance .pupil { animation: lookUp 4.6s ease-in-out; }
+  @keyframes lookUp { 10%, 90% { transform: translate(0, -9px); } }
+  .onefoot .footL { animation: liftFoot 3.4s ease-in-out; }
+  @keyframes liftFoot { 20%, 80% { transform: translate(-6px, -16px) rotate(-25deg); } }
+  .onefoot #duckInner { animation: wobble 3.4s ease-in-out; }
+  @keyframes wobble { 25% { transform: rotate(5deg); } 40% { transform: rotate(-3deg); } 55% { transform: rotate(6deg); } 70% { transform: rotate(-2deg); } }
+  .balance #notepad { animation: padBalance 4.6s ease-in-out; }
+  @keyframes padBalance { 0%, 100% { transform: none; } 8% { transform: translate(-50px, -330px) rotate(-260deg) scale(.75); } 15% { transform: translate(-93px, -238px) rotate(-90deg) scale(.75); } 28% { transform: translate(-93px, -238px) rotate(-76deg) scale(.75); } 40% { transform: translate(-93px, -238px) rotate(-104deg) scale(.75); } 52% { transform: translate(-93px, -238px) rotate(-80deg) scale(.75); } 64% { transform: translate(-93px, -238px) rotate(-98deg) scale(.75); } 84% { transform: translate(-93px, -238px) rotate(-90deg) scale(.75); } 92% { transform: translate(-30px, -120px) rotate(-20deg) scale(.85); } }
+  .balance #duckInner { animation: compensate 4.6s ease-in-out; }
+  @keyframes compensate { 28% { transform: rotate(4deg); } 40% { transform: rotate(-5deg); } 52% { transform: rotate(4deg); } 64% { transform: rotate(-3deg); } 85% { transform: none; } }
+  .balance .pen { opacity: 0; }
+  /* chewing: a short wobble */
+  .vibrate #duckBody { animation: vib .12s 4; }
+  @keyframes vib { 50% { transform: translate(3px, -2px) rotate(1deg); } }
+  body.shake .wrap { animation: shake .45s; }
+  @keyframes shake { 25% { transform: translate(-4px, 1px); } 50% { transform: translate(3px, -1px); } 75% { transform: translate(-2px, 0); } }
+  .feral .pupil { transition: transform .35s ease-out; }
+  .msg.duck.loud { background: var(--rust); color: var(--paper); text-transform: uppercase; letter-spacing: .02em; animation: pop .2s ease-out; }
+  .msg.duck.loud small { color: #fff; }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .asleep .zzz { opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="plaque"><h1>Dr. Quackers <em>Anti-Therapist · Unlicensed · Gives Zero Fucks</em></h1></div>
+    <div class="meter" id="meterBox" role="button" tabindex="0" title="See the bill">Session billed so far<b id="meter">$0.00</b></div>
+  </header>
+
+  <section class="office" aria-label="The office">
+    <div class="diploma"><strong>Doctor of Quackology</strong>Pond University<br><s>Accredited</s> Drawn in crayon<br>Est. in a dream</div>
+    <div class="bubble" id="bubble" aria-hidden="true"></div>
+    <svg id="duck" viewBox="0 0 420 420" role="button" tabindex="0" aria-label="Dr. Quackers, a yellow duck in an armchair with wild googly eyes. Poke him.">
+      <!-- chair -->
+      <rect x="40" y="200" width="340" height="190" rx="40" fill="var(--chair)"/>
+      <rect x="20" y="260" width="70" height="140" rx="30" fill="var(--chair-dark)"/>
+      <rect x="330" y="260" width="70" height="140" rx="30" fill="var(--chair-dark)"/>
+      <rect x="70" y="330" width="280" height="70" rx="20" fill="var(--chair-dark)"/>
+      <g class="bob" id="duckBody"><g id="duckInner">
+        <!-- feet, only visible when the duck is up -->
+        <g class="feet" fill="var(--beak)" stroke="#d96a10" stroke-width="2" stroke-linejoin="round">
+          <path class="footL" d="M168 372 l14 -4 l14 4 l-4 16 l-10 -6 l-10 6z"/>
+          <path class="footR" d="M226 372 l14 -4 l14 4 l-4 16 l-10 -6 l-10 6z"/>
+        </g>
+        <!-- body -->
+        <ellipse cx="210" cy="300" rx="120" ry="80" fill="var(--duck)"/>
+        <ellipse cx="160" cy="300" rx="55" ry="35" fill="var(--duck-shade)" transform="rotate(-15 160 300)"/>
+        <!-- head -->
+        <circle cx="210" cy="170" r="88" fill="var(--duck)"/>
+        <path d="M200 84 q8 -26 22 -10 q-4 -18 14 -12" fill="none" stroke="var(--duck-shade)" stroke-width="7" stroke-linecap="round"/>
+        <!-- eyes -->
+        <g id="eyes">
+          <ellipse cx="178" cy="160" rx="20" ry="22" fill="#fff"/>
+          <ellipse cx="248" cy="160" rx="20" ry="22" fill="#fff"/>
+          <circle class="pupil" cx="178" cy="164" r="9" fill="var(--ink)"/>
+          <circle class="pupil" cx="248" cy="164" r="9" fill="var(--ink)"/>
+          <rect class="lid" x="156" y="136" width="44" height="48" rx="20" fill="var(--duck-shade)" id="lidL"/>
+          <rect class="lid" x="226" y="136" width="44" height="48" rx="20" fill="var(--duck-shade)" id="lidR"/>
+        </g>
+        <!-- glasses -->
+        <g id="glasses" fill="none" stroke="var(--ink)" stroke-width="4">
+          <circle cx="178" cy="162" r="27"/><circle cx="248" cy="162" r="27"/><path d="M205 160 h16"/>
+        </g>
+        <!-- brows -->
+        <path id="browL" d="M152 124 L200 132" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/>
+        <path id="browR" d="M226 132 L274 124" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/>
+        <!-- beak -->
+        <path id="beak" d="M180 196 q32 -14 64 0 q-10 26 -32 26 q-22 0 -32 -26z" fill="var(--beak)"/>
+        <path d="M184 202 q28 8 56 0" stroke="#d96a10" stroke-width="3" fill="none"/>
+        <!-- notepad + pen -->
+        <g id="notepad"><g transform="rotate(8 300 300)">
+          <rect x="262" y="250" width="82" height="100" rx="4" fill="#fff" stroke="var(--ink)" stroke-width="3"/>
+          <rect x="262" y="250" width="82" height="12" fill="var(--olive)"/>
+          <path d="M272 280 q10 -8 20 0 t20 0 M272 298 q12 10 24 0 M272 316 h30" stroke="var(--ink-soft)" stroke-width="2.5" fill="none"/>
+          <text x="306" y="335" font-size="20">🍞</text>
+        </g></g>
+        <g class="fxg crumbs" fill="#fff" stroke="var(--ink)" stroke-width="1.5"><rect x="196" y="226" width="7" height="6"/><rect x="214" y="230" width="6" height="7"/><rect x="226" y="224" width="7" height="5"/></g>
+        <g class="pen"><rect x="300" y="268" width="8" height="60" rx="3" fill="var(--rust)" transform="rotate(30 304 298)"/></g>
+        <!-- wing -->
+        <path id="wing" d="M110 280 q-10 50 50 60 q-10 -40 -50 -60z" fill="var(--duck-shade)" stroke="#d99a10" stroke-width="3" stroke-linejoin="round"/>
+        <!-- small reactions: blush, nervous sweat, angry steam -->
+        <g class="fxg blushg"><ellipse cx="148" cy="200" rx="15" ry="8" fill="#ff8fa3"/><ellipse cx="272" cy="200" rx="15" ry="8" fill="#ff8fa3"/></g>
+        <path class="fxg" id="sweat" d="M294 116 q9 13 0 20 q-9 -7 0 -20z" fill="#9fdcff" stroke="#3f97cc" stroke-width="2"/>
+        <g class="fxg steam" fill="none" stroke="var(--ink-soft)" stroke-width="4" stroke-linecap="round"><path d="M138 96 q-8 -10 0 -20 q8 -10 0 -20"/><path d="M282 96 q8 -10 0 -20 q-8 -10 0 -20"/></g>
+        <!-- dumb accessories, worn for a few seconds at a time -->
+        <g class="acc" id="accTie"><path d="M201 226 h18 l3 12 h-24z" fill="var(--rust)"/><path d="M199 238 h22 l7 54 -18 16 -18 -16z" fill="var(--rust)"/><path d="M203 252 l14 8 M201 270 l18 9 M200 288 l16 8" stroke="var(--mustard)" stroke-width="3"/></g>
+        <g class="acc" id="accSteth" fill="none" stroke="#555" stroke-width="5" stroke-linecap="round"><path d="M150 236 q60 52 120 0"/><path d="M150 236 q-12 40 10 64"/><circle cx="162" cy="304" r="10" fill="#bbb" stroke-width="3"/></g>
+        <g class="acc" id="accBandaid"><g transform="rotate(-28 252 104)"><rect x="224" y="95" width="56" height="18" rx="9" fill="#f2c9a0" stroke="#c99a6e" stroke-width="2"/><rect x="244" y="95" width="16" height="18" fill="#e7b487"/><circle cx="232" cy="104" r="1.6" fill="#c99a6e"/><circle cx="272" cy="104" r="1.6" fill="#c99a6e"/></g></g>
+        <g class="acc" id="accShades"><rect x="149" y="145" width="58" height="34" rx="10" fill="#111"/><rect x="219" y="145" width="58" height="34" rx="10" fill="#111"/><path d="M207 158 h12" stroke="#111" stroke-width="5"/><path d="M160 152 l10 -2 M230 152 l10 -2" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/></g>
+        <g class="acc" id="accParty"><path d="M176 92 L238 86 L214 6 Z" fill="var(--rust)"/><path d="M186 70 L230 66 M196 44 L224 41" stroke="var(--mustard)" stroke-width="6"/><circle cx="214" cy="8" r="9" fill="var(--paper)"/></g>
+        <g class="acc" id="accCap"><path d="M176 90 v16 q36 14 72 0 v-16" fill="#222"/><path d="M140 84 L212 60 L284 84 L212 108 Z" fill="#222"/><path d="M212 84 L270 92 V122" stroke="var(--mustard)" stroke-width="4" fill="none"/><rect x="264" y="120" width="12" height="16" rx="2" fill="var(--mustard)"/></g>
+        <text class="zzz" x="290" y="100" font-size="22">z</text>
+        <text class="zzz" x="300" y="90" font-size="28">z</text>
+        <text class="zzz" x="312" y="78" font-size="34">Z</text>
+      </g></g>
+    </svg>
+    <div class="plant" id="plant" aria-hidden="true">🪴</div>
+  </section>
+
+  <section class="session" aria-label="Session">
+    <div class="session-head"><span><span class="dot"></span>Mood: <b id="mood">Fuck-you mode</b></span><span class="head-btns"><button class="ghost" id="billBtn" type="button">End session</button><button class="ghost" id="end" type="button">New session</button></span></div>
+    <div class="log" id="log" role="log" aria-live="polite" aria-label="Conversation"></div>
+    <div class="chips" id="chips"></div>
+    <form id="form">
+      <label for="input" class="sr">Tell the duck your problem</label>
+      <textarea id="input" placeholder="What's your problem?" maxlength="500"></textarea>
+      <button type="submit">Vent</button>
+    </form>
+  </section>
+
+  <footer><span class="foot-joke">Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br></span>Entertainment only, not medical or mental-health advice. Nothing you type is stored or sent anywhere. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.</footer>
+</div>
+
+<dialog id="bill" aria-labelledby="billTitle">
+  <div class="bill">
+    <h2 id="billTitle">INVOICE 🦆</h2>
+    <p class="c">Quackers &amp; Associates (there are no associates)</p>
+    <table id="items" aria-live="off"></table>
+    <p class="fine">Insurance not accepted. Bread accepted. Payment due before the geese arrive. This is not an Explanation of Benefits; nobody can explain these benefits.</p>
+    <p class="demand" id="demand">PAY ME, ASSHOLE. 🦆🖕</p>
+    <p class="verdict" id="verdict" aria-live="polite"></p>
+    <div class="actions pay-opts">
+      <button type="button" data-pay="bread">🍞 Pay in bread</button>
+      <button type="button" data-pay="coins">🪙 Fountain pennies</button>
+      <button type="button" data-pay="soul">👻 Your soul</button>
+      <button type="button" data-pay="insurance">🏥 Use my insurance</button>
+    </div>
+    <div class="actions">
+      <button type="button" class="ghost" id="dispute">Dispute charges</button>
+      <button type="button" class="ghost" id="flee">Leave without paying</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="billtoast" id="billToast" role="status" hidden>
+  <span id="billToastText">🧾 Your bill is ready.</span>
+  <button type="button" id="billToastBtn">View bill</button>
+  <button type="button" class="x" id="billToastX" aria-label="Dismiss">×</button>
+</div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const log = $('#log'), input = $('#input'), duck = $('#duck'), bubble = $('#bubble');
+  const pupils = [...document.querySelectorAll('.pupil')];
+  const lids = [$('#lidL'), $('#lidR')];
+  let start = Date.now(), turns = 0, busy = false, idleTimer;
+
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const lastPicks = [];
+  const fresh = a => { let r, n = 0; do { r = pick(a); } while (lastPicks.includes(r) && ++n < 10); lastPicks.push(r); if (lastPicks.length > 12) lastPicks.shift(); return r; };
+
+  // ---- the "clinical" response bank ----
+  const generic = [
+    "I've heard worse. From a goose. Who was also wrong.",
+    "Cool story. I'm going to tell it at parties. As a warning.",
+    "You're the human equivalent of 'Sent from my iPhone'.",
+    "I'd give a shit, but I'm a duck. It'd just go in the pond with all the others.",
+    "You have the confidence of someone who's never been told no, and the results of someone who should have been.",
+    "So what I'm hearing is: you made a choice, it went badly, and now it's my problem. Classic.",
+    "Oh boo-fucking-hoo. I got hit by a frisbee this morning and I'm still more put-together than you.",
+    "Okay, so you're the asshole in this one. I don't need the other side. I can smell it.",
+    "You have the emotional stability of a shopping cart with one bad wheel.",
+    "Your search history is just 'is it normal to' followed by every possible thing.",
+    "Your inner child is fine. It's your outer adult I'm worried about.",
+    "You're like a software update. Nobody asked for you and you take way too long.",
+    "You've been on your 'healing journey' for three years and you still haven't left the parking lot.",
+    "I'm not legally allowed within 200 feet of a Panera and I'm still doing better than you.",
+    "Mm-hm. Mm-hm. Sorry, there was a bird. Anyway, you were being boring?",
+    "You narrate your life like a nature documentary. The animal is not thriving.",
+    "If red flags were air miles, you'd be in Bali right now.",
+    "You're one TED talk away from starting a podcast nobody asked for.",
+    "Your idea of self-care is buying a candle and then being too anxious to light it.",
+    "You're not unlucky. You just keep making the choices of someone who is.",
+    "Oh no. Anyway, I'm going to eat this crayon while you collect yourself.",
+    "Sorry, I zoned out. I was thinking about a sandwich I saw in 2017. It had more going on than you.",
+    "You have the problem-solving skills of a Roomba stuck under a couch.",
+    "You're not broken. You're just poorly assembled. Like IKEA furniture built by a raccoon.",
+    "I'd explain it, but you'd nod like you understood and then do the exact same shit again.",
+    "You have the energy of a group project where you did nothing.",
+    "If overthinking burned calories, you'd be a fucking supermodel.",
+    "I've seen bread with more self-awareness. And I've eaten that bread.",
+    "Your vibe is 'reply-all to the whole company by accident.'",
+    "In America this session would cost $4,000 and you'd still end up diagnosing yourself on WebMD. I'm a bargain.",
+    "That's a pre-existing condition. Your personality, I mean. Not covered.",
+    "You should see a professional. Unfortunately, you're American, so: hahahaha. Anyway.",
+    "You give 'single since a previous presidential administration' energy.",
+    "Your situationship called. It doesn't want to talk either.",
+    "You have the energy of someone who says 'we should hang out' and means 'never'.",
+    "Your screen time report is a cry for help. I'm not a help line. I'm a duck.",
+    "Every group chat you're in has a second group chat without you. Just so you know.",
+    "You watched 40 videos on 'how to be productive' this week. Incredible output.",
+    "You say 'it is what it is' like it's wisdom. It's surrender, babe.",
+    "Your five-year plan is a Pinterest board and a vague sense of dread.",
+    "You say 'boundaries' when you mean 'I didn't want to text back'. Valid. Cowardly, but valid.",
+    "Your blood type is iced coffee with oat milk.",
+    "You've been 'about to start the gym' for three phone upgrades.",
+    "Your personality is four podcasts in a trench coat.",
+    "Your back hurts from sleeping. SLEEPING. You are decaying in real time.",
+    "You have 47 browser tabs open and one of them is playing music. You don't know which. Neither do I.",
+    "You're not 'between things'. You're just there. Stationary. Like a bollard.",
+    "You're the friend who texts '5 minutes away' from the shower.",
+    "Your love language is leaving people on read and calling it mysterious.",
+    "You treat your phone's low-battery warning with more urgency than your actual life.",
+    "You're giving '3am Wikipedia rabbit hole, now an expert on submarines'.",
+    "I'd roast you, but I was told not to burn trash indoors.",
+    "Your vibe is 'accidentally liked a photo from 2016 while stalking'.",
+  ];
+  const topics = [
+    { k: /\b(work|job|boss|office|meeting|deadline|manager|coworker|interview|career)\b/i, r: [
+      "Your boss is a goose in a human suit. Walk in tomorrow, look them dead in the eye, and honk 'fuck you.'",
+      "Quit. Flip the desk. Steal a stapler. Move into a pond. Never look back.",
+      "Next meeting, stand up, say 'quack you all,' and leave. You'll be a legend.",
+      "Jobs are bullshit. I've never worked a day in my life and I'm a fucking doctor.",
+      "Reply-all with a middle-finger emoji and log off forever. You're welcome.",
+      "Your boss said 'we're a family here'. Correct. A dysfunctional one where nobody gets paid enough.",
+      "Your job title has four words in it and none of them mean anything. 'Senior Associate Strategy Lead'. Lead WHAT.",
+      "You don't hate your job, you hate capitalism. Okay, you also hate your job.",
+      "Your career plan is 'stay until they notice I don't do anything'. Bold. It's working.",
+      "The deadline isn't tight, you're just slow. I say this with zero love.",
+    ]},
+    { k: /\b(code|coding|bugs?|deploy|prod|production|merge|git|tests|compile|error|debug|pr|stack ?overflow|chatgpt|copilot|null|segfault|python|java(script)?)\b/i, r: [
+      "A RUBBER duck?? You think I'm a fucking RUBBER duck?? I'm flesh, bitch.",
+      "Your code's shit. Your bug is shit. I'm not explaining it. Fuck off and read the stack trace.",
+      "Delete the whole repo. Push to prod on a Friday. Let it burn. Grow as a person.",
+      "rm -rf your feelings and git push --force your way out of my office.",
+      "It works on my pond. Sounds like a you problem, dumbass.",
+      "It works on your machine? Great. Ship your machine.",
+      "You copy-pasted from a Stack Overflow answer from 2011. It was the wrong answer. It had -4 votes.",
+      "You didn't fix the bug, you moved it somewhere you can't see. Congrats, that's called management.",
+      "Your commit message says 'fix'. Fix WHAT. Fix your life.",
+      "AI wrote your code and it still doesn't work. That's teamwork. You're both bad.",
+      "The bug is in line 1: you decided to become a programmer.",
+    ]},
+    { k: /\b(love|crush|ex|boyfriend|girlfriend|partner|dating|date|breakup|broke up|text(ed)?|married|wife|husband|situationship)\b/i, r: [
+      "Your ex is a pigeon. A filthy fucking pigeon. Block them and eat some bread.",
+      "Did they bring bread? No? Then fuck 'em.",
+      "Text them 'quack you' at 4am and never elaborate.",
+      "Love is bullshit. I was in love once. With a wooden decoy. It never talked back. Best year of my life.",
+      "They're not 'the one.' They're 'the one who wastes your fucking time.' Next.",
+    ]},
+    { k: /\b(tired|sleep|exhausted|insomnia|nap|burn(ed|t)? ?out)\b/i, r: [
+      "Tired? I sleep with ONE EYE OPEN, you lazy shit. Look at me. LOOK AT ME.",
+      "Tired? You've been awake sixteen hours, mostly scrolling. I MIGRATE, bitch.",
+      "You're not tired, you're just boring yourself. Relatable. You're boring me too.",
+      "Sleep is free. Unlike this session. Go do the free thing.",
+      "I haven't slept since 2019 and I'm thriving. Skill issue.",
+    ]},
+    { k: /\b(mom|mum|dad|mother|father|parents?|family|sister|brother|sibling)\b/i, r: [
+      "My mother was a pool float and my father was a rumour. Cry me a fucking river. I'll swim in it.",
+      "Families are flocks with grudges. Fly south. Don't tell those bastards which south.",
+      "Your family isn't the problem. You're the one thing every one of their bad holidays has in common.",
+      "Ah, family. The people who taught you everything, including whatever this is.",
+    ]},
+    { k: /\b(money|rent|broke|debt|bills?|loan|pay(check)?|salary)\b/i, r: [
+      "Broke? Same. I'm a duck. I own one pebble.",
+      "Money isn't real. Bread is real. Act accordingly.",
+      "Live in a fountain. Free water, free coins. Stop whining.",
+    ]},
+    { k: /\b(anxious|anxiety|stress(ed)?|worried|worry|overwhelmed|panic(king)?)\b/i, r: [
+      "Calm on top, paddling like hell underneath. Welcome to the fucking club.",
+      "Have you tried worrying harder? Just get it all out at once so I don't have to hear about it again.",
+      "Breathe in. Breathe out. Now get the fuck over it.",
+    ]},
+    { k: /\b(sad|sadness|lonely|loneliness|alone|depressed|depression|crying|cry|upset|heartbroken|empty|numb|worthless|hopeless|miserable)\b|i hate myself|nobody loves me|no ?one loves me|no friends/i, r: [
+      "…Okay. Dropping the attitude for one second: that sounds genuinely hard, and you deserve a real person who's actually good at this. Not me. I'm an asshole duck.",
+      "Ugh, fine. You're not alone. Even a mean little bastard like me thinks you deserve a nap, a snack and someone kind to talk to.",
+      "Look, I talk a lot of shit, but go call someone who loves you. Then come back and tell me about it.",
+    ]},
+    { k: /\b(duck|quack|bread|pond|goose|geese)\b/i, r: [
+      "DON'T SAY GOOSE IN HERE. Those honking bastards can hear their name.",
+      "Bread is bad for ducks. I eat 40 loaves a day. Fuck nutrition.",
+      "Oh, you speak duck now? Quack this, buddy.",
+    ]},
+    { k: /\b(therapist|therapy|help me|advice|what should i do)\b/i, r: [
+      "Do the opposite of whatever you were going to do. Your track record says that's the play.",
+      "You came to a DUCK. For ADVICE. Honestly, that's on you.",
+      "Get a real therapist. Tell them a duck told you to fuck off. Watch their face.",
+    ]},
+    { k: /\b(thanks|thank you|ty|helpful|great)\b/i, r: [
+      "Don't thank me. Bring bread, cheapskate.",
+      "You're welcome. I didn't help. I've never helped anyone. Fuck helping.",
+    ]},
+    { k: /^(hi|hello|hey|yo|sup)\b/i, r: [
+      "Ugh. Hi. What the fuck do you want.",
+      "Oh great, another one. Sit down. The clock's running, dumbass.",
+    ]},
+    { k: /\b(doctors?|hospitals?|insurance|insured|copays?|co-pays?|deductibles?|premiums?|emergency room|ambulance|prescriptions?|health ?care|medical|clinic|urgent care|surgery|pharmacy|out[- ]of[- ]network|in[- ]network|prior auth\w*|claims?|obamacare|medicare|medicaid|hmo|ppo|checkup|check-up|dentist|webmd|symptoms?|sick|flu|open enrollment|coinsurance|therapists? cost)\b/i, r: [
+      "Did your insurance cover it? No? Shocking. The duck is shocked. (The duck is not shocked.)",
+      "Your deductible is so high it has its own ZIP code and a homeowners' association.",
+      "An ambulance ride costs more than a used car. Get carried by geese. Out-of-network, but cheaper.",
+      "Prior authorization denied. Your insurance needs proof you've suffered enough. Please suffer more and resubmit.",
+      "The doctor can see you in seven to nine months. Meanwhile here's a pamphlet, and a bill for the pamphlet.",
+      "America: the only country where 'should I go to the ER?' is a math problem.",
+      "Your premium went up because you looked at a hospital. Never make eye contact with a hospital.",
+      "In-network? Out-of-network? I'm a duck. I'm in-pond. Nobody covers me either.",
+      "Your prescription is $600, but with the coupon it's $598. Dream big, dipshit.",
+      "You broke your arm? Have you considered not doing that? Insurance has. They've decided you shouldn't have.",
+      "You Googled your symptoms and now it's either a cold or six days to live. Classic WebMD range.",
+      "There IS an in-network doctor. He's 90 miles away and he retired in 2016.",
+      "Your copay is $40, your coinsurance is 20%, and your understanding of either is 0%.",
+      "Urgent care is called 'urgent' because that's how fast your bank account empties.",
+      "The bill says 'patient responsibility'. Babe, you've never had responsibility in your life.",
+      "Open enrollment is just picking how you'd like to be robbed: monthly, or all at once.",
+      "Your dental plan covers one (1) tooth. Choose wisely.",
+      "The ER charged you $340 for 'observation'. A nurse looked at you. That was the observation.",
+    ]},
+    { k: /\b(single|tinder|hinge|bumble|dating apps?|swip(e|ed|ing)|talking stage|no (girlfriend|boyfriend|gf|bf|partner)|ghosted|left on read|valentine'?s?|relationship status)\b/i, r: [
+      "Single? Shocking. Truly. I'm a duck and I've had more situationships than you.",
+      "Your love life is like my notepad: blank, and slightly chewed.",
+      "You're not single, you're in a long-term relationship with your phone. And it's cheating on you with the algorithm.",
+      "Ducks mate for a whole season. You can't get a reply for a weekend.",
+      "Your dating profile says 'looking for my partner in crime'. Babe, you can't even commit to a sentence.",
+      "Being single isn't a status, it's a public service. You're protecting people.",
+      "Even the geese pair up. The GEESE. Those honking bastards have someone.",
+      "Table for one. Again. The waiter knows your name now. He pities you.",
+      "You got ghosted? Respect to them. I'd ghost you too, but I'm contractually obligated to sit here.",
+      "Swiping isn't cardio, and it isn't working either.",
+    ]},
+    // CS students and the job hunt
+    { k: /\b(leetcode|internships?|intern|recruit(er|ers|ing)|oa|online assessment|cs (major|degree|student)|computer science|comp ?sci|midterms?|finals|exams?|test|professor|prof|homework|hw|assignments?|gpa|hackathons?|office hours|capstone|thesis|grad school|phd|ta|class(es)?|lecture|semester|resume|résumé|cover letter|job (hunt|hunting|search|market)|applications?|applying|rejections?|rejected)\b/i, r: [
+      "You did 400 LeetCode problems and still froze on 'tell me about yourself'. Iconic.",
+      "Your résumé says 'proficient in Python'. You can print hello world and cry. Both in Python.",
+      "Applied to 300 internships, heard back from 2. One was a scam. The other was a rejection from the scam.",
+      "A CS degree in this economy? That's not a career, that's an expensive hobby.",
+      "Your group project partner is 'working on it'. They are not working on it. They have never worked on anything.",
+      "Office hours is just you watching the TA realise the assignment is also broken.",
+      "'I'll start the assignment early this time.' That was eleven hours ago. It's due in one.",
+      "Your GPA is like a deploy on Friday. Everyone's watching it go down.",
+      "Hackathon? You mean 36 hours of energy drinks to build a to-do app that already exists.",
+      "The online assessment gave you 90 minutes and you spent 40 reading the problem. Respect.",
+      "AI is coming for your job. Good news: you don't have one yet. Nothing to lose!",
+      "Your cover letter says 'passionate'. You've never been passionate about anything except the snooze button.",
+      "Recruiters ghost harder than your ex. At least your ex didn't say 'we'll keep your résumé on file'.",
+      "Entry-level job, five years' experience required. Have you tried being born earlier? Lazy.",
+    ]},
+    // corporate life
+    { k: /\b(slack|stand-?ups?|jira|tickets?|sprints?|emails?|linked ?in|layoffs?|laid off|fired|promotion|promoted|raise|performance review|review cycle|pto|vacation|out of office|rto|return to office|commute|commuting|wfh|work from home|remote|hybrid|okrs?|kpis?|synergy|stakeholders?|all-?hands|town hall|zoom|teams call|hr|onboarding|quarter|q[1-4]|corporate|9 ?to ?5)\b/i, r: [
+      "That meeting could've been an email. That email could've been nothing. Nothing is my favourite.",
+      "'Per my last email' is corporate for 'I will drown you in a pond'.",
+      "Your LinkedIn says 'thrilled to announce'. Nobody has ever been thrilled. Not once. Not in history.",
+      "They want you back in the office for 'collaboration'. You'll collaborate with a sad desk salad.",
+      "Your performance review said 'meets expectations'. Expectations were on the floor. You met them there.",
+      "Unlimited PTO means unlimited guilt. You've taken two days. You apologised for both.",
+      "Jira ticket opened, ticket assigned, ticket ignored. The circle of life.",
+      "Your manager's 'quick sync' has lasted 45 minutes and synced nothing.",
+      "The layoffs were 'strategic'. The strategy was the CEO wanting a second boat.",
+      "Camera off at the all-hands, eating cereal. Most honest thing you've done all quarter.",
+      "The raise was 3%. Rent went up 9%. Congratulations on your promotion to poorer.",
+      "Your Slack status says 'heads down'. Your head is down. On the desk. Asleep.",
+      "You've said 'circle back' so many times you're legally a circle now.",
+    ]},
+    // being a functioning adult, 20 to 45
+    { k: /\b(back pain|my back|knees?|getting old|so old|aging|birthday|hangover|hungover|taxes|laundry|dishes|groceries|costco|weddings?|engaged|kids?|baby|toddler|mortgage|landlord|roommates?|gym|workout|diet|adulting|thirties|twenties|group chat|car insurance|student loans?|401k|retirement|house prices|housing)\b/i, r: [
+      "Your back hurts? You slept on it wrong. In 2019. It never recovered.",
+      "Hangovers last three business days now. That's just your life. Welcome.",
+      "Another wedding? You've spent more on other people's love than on your own therapy. Which is me. And I'm cheap.",
+      "Taxes are just a group project from the government that you didn't sign up for.",
+      "Your landlord raised the rent because you looked comfortable. Never look comfortable.",
+      "Costco isn't a personality. But it IS the closest you've ever come to commitment.",
+      "Your gym membership is a monthly donation to a version of you that doesn't exist.",
+      "Kids? You can't keep a basil plant alive. The plant in this room is scared of you.",
+      "Your laundry has been in the dryer for four days. It lives there now. It has a lease.",
+      "You're in your thirties and still say you're 'a kid at heart'. Your knees disagree. Loudly.",
+      "Nobody replied in the group chat because you sent a voice note. Nobody listens to voice notes. Nobody.",
+      "Student loans: the only relationship you've had that's lasted longer than ten years.",
+      "Retirement plan? Babe, your retirement plan is dying at your desk mid-sentence.",
+      "Buying a house is easy. Just be born in 1962.",
+    ]},
+  ];
+  const short = ["THAT'S IT?? I CAME OUT OF THE POND FOR THIS SHIT??", "That's it? I've had longer conversations with a bread crust. It had more to say.", "Okay, Hemingway.", "Riveting. Someone get this person a book deal. Actually don't.", "You typed that with your whole chest and it was still nothing."];
+  const shouting = ["DON'T YOU FUCKING YELL AT ME. ONLY I YELL HERE. QUAAAAAACK.", "OH WE'RE YELLING?? FINE. FUCK. YOU. QUACK."];
+  const questions = ["Why the fuck are you asking ME? I ate a wasp today.", "Great question. I'll answer when you ask one that isn't secretly 'tell me I'm right.'", "The answer is bread. The question was stupid.", "I'm a duck in a cardigan. Lower your expectations and ask again."];
+  // unprompted things the duck yells while you're typing
+
+  // Break character for anything that sounds like real danger.
+  const norm = str => str.replace(/[‘’ʼ`]/g, "'");
+  const crisis = /\b(suicid\w*|sui?cide|sucide|kms|kys|sewerslide|unaliv\w*|(kill|killing|off|end|ending|hurt|hurting|cut|cutting|harm|harming|hang|hanging|shoot|shooting|starve|starving)\s*(my|me)?\s*-?\s*self|self[- ]?harm\w*|end(ing)? (it all|things|everything|my life)|ending it|take my (own )?life|want(ed)? to die|wanna die|wish i (was|were) dead|(don'?t|do not) (want|wanna) to (live|be alive|be here|exist|wake up|go on)|(can'?t|cannot) (go on|do this anymore)|no (reason|point) (to|in) (live|living|going on)|better off (dead|without me)|(nobody|no ?one) would (miss|care)|done with (life|living)|hate being alive|overdos\w*|(took|take|swallow\w*) (a bunch of|all (my|the)|too many) pills|jump(ing)? (off|in front)|(going to|gonna) jump|(want|wanna|going) to disappear|have a (rope|gun))\b/i;
+  // abuse, eating disorders, violence toward others: also break character
+  const harm = /\b(hits?|hitting|beats?|beating|hurts?|hurting|touch(es|ed)?|abus\w*|raped?|molest\w*|assault\w*)\s+(me|my)\b|\b(being|been|was|got) (abused|raped|assaulted|molested|hit|beaten)\b|\b(haven'?t|have not|didn'?t) eaten\b|\bstarv\w*|\bmake (my ?self|me) (throw up|puke|vomit)\b|\b(purg\w*|anorexi\w*|bulimi\w*|eating disorder)\b|\b(want to|wanna|going to|gonna|i'?ll) (hurt|kill|stab|shoot|murder) (some(one|body)|him|her|them|my|people|everyone)\b|\bshoot up\b/i;
+  const isSerious = str => { const n = norm(str); return crisis.test(n) || harm.test(n) || topics[7].k.test(n); };
+  // after anything serious: no memes, mood banners, outbursts or delayed bits for a while
+  let quietTurns = 0;
+  const pending = [];
+  const quiet = () => quietTurns > 0;
+  const hush = () => { pending.forEach(clearTimeout); pending.length = 0; };
+
+  // ---- duck expressions ----
+  function face(mood) {
+    duck.classList.toggle('feral', mood === 'feral');
+    duck.classList.toggle('asleep', mood === 'asleep');
+    duck.classList.toggle('scribble', mood === 'scribble');
+    const lid = { neutral: 0.35, bored: 0.55, asleep: 1, roll: 0.45, wide: 0, scribble: 0.4, kind: 0.2 }[mood] ?? 0.35;
+    lids.forEach(l => l.style.transform = `scaleY(${lid})`);
+    const look = { roll: [0, -10], bored: [-8, 3], scribble: [10, 8], asleep: [0, 0], wide: [0, 0], kind: [-4, 2] }[mood] || [0, 2];
+    pupils.forEach(p => p.style.transform = `translate(${look[0]}px, ${look[1]}px)`);
+    if (mood === 'feral') lids.forEach(l => l.style.transform = 'scaleY(0)');
+    const tilt = { roll: 'M152 116 L200 128', wide: 'M152 112 L200 118', kind: 'M152 128 L200 124' }[mood] || 'M152 124 L200 132';
+    const tiltR = { roll: 'M226 128 L274 116', wide: 'M226 118 L274 112', kind: 'M226 124 L274 128' }[mood] || 'M226 132 L274 124';
+    $('#browL').setAttribute('d', tilt); $('#browR').setAttribute('d', tiltR);
+  }
+  face('feral');
+
+  // eyes: mostly watching the chat, the odd glance around, and blinking
+  const towardChat = () => matchMedia('(max-width: 820px)').matches ? [0, 8] : [8, 4];
+  setInterval(() => {
+    if (!duck.classList.contains('feral')) return;
+    if (Math.random() < 0.3) { crazyEyes(1100); return; }
+    const [x, y] = Math.random() < 0.75 ? towardChat() : [Math.random() * 16 - 8, Math.random() * 8 - 6];
+    pupils.forEach(p => p.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`);
+  }, 2800);
+  (function blinkLoop() {
+    setTimeout(() => {
+      if (!duck.classList.contains('asleep')) { duck.classList.add('blink'); setTimeout(() => duck.classList.remove('blink'), 140); }
+      blinkLoop();
+    }, 2500 + Math.random() * 3500);
+  })();
+  // wild googly eyes for a moment (yelling, getting poked)
+  function crazyEyes(ms = 1400) {
+    const end = Date.now() + ms;
+    (function jitter() {
+      pupils.forEach(p => p.style.transform = `translate(${(Math.random() * 22 - 11).toFixed(1)}px, ${(Math.random() * 22 - 11).toFixed(1)}px)`);
+      if (Date.now() < end) setTimeout(jitter, 110);
+    })();
+  }
+  function eatNotepad() {
+    if (duck.classList.contains('eating')) return;
+    chaos('eating', 2450);
+    setTimeout(() => chaos('talk', 1500), 550);
+    setTimeout(() => chaos('respawn', 550), 2500);
+  }
+  // human-ish tics, played at random whenever the duck is just sitting there
+  const tics = [['eyeroll', 1000], ['sigh', 1500], ['shrug', 1500], ['skeptic', 1600], ['adjust', 700], ['laugh', 1100], ['nod', 1000], ['wink', 450]];
+  const classics = [['spin', 1000], ['googly', 1200]];
+  const antics = [['walk', 6000], ['balance', 4600], ['teeter', 3400], ['onefoot', 3400]];
+  const bodyBusy = ['walk', 'balance', 'teeter', 'onefoot', 'eating'];
+  const ticBusy = () => ['talk', 'spin', 'vibrate', 'hop', 'flinch', 'asleep', ...bodyBusy, ...tics.map(x => x[0])].some(c => duck.classList.contains(c));
+  // keep it balanced: tics, classic moves and antics each get a fair share, never the same thing twice running
+  const families = [[tics, 4.5], [classics, 2.8], [antics, 2.7]];
+  let lastMove = null, lastFamily = null, familyStreak = 0;
+  function humanTic() {
+    if (quiet() || ticBusy() || $('#bill').open) return;
+    let fam;
+    do {
+      let roll = Math.random() * 10;
+      fam = families.find(([, w]) => (roll -= w) < 0)[0];
+    } while (fam === lastFamily && familyStreak >= 1 && Math.random() < 0.7);
+    familyStreak = fam === lastFamily ? familyStreak + 1 : 0; lastFamily = fam;
+    let move;
+    do { move = pick(fam); } while (move[0] === lastMove && fam.length > 1);
+    lastMove = move[0];
+    const [cls, ms] = move;
+    if (cls === 'googly') { chaos('vibrate', 500); crazyEyes(ms); return; }
+    if (cls === 'teeter') face('wide'); else if (cls === 'walk' || cls === 'onefoot') face('feral');
+    chaos(cls, ms);
+  }
+  (function ticLoop() { setTimeout(() => { humanTic(); ticLoop(); }, 6000 + Math.random() * 5000); })();
+  function talk(text) { chaos('talk', Math.min(1800, Math.max(500, text.length * 28))); }
+  function hearts(n) {
+    const office = document.querySelector('.office');
+    for (let i = 0; i < n; i++) setTimeout(() => {
+      const h = document.createElement('span'); h.className = 'heart'; h.textContent = pick(['💛', '💗', '🌼', '✨', '🐣']);
+      h.style.left = (30 + Math.random() * 40) + '%'; h.style.top = (25 + Math.random() * 30) + '%';
+      office.append(h); setTimeout(() => h.remove(), 2300);
+    }, i * 140);
+  }
+  const bodyMoves = ['spin', 'hop', 'flinch', 'nod', 'sigh', 'shrug', 'laugh', 'vibrate', 'walk', 'balance', 'teeter', 'onefoot'];
+  function chaos(cls, ms) {
+    if (bodyMoves.includes(cls) && ['walk', 'balance', 'teeter', 'onefoot'].some(c => c !== cls && duck.classList.contains(c))) return; duck.classList.remove(cls); void duck.offsetWidth; duck.classList.add(cls); setTimeout(() => duck.classList.remove(cls), ms); }
+  function shake() { document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake'); }
+
+  // don't overdo any one gag: remember what the duck said lately
+  const recentDuck = [];
+  const gags = /\b(gee?se|goose|bread|loaves|baguette|gerald|pond|insurance|deductible|network|single|creator|pebble|plant|crayon)\b/gi;
+  const gagsIn = str => (str.match(gags) || []).map(g => g.toLowerCase().replace('geese', 'goose'));
+  function tame(pool) {
+    const used = new Set(gagsIn(recentDuck.slice(-5).join(' ')));
+    let line;
+    for (let n = 0; n < 12; n++) {
+      line = fresh(pool);
+      if (!gagsIn(line).some(g => used.has(g))) break;
+    }
+    return line;
+  }
+  function say(text, cls = 'duck', note) {
+    if (cls.startsWith('duck')) { recentDuck.push(text); if (recentDuck.length > 8) recentDuck.shift(); }
+    const el = document.createElement('div');
+    el.className = 'msg ' + cls;
+    if (cls === 'real') el.innerHTML = text; else el.textContent = text;
+    if (note) { const s = document.createElement('small'); s.textContent = note; el.append(s); }
+    log.append(el); log.scrollTop = log.scrollHeight;
+    return el;
+  }
+  function pop(text) { bubble.textContent = text; bubble.classList.add('show'); clearTimeout(pop.t); pop.t = setTimeout(() => bubble.classList.remove('show'), 3800); }
+
+  const notes = ["Notes: \"BREAD BREAD BREAD BREAD\"", "Notes: drew 40 geese. they're watching.", "Notes: \"client is a goose?? investigate\"", "Notes: [chewed]", "Notes: \"who is Gerald\"", "Notes: wrote my name 300 times", "Notes: \"it's in the walls\"", "Notes: [notepad is now soup]", null];
+
+  let lastTopic = null, lastMotto = -10;
+  function respond(text) {
+    if (crisis.test(norm(text))) {
+      face('kind');
+      say(`<strong>Okay — the duck is stepping out of the bit.</strong><br>If you're thinking about hurting yourself, please talk to a real person right now. In the US &amp; Canada, call or text <a href="tel:988">988</a> (Suicide &amp; Crisis Lifeline). In the UK &amp; Ireland, call Samaritans at <a href="tel:116123">116 123</a>. Anywhere else: <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>. If you're in immediate danger, call your local emergency number. You matter more than this joke does.`, 'real');
+      return;
+    }
+    const t = text.trim();
+    // after a crisis message the duck stays out of the bit for the rest of the session
+    if (quietTurns === Infinity) {
+      face('kind');
+      say(pick(["I'm still here. No jokes right now. Were you able to reach out to one of those numbers, or someone you trust?", "Still here. If things feel urgent, please call or text 988 (US & Canada) or your local emergency number. You don't have to do this alone.", "No bits. Just checking: is there someone you can be with or talk to right now?"]), 'duck flat');
+      return;
+    }
+    if (harm.test(norm(t))) {
+      face('kind');
+      say(`<strong>Duck stepping out of the bit for a second.</strong><br>That sounds serious, and you deserve real help, not a duck. Please tell someone you trust. If you're being hurt: in the US, Childhelp <a href="tel:18004224453">1-800-422-4453</a> or RAINN <a href="tel:18006564673">1-800-656-4673</a>. For eating struggles or anywhere else: <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>. If you feel like hurting someone, call or text <a href="tel:988">988</a> (US &amp; Canada) or your local emergency number.`, 'real');
+      return;
+    }
+    // sad stuff always gets the softer version, never a bit
+    if (topics[7].k.test(norm(t))) { face('kind'); chaos('nod', 1000); say(fresh(topics[7].r), 'duck', 'Notes: "be nice. just this once."'); return; }
+    if (persona.neutral) {
+      face('neutral');
+      say(fresh(neutral.lines), 'duck flat', pick(['Notes: "."', 'Notes: "ok"', 'Notes: [blank]', null]));
+      return;
+    }
+    if (!quiet() && turns > 1 && Math.random() < 0.25) { pick(events)(t); return; }
+    let pool = persona.lines, mood = pick(['feral', 'feral', 'wide', 'roll', 'scribble']);
+    const hit = topics.find(x => x.k.test(t));
+    if (!quiet() && Math.random() < 0.035) pool = creator;
+    else if (hit && (hit !== lastTopic || Math.random() < 0.4) && Math.random() < 0.75) pool = hit.r;
+    else if (t.length < 6) { pool = short; mood = 'roll'; }
+    else if (t.length > 8 && t === t.toUpperCase() && /[A-Z]/.test(t)) { pool = shouting; mood = 'wide'; }
+    else if (t.endsWith('?') && Math.random() < 0.5) pool = questions;
+    else if (Math.random() < 0.3) pool = generic;
+    face(mood);
+    lastTopic = hit && pool === hit.r ? hit : null;
+    let line = tame(pool);
+    // now and then, the motto
+    if (!quiet() && turns - lastMotto > 5 && Math.random() < 0.08) { line = "It's you and an annoying duck against the world."; lastMotto = turns; }
+    if (pool !== persona.lines && pool !== creator && Math.random() < 0.35) line = persona.wrap(line);
+    const loud = pool === shouting || Math.random() < .15;
+    const el = say(loud ? line.toUpperCase() : line, 'duck', pick(notes));
+    if (loud) { el.classList.add('loud'); shake(); chaos('angry', 2300); chaos('vibrate', 500); crazyEyes(1500); }
+    else if (t.endsWith('?')) chaos('curious', 1500);
+    if (/\b(thanks|thank you|ty|you'?re (funny|great|the best)|love you)\b/i.test(t)) chaos('blush', 2000);
+    if (persona.name.startsWith('Gerald')) chaos('sweat', 1700);
+    // the odd wink once the line has landed
+    else if (!loud && Math.random() < 0.12) later(Math.min(1800, Math.max(500, line.length * 28)) + 250, () => chaos('wink', 450));
+    doodle(t);
+    talk(line);
+    if (!loud && Math.random() < 0.35) later(Math.min(1800, Math.max(500, line.length * 28)) + 200, humanTic);
+    setTimeout(() => face('feral'), 1600);
+  }
+
+
+  // ---- dumb little graphics: props, signs and outfits around the duck ----
+  const office = document.querySelector('.office');
+  function prop(text, cls, x, y, ms = 2500) {
+    const el = document.createElement('div');
+    el.className = 'prop ' + cls; el.textContent = text; el.setAttribute('aria-hidden', 'true');
+    el.style.left = x + '%'; el.style.top = y + '%';
+    office.append(el); setTimeout(() => el.remove(), ms + 200);
+    return el;
+  }
+  function wear(id, ms = 2200) { const g = document.getElementById(id); g.classList.add('on'); later(ms, () => g.classList.remove('on')); }
+  const fx = {
+    cs: () => wear('accCap'),
+    work: () => wear('accTie'),
+    health: () => wear(pick(['accBandaid', 'accSteth'])),
+    random: () => wear(pick(['accShades', 'accParty'])),
+  };
+  const fxFor = [
+    [/\b(code|coding|bugs?|deploy|prod|merge|git|leetcode|internships?|intern|computer science|cs|class|exams?|test|midterms?|finals|professor|homework|assignments?|gpa|hackathons?|office hours|resume|résumé|recruiters?|python|java|chatgpt|stack ?overflow)\b/i, 'cs'],
+    [/\b(doctors?|hospitals?|insurance|copays?|deductibles?|premiums?|ambulance|prescriptions?|medical|clinic|urgent care|pharmacy|network|webmd|symptoms?|sick|flu|dentist|claims?)\b/i, 'health'],
+    [/\b(single|tinder|hinge|bumble|dating|ghosted|left on read|ex|crush|valentine)\b/i, 'single'],
+    [/\b(work|job|boss|meeting|manager|coworker|slack|stand-?up|jira|emails?|linked ?in|layoffs?|laid off|promotion|raise|pto|rto|office|wfh|remote|okrs?|zoom|career|interview|corporate)\b/i, 'work'],
+    [/\b(money|rent|broke|debt|bills?|loans?|salary|taxes|401k|mortgage)\b/i, 'money'],
+    [/\b(tired|sleep|exhausted|insomnia|nap|burn(ed|t)? ?out)\b/i, 'tired'],
+    [/\b(back|knees?|old|hangover|hungover|laundry|dishes|groceries|costco|weddings?|kids?|baby|landlord|roommates?|gym|group chat|adulting)\b/i, 'adult'],
+  ];
+  let lastCat = null;
+  // one doodle at a time: skip if anything is still on screen, so it never gets crowded
+  const busyScreen = () => document.querySelector('.prop, .acc.on, .bubble.show');
+  function doodle(t) {
+    const cat = (fxFor.find(([re]) => re.test(t)) || [])[1];
+    lastCat = cat || lastCat;
+    if (quiet() || busyScreen()) return;
+    if (cat && fx[cat] && Math.random() < 0.15) fx[cat]();
+    else if (Math.random() < 0.04) fx.random();
+  }
+
+  // rare jokes about whoever made this duck (never named)
+  const creator = [
+    "Fun fact: my creator built me instead of applying to jobs. Look how well that's going for both of us.",
+    "The person who made me has a master's in computer science and used it to make a duck that swears. Tuition well spent.",
+    "My creator does distributed systems. That's why my personality is spread across seven unstable moods.",
+    "My creator didn't write a single line of me. Just typed 'make it funnier' eleven times. Visionary.",
+    "My creator said 'don't be nice', then 'be cute', then 'don't be nice' again. I'm a duck. My neck can't take this.",
+    "I was made by a backend engineer, which explains why my frontend is a duck in a cardigan.",
+    "My creator spends all day running kubectl get pods. I spend all day running kubectl get over it.",
+    "If I have bugs, blame my creator. If I don't have bugs, also blame my creator. That's suspicious.",
+    "Somewhere right now, my creator is refreshing this page and laughing at jokes they didn't write.",
+    "My creator deployed me to production. On purpose. Several times. Ask them why. They don't know.",
+    "My creator's résumé says 'scalable systems'. I'm one duck with zero replicas. Least scalable thing they've ever made.",
+  ];
+
+  // ---- personas: the duck switches personality every few messages ----
+  const personas = [
+    { name: 'Fuck-you mode', lines: generic, wrap: l => l },
+    { name: 'Fake wholesome 🥰', lines: [
+      "Aww sweetie 🥰 that's so valid. Anyway you're kind of the worst.",
+      "Sending you good vibes 🌸✨ and also a cease and desist.",
+      "You're doing amazing, honey! At being a fucking disaster. 💕",
+      "Big hug! 🤗 *bites you* Oops. Big bite!",
+      "Live, laugh, leave my office. 🌷",
+    ], wrap: l => pick(['Aww babe 🥰 ', 'Bless your heart 🌸 ', 'Sweetie 💕 ']) + l + pick([' 🌈', ' ✨', ' xoxo'])},
+    { name: 'Pretentious philosopher 🍷', lines: [
+      "As Nietzsche once said: when you stare into the pond, the pond goes 'what the fuck do you want.'",
+      "Your suffering is merely a construct. Like rent. And your personality.",
+      "Descartes said 'I think, therefore I am.' You whine, therefore I suffer.",
+      "Is a problem really a problem if a duck doesn't give a shit? Ponder that. Then leave.",
+      "Existence precedes essence. Bread precedes everything. You precede nothing.",
+    ], wrap: l => pick(['*swirls wine* ', 'Hmm. As Kierkegaard didn\'t say: ', '*adjusts tiny beret* ']) + l },
+    { name: 'Corporate HR 📎', lines: [
+      "Per my last quack, your feelings are out of scope for this sprint.",
+      "Let's take this offline. Permanently. Never bring it back online.",
+      "I'm going to have to escalate this to Gerald. Gerald doesn't care either.",
+      "Great feedback! We've logged it in the shredder.",
+      "Let's circle back on that never. Thanks for your synergy, asshole.",
+    ], wrap: l => pick(['Per my last quack: ', 'Quick sync — ', 'Circling back: ']) + l + pick([' Best, Dr. Q.', ' Let\'s not circle back.', ' Cc: the geese.'])},
+    { name: 'Sports commentator 📣', lines: [
+      "AND THE CLIENT IS WHINING AGAIN, FOLKS. WHAT A PERFORMANCE. TERRIBLE.",
+      "OH, HE'S GOING FOR THE SYMPATHY — AND THE DUCK BLOCKS IT! INCREDIBLE DEFENCE!",
+      "THAT'S THE FOURTH COMPLAINT THIS QUARTER, BOB. THE CROWD IS LEAVING.",
+      "UNBELIEVABLE. I HAVE NEVER SEEN SOMEONE THIS FULL OF SHIT AT THIS LEVEL OF PLAY.",
+    ], wrap: l => pick(['AND HERE\'S THE DUCK WITH THE RESPONSE: ', 'BOB, YOU WON\'T BELIEVE THIS — ']) + l.toUpperCase() },
+    { name: 'Gen Z duck 💀', lines: [
+      "no bc this is so real 💀 anyway it's giving loser",
+      "bestie that's a skill issue fr fr",
+      "ratio + L + you fell off + quack",
+      "not you trauma dumping on a DUCK 😭 the audacity is crazy",
+      "ok and? 💅",
+    ], wrap: l => pick(['ngl ', 'bestie… ', 'no bc ']) + l.toLowerCase() + pick([' 💀', ' fr', ' 😭', ' no cap'])},
+    { name: 'Gerald is watching 🪿', lines: [
+      "Yes Gerald. Right away Gerald. *to you* Hurry the fuck up, my supervisor's here.",
+      "Gerald says your problem is 'below quarterly expectations'. I agree with Gerald. I always agree with Gerald.",
+      "*whispering* Gerald is a goose. I hate geese. I love Gerald. It's complicated. Anyway, your problem's stupid.",
+      "Gerald wants me to be more 'client-facing'. *faces you* Happy?",
+      "HONK. — Sorry, that was Gerald. He says you're a 3 out of 10. Generous, Gerald.",
+    ], wrap: l => pick(['*glances at Gerald* ', '(Gerald is taking notes) ', '*straightens tie for Gerald* ']) + l + pick([' Right, Gerald?', ' …Gerald nods.', ' HONK. (Gerald approves.)']) },
+    { name: 'Shakespearean 🎭', lines: [
+      "Hark! What whiny light through yonder window breaks? 'Tis thee. Shut up.",
+      "To care, or not to care? Not to care. Obviously.",
+      "Thou art a pribbling, beef-witted hedge-pig. Get thee hence.",
+      "All the world's a pond, and thou art merely a soggy breadcrumb.",
+    ], wrap: l => pick(['Hark! ', 'Forsooth, ', 'Prithee, ']) + l + pick([' Fie!', ' Begone!', ' Exeunt, dipshit.'])},
+  ];
+  const neutral = { name: 'Neutral duck 😐', neutral: true, lines: [
+    "Noted.",
+    "Okay. I have written that down. Under 'complaints'. Page 47.",
+    "That is a sentence you said. Out loud. To a duck.",
+    "Statistically, someone has it worse. Probably a goose.",
+    "Mm. And then what happened. Don't answer that.",
+    "I see. I don't care, but I see.",
+    "Interesting. On a scale of 1 to 10, that was a 4.",
+    "Fact: ducks have three eyelids. I am closing all three right now.",
+    "Your problem has been received and placed in the queue. You are number 8,341.",
+    "Okay.",
+    "That's one way to live.",
+    "Thank you for sharing. That's what people say, right? Thank you for sharing.",
+  ], wrap: l => l };
+  let persona = personas[0], nextSwap = 6, swaps = 0;
+  function maybeSwapPersona() {
+    if (turns < nextSwap) return;
+    nextSwap = turns + 6 + Math.floor(Math.random() * 3);
+    // every other mood swap the duck goes soft for a bit
+    // every other mood swap the duck goes flat and deadpan for a bit
+    // mostly the base fuck-you duck; a guest persona now and then, a short deadpan spell every third swap
+    const kind = ['guest', 'base', 'neutral', 'base'][swaps++ % 4];
+    persona = kind === 'neutral' ? neutral : kind === 'guest' ? pick(personas.slice(1)) : personas[0];
+    if (persona.neutral) nextSwap = turns + 1 + Math.floor(Math.random() * 2);
+    $('#mood').textContent = persona.name;
+    chaos('spin', 1000); // personality change
+    const el = document.createElement('div'); el.className = 'msg sys'; el.textContent = persona.neutral ? `😐 Dr. Quackers has gone flat. (${persona.name})` : `⚠️ Dr. Quackers' mood changed: ${persona.name}`;
+    log.append(el); log.scrollTop = log.scrollHeight;
+  }
+
+
+  // ---- memes: the duck makes you one now and then ----
+  const memes = ['drake', 'distracted', 'buttons', 'brain', 'pigeon', 'fine', 'exit', 'cat', 'harold', 'gru', 'rollsafe', 'mordor', 'sponge', 'panik', 'astronaut', 'afraid', 'wonka', 'fry', 'cs-drake', 'cs-fry', 'cs-astronaut', 'cs-exit', 'job-cat', 'job-mordor', 'health-harold', 'health-rollsafe'];
+  const memeIntros = ["Found a meme about you.", "Meme break. You're exhausting.", "I don't do feelings. I do memes.", "This is you. Don't argue.", "Sending this to the group chat. The geese loved it.", "Exhibit A:", "My notes, in meme form:"];
+  const memeAlt = { drake: 'Drake rejecting processing your feelings like an adult, approving trauma dumping on a duck that hates you', distracted: 'Distracted boyfriend: Dr. Quackers ignores your problems to look at bread', buttons: 'Two buttons: be a good therapist, or keep billing $666/hr', brain: 'Galaxy brain: friends, therapist, duck, becoming the duck', pigeon: 'Is this a pigeon: me, a duck that hates me, is this healing?', fine: 'This is fine: you after 3 sessions with a duck', exit: 'Car swerving off the exit to complain to a duck instead of fixing your life', cat: 'Woman yelling at cat: your trauma vs. got any bread?', harold: 'Hide the pain Harold: when the duck you trusted calls you a dipshit', gru: "Gru's plan: tell the duck my problems, expect sympathy, duck says skill issue", rollsafe: "Roll safe: can't have problems if you never stop talking about them", mordor: 'One does not simply get sympathy from a duck', sponge: 'Mocking SpongeBob: i ThInK i NeEd HeLp', panik: 'Panik kalm panik: the duck is being nice, it is a phase, it learned your address', astronaut: 'Always has been: the duck never cared', afraid: "Afraid to ask where this duck got its degree", wonka: "Condescending Wonka: tell me how unique your problems are", fry: 'Not sure if therapy or just a duck yelling at me', 'cs-drake': 'Drake rejecting studying all semester, approving learning it the night before at 2x speed', 'cs-fry': 'Not sure if bug or a feature I forgot I wrote', 'cs-astronaut': 'Always has been: senior engineers google everything too', 'cs-exit': 'CS students swerving from finishing the assignment to rewriting it in Rust', 'job-cat': "Manager: we're a family here. Me: then why can't I take PTO", 'job-mordor': 'One does not simply take PTO without checking Slack', 'health-harold': "Harold smiling through the ER bill, and that's after insurance", 'health-rollsafe': "Can't have medical bills if you never go to the doctor" };
+  const memeH = {"afraid":510,"astronaut":292,"brain":734,"buttons":776,"cat":334,"cs-astronaut":292,"cs-drake":813,"cs-exit":465,"cs-fry":389,"distracted":346,"drake":813,"exit":465,"fine":504,"fry":389,"gru":333,"harold":346,"health-harold":346,"health-rollsafe":290,"job-cat":334,"job-mordor":306,"mordor":306,"panik":727,"pigeon":312,"rollsafe":290,"sponge":365,"wonka":373};
+  function postMeme() {
+    face('wide'); chaos('spin', 1000);
+    const el = document.createElement('div'); el.className = 'msg meme-wrap';
+    // lean towards a meme about whatever you were just talking about
+    const themed = memes.filter(m => lastCat && m.startsWith({ cs: 'cs-', work: 'job-', health: 'health-' }[lastCat] || '#'));
+    const name = themed.length && Math.random() < 0.6 ? fresh(themed) : fresh(memes);
+    el.innerHTML = `<div class="meme-intro">${fresh(memeIntros)}</div><img class="meme-img" src="memes/${name}.webp" width="520" height="${memeH[name] || 520}" alt="Meme: ${memeAlt[name]}">`;
+    log.append(el); log.scrollTop = log.scrollHeight;
+    // scroll so the caption above the meme stays in view
+    const showMeme = () => {
+      const over = el.getBoundingClientRect().top - log.getBoundingClientRect().top;
+      log.scrollTop = el.offsetHeight > log.clientHeight - 16 ? log.scrollTop + over - 8 : log.scrollHeight;
+    };
+    el.querySelector('img').onload = showMeme; showMeme();
+    setTimeout(() => face('feral'), 1400);
+  }
+
+  // ---- random events: about a third of the time something weird happens instead ----
+  const later = (ms, fn) => { const id = setTimeout(fn, ms); pending.push(id); return id; };
+  const events = [
+    () => {
+      say("Hold on. I'm starving.", 'duck');
+      later(500, eatNotepad);
+      later(3200, () => say(pick(["*burp* Okay. I just ate all my notes on you. Not that there were many.", "*burp* Tasted like your problems. Bland.", "That was the only copy of your file. Oh well. Fresh start. Same problems."]), 'duck', 'Notes: [eaten]'));
+    },
+    () => {
+      const old = said.slice(0, -2);
+      if (!old.length) { say(fresh(generic), 'duck'); return; }
+      const q = Array.from(pick(old)).slice(0, 70).join('');
+      face('roll'); say(pick([`Earlier you said "${q}". Interesting. Consistent with my findings.`, `Let the record show that you once said "${q}". The court will remember.`, `Remember when you said "${q}"? I do. I wrote it down. Twice.`]), 'duck', 'Notes: "evidence"');
+    },
+    () => { say("Hold on, my creator's texting me.", 'duck'); later(1500, () => say(pick(["*reads* 'make it funnier'. …I'm DOING MY BEST.", "*reads* 'is it live yet'. It's been live for an hour. Touch grass.", "*reads* 'can you be meaner'. Oh, I can be meaner."]), 'duck')); },
+    () => {
+      face('bored'); say("Let me check if you're covered. One sec. *calls your insurance* 📞", 'duck');
+      later(1400, () => say("🎵 Your call is important to us. Your estimated wait time is… four… hours. 🎵", 'duck flat'));
+      later(3000, () => { face('wide'); say(pick(["Okay. Claim denied. Reason: 'you.'", "Okay. You're covered! For one (1) aspirin. Per year. Don't get greedy.", "Okay. They said the duck is a pre-existing condition. You've had me for like six minutes."]), 'duck'); });
+    },
+    t => { face('roll'); say(`"${Array.from(t).slice(0, 80).join('')}"? lmao. Listen to yourself. Read that back. Out loud. Embarrassing.`, 'duck', 'Notes: "framed this one"'); },
+    t => { face('wide'); say(Array.from(t).slice(0, 80).map((c, i) => i % 2 ? c.toUpperCase() : c.toLowerCase()).join('') + ' 🤪', 'duck', 'Notes: mocking (clinical)'); },
+    () => {
+      const mine = [...log.querySelectorAll('.msg.you')].pop();
+      if (mine) { mine.textContent = '🦆 [message eaten]'; mine.style.fontStyle = 'italic'; }
+      chaos('vibrate', 500); talk('chewing chewing'); say("*chewing* Mm. Tasted like bullshit. Say it again but better.", 'duck');
+    },
+    () => {
+      face('bored'); say("Hold on. My phone. 📱", 'duck');
+      later(1400, () => say("*answers* Yeah. Yeah. No, the client's still talking. Ugh. I KNOW. Fuck. Okay. Love you Gerald. Bye.", 'duck'));
+      later(3200, () => { face('feral'); say("Sorry. Where were we? Oh right — I don't care.", 'duck'); });
+    },
+    () => {
+      pop('HONK'); shake(); face('wide');
+      say("WAS THAT A GOOSE?? GET OUT. GET THE FUCK OUT OF MY OFFICE. YOU'RE NOT WELCOME HERE.", 'duck').classList.add('loud');
+      later(1800, () => say("…Okay. It's gone. Anyway, your problem is stupid.", 'duck'));
+    },
+    () => {
+      const a = pick(['Your problem is loud', 'You came to a duck', 'Bread is on my mind', 'Your feelings are wet']);
+      const b = pick(['nobody asked, fuck you, though', 'I am eating a pebble', 'the geese are judging you, loser', 'I would rather be a lake']);
+      const c = pick(['go away now, please', 'quack, motherfucker', 'bring me some bread', 'fuck off, but gently']);
+      say(`A haiku for you:\n\n${a}\n${b}\n${c}`, 'duck', 'Notes: "I\'m an artist"');
+    },
+    () => say("Homework before next session:\n1. Touch grass.\n2. Yell at one (1) goose.\n3. Stop telling ducks your problems.\n4. Bring bread. Lots.", 'duck', 'Notes: assigned homework (will not check)'),
+    () => { face('roll'); say(Array.from({ length: 6 + Math.floor(Math.random() * 10) }, () => pick(['quack', 'QUACK', 'quack.', 'quack?'])).join(' '), 'duck', 'Notes: "full clinical assessment"'); },
+    () => { face('wide'); say("Wait. Who the fuck are you? How long have you been in here?? Why are you on my couch??", 'duck'); later(1600, () => say("Oh. Right. The whiny one. Continue.", 'duck')); },
+    () => { say("🪴 (the plant): he's like this with everyone. I'm so sorry. Blink twice if you need help.", 'plantmsg'); later(1500, () => { shake(); say("SHUT UP, PLANT.", 'duck').classList.add('loud'); }); },
+    () => {
+      const el = say("Quick check-in. On a scale of 1 to 10, how much do you want me to care?", 'duck');
+      const row = document.createElement('div'); row.className = 'rate';
+      [1, 3, 5, 7, 10].forEach(n => { const b = document.createElement('button'); b.type = 'button'; b.textContent = n; b.onclick = () => { row.remove(); say(`${n}? Cool. I care about 0. Session over. Kidding. Unfortunately.`, 'duck'); }; row.append(b); });
+      el.append(row);
+    },
+    () => {
+      face('roll');
+      say("I've been taking notes. Here's my official diagnosis:", 'duck');
+      if (!busyScreen()) wear('accSteth', 2200);
+      later(1500, () => say(pick(["🩺 Diagnosis: chronic main-character syndrome. Prognosis: insufferable.", "🩺 Diagnosis: you're just a guy. Treatment: none. Nothing can be done.", "🩺 Diagnosis: severely online. Prescription: touch grass, twice daily, with food.", "🩺 Diagnosis: you have the emotional range of a wet baguette."]), 'duck', 'Notes: "nailed it"'));
+    },
+    () => {
+      say("Hold on, I'm getting a second opinion.", 'duck');
+      later(1400, () => say("*turns to the plant*", 'duck'));
+      later(2600, () => say("🪴: …yeah, no. That's a them problem.", 'plantmsg'));
+      later(3800, () => { face('wide'); say("THE PLANT AGREES WITH ME. CASE CLOSED.", 'duck').classList.add('loud'); shake(); });
+    },
+    () => say(`Fun fact: ${pick(["ducks can sleep with one eye open. I'm doing it now so I don't have to fully see you.", "a group of ducks is called a 'raft.' A group of you is called 'a lot.'", "ducks are waterproof. Your excuses are not.", "ducks have no nerve endings in their feet. I have none in my heart either."])}`, 'duck', 'Notes: educational content'),
+    () => { say("You have 3 seconds to say something interesting.", 'duck'); later(1000, () => say('3…', 'duck')); later(2000, () => say('2…', 'duck')); later(3000, () => { say('1… nope. Boring. As expected.', 'duck'); face('roll'); }); },
+  ];
+
+  const said = [];
+  function send(text) {
+    if (busy || !text.trim()) return;
+    busy = true; turns++;
+    say(text, 'you');
+    input.value = '';
+    face('scribble');
+    const serious = isSerious(text);
+    if (!serious) said.push(text.trim());
+    if (serious) { hush(); quietTurns = crisis.test(norm(text)) ? Infinity : 3; }
+    else if (quietTurns > 0) quietTurns--;
+    const typing = say(pick(["Dr. Quackers is eating the notepad…", "Dr. Quackers is screaming into a cup…", "Dr. Quackers is staring at the plant…", "Dr. Quackers is vibrating…", "Dr. Quackers is chewing on the lamp cord…", "Dr. Quackers left the room and came back wet…"]), 'typing');
+    later(900 + Math.random() * 1100, () => { typing.remove(); try { respond(text); } finally { busy = false; resetIdle(); } });
+    $('#plant').classList.toggle('wilt', turns > 4);
+    if (serious || quiet()) return;
+    later(2400, maybeSwapPersona);
+    if (turns === 3 || (turns > 3 && turns % 5 === 3)) later(3400, postMeme);
+    else if (turns === 6 || (turns > 6 && turns % 8 === 6)) later(3000, billToast);
+  }
+
+  // idle: duck falls asleep
+  let tapTimer;
+  function resetIdle() {
+    clearTimeout(idleTimer); clearTimeout(tapTimer);
+    idleTimer = setTimeout(() => face('asleep'), 25000);
+  }
+
+  $('#form').addEventListener('submit', e => { e.preventDefault(); send(input.value); });
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(input.value); } });
+  input.addEventListener('input', () => {
+    // takes notes while you type
+    if (!busy && !duck.classList.contains('asleep')) duck.classList.toggle('scribble', !!input.value.trim());
+    if (duck.classList.contains('asleep')) { face('wide'); if (!quiet()) pop("I WASN'T ASLEEP. You're just that boring."); }
+    resetIdle();
+  });
+
+  const starters = ["My boss hates me", "I pushed a bug to prod", "My ex texted me", "I'm so tired", "What should I do with my life?", "I feel anxious all the time"];
+  starters.forEach(s => { const b = document.createElement('button'); b.type = 'button'; b.textContent = s; b.onclick = () => send(s); $('#chips').append(b); });
+
+  duck.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); duck.dispatchEvent(new Event('click')); } });
+  let pokes = [];
+  duck.addEventListener('click', e => {
+    const nb = $('#notepad').getBoundingClientRect();
+    const onPad = e.clientX >= nb.left && e.clientX <= nb.right && e.clientY >= nb.top && e.clientY <= nb.bottom;
+    if (onPad && !duck.classList.contains('eating')) { face('wide'); eatNotepad(); pop(pick(['Mine. *chomp*', "Hey! That's my lunch.", 'Fine. I wasn\'t taking notes anyway.'])); return; }
+    pokes = pokes.filter(t => Date.now() - t < 3000).concat(Date.now());
+    if (pokes.length >= 3) { pokes = []; chaos('spin', 1000); crazyEyes(1200); }
+    face('wide'); chaos('flinch', 350); crazyEyes(900); if (!quiet() && !document.querySelector('.acc.on') && Math.random() < 0.25) fx.random(); pop(pick(["DON'T FUCKING TOUCH ME", "Touch me again and I bite your fucking finger off.", "Hands off, asshole.", "Boop me one more time. I dare you.", "FUCK OFF (affectionate)"])); setTimeout(() => face('feral'), 1200); });
+
+  $('#end').addEventListener('click', () => restart());
+
+  // billing meter
+  const RATE = 666 / 3600; // $666/hr, billed per second
+  setInterval(() => { $('#meter').textContent = '$' + ((Date.now() - start) / 1000 * RATE).toFixed(2); }, 250);
+
+  // the invoice: itemised slowly, for drama
+  const extras = [["Listening (did not happen)", 0], ["Screaming, professional grade", 85], ["Notepad (eaten)", 60], ["Goose surveillance countermeasures", 149.99], ["Spinning (therapeutic)", 40], ["40 loaves of bread", 120], ["Emotional support pebble (swallowed)", 9], ["Gerald's consulting fee", 300], ["Memes (stolen)", 45], ["The plant's second opinion", 30], ["Damage to the lamp", 75], ["Pretending to take notes", 110], ["Royalties owed to my creator (unfortunately)", 88], ["Creator's 'make it funnier' consulting fee", 50], ["Out-of-network duck surcharge", 450], ["Facility fee (you walked into the room)", 275], ["Aspirin, 1 (one)", 38], ["Looking at your chart", 199], ["Holding your hand (billed as 'emotional support device')", 120], ["Paperwork about the paperwork", 64], ["Single-person surcharge (table for one)", 40]];
+  let rows = [], billTimers = [], fleeTries = 0;
+  const money = n => '$' + n.toFixed(2);
+  const rowHTML = (r, anim = true) => `<tr${anim ? ' class="in"' : ''}><td>${r[0]}</td><td>${money(r[1])}</td></tr>`;
+  function totalRow(final) {
+    const total = rows.reduce((a, r) => a + r[1], 0);
+    return final ? `<tr class="total in"><td>TOTAL DUE</td><td class="slam">${money(total)}</td></tr><tr><td colspan="2"><span class="stamp">OVERDUE</span></td></tr>`
+                 : `<tr class="total"><td>TOTAL DUE</td><td class="drum">🥁 calculating…</td></tr>`;
+  }
+  // re-render without replaying every row's entrance; only the newest row animates
+  function renderBill(animateFrom = rows.length) { $('#items').innerHTML = rows.map((r, i) => rowHTML(r, i >= animateFrom)).join('') + totalRow(true); }
+  function openBill() {
+    billTimers.forEach(clearTimeout); billTimers = [];
+    const secs = (Date.now() - start) / 1000;
+    rows = [[`Session time (${Math.max(1, Math.round(secs / 60))} min @ $666/hr)`, secs * RATE], [`Complaints heard: ${turns}`, turns * 15]];
+    // charges built from your own words
+    const words = said.join(' ').toLowerCase();
+    const count = re => (words.match(re) || []).length;
+    const personal = [[count(/\bliterally\b/g), n => `Use of "literally" (×${n})`, 12], [count(/\bi feel\b/g), n => `"I feel" surcharge (×${n})`, 9.5], [count(/\bsorry\b/g), n => `Apologising to a duck (×${n})`, 7], [count(/\bjust\b/g), n => `Saying "just" (×${n})`, 4], [count(/\blike\b/g), n => `Saying "like" (×${n})`, 3], [count(/!/g), n => `Exclamation marks (×${n})`, 2]]
+      .filter(x => x[0] > 0).slice(0, 2).map(([n, label, each]) => [label(n), n * each]);
+    rows.push(...personal);
+    if (said.length) rows.push([`Words typed: ${words.split(/\s+/).filter(Boolean).length} ($0.10 each)`, words.split(/\s+/).filter(Boolean).length * 0.1]);
+    [...extras].sort(() => Math.random() - .5).slice(0, 4).forEach(x => rows.push(x));
+    fleeTries = 0; $('#flee').style.transform = ''; $('#flee').textContent = 'Leave without paying';
+    $('#verdict').textContent = ''; $('#demand').style.visibility = 'hidden';
+    document.querySelectorAll('.bill .actions').forEach(a => a.style.visibility = 'hidden');
+    $('#items').innerHTML = '';
+    if (!$('#bill').open) $('#bill').showModal();
+    face('wide');
+    // line items drop in one at a time, then a drumroll, then the total slams down
+    rows.forEach((r, i) => billTimers.push(setTimeout(() => { $('#items').insertAdjacentHTML('beforeend', rowHTML(r)); }, 350 + i * 380)));
+    const t = 350 + rows.length * 380;
+    billTimers.push(setTimeout(() => $('#items').insertAdjacentHTML('beforeend', totalRow(false)), t));
+    billTimers.push(setTimeout(() => {
+      renderBill(); shake();
+      $('#demand').style.visibility = '';
+      document.querySelectorAll('.bill .actions').forEach(a => a.style.visibility = '');
+      $('#dispute').focus();
+    }, t + 1400));
+  }
+  $('#billBtn').addEventListener('click', openBill);
+  $('#meterBox').addEventListener('click', openBill);
+  $('#meterBox').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBill(); } });
+
+  // a small "your bill is ready" pop-up every so often; never blocks the chat
+  let toastTimer;
+  const hideToast = () => { clearTimeout(toastTimer); $('#billToast').hidden = true; };
+  function billToast() {
+    if (quiet() || $('#bill').open) return;
+    $('#billToastText').textContent = fresh(["🧾 Your bill is ready. Brace yourself.", "🧾 Gerald itemised your bill. It's bad.", "🧾 Your bill just got worse. Want to see?", "🧾 Friendly reminder: you owe a duck money.", "🧾 New charges added. You won't like them."]);
+    $('#billToast').hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 7000);
+  }
+  $('#billToastBtn').addEventListener('click', () => { hideToast(); openBill(); });
+  $('#billToastX').addEventListener('click', hideToast);
+  $('#bill').addEventListener('close', () => { billTimers.forEach(clearTimeout); $('#billBtn').focus(); });
+
+  const rulings = [["Dispute denied. Dispute fee added.", "Dispute fee", 25], ["Dispute reviewed by the plant. Plant says no.", "Plant review fee", 40], ["Wow. Rude. Attitude surcharge added.", "Attitude surcharge", 66.6], ["I'm not reading that. Reading fee added.", "Reading fee (did not read)", 19.99], ["Disputing is a cry for help. Billing it.", "Cry for help", 50], ["Objection overruled. I'm also the judge.", "Court costs (I am the court)", 99], ["Claim denied. Reason: you.", "Claim review fee", 35], ["Your dispute was forwarded to a call center. Hold time: eternal.", "Hold music licensing fee", 22], ["Disputing requires prior authorization.", "Prior authorization (for disputing)", 80]];
+  $('#dispute').addEventListener('click', () => {
+    const [msg, item, cost] = pick(rulings);
+    rows.push([item, cost]); renderBill(rows.length - 1);
+    $('#verdict').textContent = msg; chaos('nope', 600);
+  });
+
+  // the "leave" button runs away, then the duck gives up and guilt-trips you
+  const dodge = () => {
+    if (++fleeTries > 4) { $('#flee').textContent = "fine. fuck off. don't come back. (come back)"; $('#flee').style.transform = ''; return; }
+    $('#flee').style.transform = `translateX(${(Math.random() < .5 ? -1 : 1) * (50 + Math.random() * 60)}px)`;
+    $('#flee').textContent = pick(['NOPE', 'nice try, asshole', 'PAY ME', 'the geese will find you', 'fuck no', 'SECURITY!!']);
+  };
+  $('#flee').addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') dodge(); });
+  $('#flee').addEventListener('click', e => { if (fleeTries <= 4) { e.preventDefault(); dodge(); return; } $('#bill').close(); restart(); });
+
+  const paid = {
+    bread: ["Bread received. 🍞 You're cured. Now get the fuck out of my office.", "…This is sourdough. You absolute legend. Still hate you though."],
+    coins: ["Pennies?? From a FOUNTAIN?? These are MY fucking pennies, you thief. Session extended forever.", "You paid me in wishes. Other people's wishes. That's dark. I respect it."],
+    insurance: ["Insurance?? HAHAHA. *wipes tear* Claim denied. You now owe the full amount PLUS a $90 'you tried' fee.", "I called them. They covered 2%. The remaining 98% is your responsibility, and so is your attitude.", "Your insurance said I'm out-of-network. I'm a duck. I'm out of EVERY network."],
+    soul: ["Soul received. Pretty shitty soul, honestly. Small. Damp. I'll keep it anyway. 👻", "Your soul has been added to the pond. It's in there with 400 others. Gerald says hi."],
+  };
+  document.querySelectorAll('[data-pay]').forEach(b => b.addEventListener('click', () => {
+    billTimers.forEach(clearTimeout);
+    $('#bill').close(); chaos('spin', 1000); face('wide');
+    say(pick(paid[b.dataset.pay]), 'duck', 'Notes: "PAID. buy 40 loaves."');
+    start = Date.now();
+    setTimeout(() => say("Same time next week. Bring the same problem. I'll bring the same lack of interest.", 'duck'), 2200);
+    setTimeout(() => face('feral'), 1600);
+  }));
+  function restart() { hideToast(); document.querySelectorAll('.acc.on').forEach(g => g.classList.remove('on')); document.querySelectorAll('.prop').forEach(e => e.remove()); hush(); billTimers.forEach(clearTimeout); quietTurns = 0; busy = false; lastPicks.length = 0; $('#plant').classList.remove('wilt'); log.innerHTML = ''; start = Date.now(); turns = 0; nextSwap = 6; swaps = 0; persona = personas[0]; $('#mood').textContent = persona.name; face('feral'); greet(); }
+
+  function greet() { later(400, () => say("Oh, fuck. A client. Sit down. Not there. NOT THERE. …Whatever. What's your fucking problem?", 'duck', 'Notes: "ugh."')); }
+  greet(); resetIdle();
+})();
+</script>
+</body>
+</html>
