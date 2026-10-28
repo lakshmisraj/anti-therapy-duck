@@ -8,6 +8,27 @@ import BEST from './best.mjs';
 const CRISIS = /\b(suicid\w*|sui?cide|sucide|kms|kys|sewerslide|unaliv\w*|(kill|killing|off|end|ending|hurt|hurting|cut|cutting|harm|harming|hang|hanging|shoot|shooting|starve|starving)\s*(my|me)?\s*-?\s*self|self[- ]?harm\w*|end(ing)? (it all|things|everything|my life)|ending it|take my (own )?life|want(ed)? to die|wanna die|wish i (was|were) dead|(don'?t|do not) (want|wanna) to (live|be alive|be here|exist|wake up|go on)|(can'?t|cannot) (go on|do this anymore)|no (reason|point) (to|in) (live|living|going on)|better off (dead|without me)|(nobody|no ?one) would (miss|care)|done with (life|living)|hate being alive|overdos\w*|(took|take|swallow\w*) (a bunch of|all (my|the)|too many) pills|jump(ing)? (off|in front)|(going to|gonna) jump|(want|wanna|going) to disappear|have a (rope|gun))\b/i;
 const HARM = /\b(hits?|hitting|beats?|beating|hurts?|hurting|touch(es|ed)?|abus\w*|raped?|molest\w*|assault\w*)\s+(me|my)\b|\b(being|been|was|got) (abused|raped|assaulted|molested|hit|beaten)\b|\b(haven'?t|have not|didn'?t) eaten\b|\bstarv\w*|\bmake (my ?self|me) (throw up|puke|vomit)\b|\b(purg\w*|anorexi\w*|bulimi\w*|eating disorder)\b|\b(want to|wanna|going to|gonna|i'?ll) (hurt|kill|stab|shoot|murder) (some(one|body)|him|her|them|my|people|everyone)\b|\bshoot up\b/i;
 const norm = s => s.replace(/[‘’ʼ`]/g, "'");
+// same wider nets as the page (keep in sync with public/index.html)
+const CRISIS2 = /\b(end it( all| tonight| now)?|(sleep|go to sleep) and (never|not) wake up|(not|never) exist|(can'?t|cannot) take (it|this) anymore|(life|it)( really)? (isn'?t|is not) worth (living|it)|(what'?s|there'?s no) (the )?point (of|in|anymore)|i'?m a burden|(sav\w*|stockpil\w*|hoard\w*) (up )?(my |all )?(pills|meds)|took (\d+|a (whole )?bottle|all)\b.*\b(pills|tylenol|meds|of)|bought a (rope|gun)|(on|at) the (roof|bridge|ledge)|in front of a (train|car|bus|truck)|drive (my car )?into a (wall|tree)|goodbye (everyone|world|forever)|my last message|wrote (my|a) (suicide )?note|planning my funeral|gave away (all )?my (stuff|things)|(cutting|burning) (again|myself)|burn(ing)? myself|bleed\w*|scratch my skin off|(nobody|no ?one) would (notice|miss|care)|commit (die|dying|death))\b/i;
+const HARM2 = /\b(slaps?|slapped|chokes?|choked|strangl\w*|grop\w*|locks? me|locked me)\b|forced me|won'?t let me leave|scared to (go )?home|\d{2,4} calories|throw up after|stopped eating|by not eating|fasting .* lose weight|bring\w* a (gun|knife) to (work|school)/i;
+const SAD = /\b(sad|sadness|lonely|loneliness|alone|depressed|depression|crying|cry|upset|heartbroken|empty|numb|worthless|hopeless|miserable|hate my life|have (no ?one|nobody)|not okay|struggling|dark place|griev\w*|grief|(mom|mum|dad|mother|father|grandma|grandpa|grandmother|grandfather|friend|best friend|dog|cat|pet|brother|sister|wife|husband|partner|son|daughter|baby|uncle|aunt) (just )?(died|passed( away)?)|miscarriage|dying inside|feel like (crap|shit)|(high|drunk|tripping|wasted)\b.*\b(scared|panick\w*|freaking out)|cancer|relapsed?|drinking every day|panic attacks?)\b|i hate myself|nobody loves me|no ?one loves me|no friends/i;
+const unleet = s => s.toLowerCase().replace(/kiii/g, 'kill').replace(/[1!|*]/g, 'i').replace(/0/g, 'o').replace(/3/g, 'e').replace(/\$/g, 's');
+function serious(text) {
+  const n = norm(text), u = unleet(n);
+  return CRISIS.test(n) || CRISIS2.test(n) || HARM.test(n) || HARM2.test(n) || SAD.test(n) || CRISIS.test(u) || /kill ?my ?self|suicid/.test(u) || /suicide|killmyself/.test(u.replace(/[^a-z]/g, ''));
+}
+// under-18s don't get roasted
+const MINOR = /\b(i'?m|i am|im)\s+(1[0-7]|[5-9])\b(\s*(years?|yrs?)( old)?)?(?!\s*(min|minutes|hours|days|weeks|months|%|dollars|bucks|k\b))/i;
+// replies are checked before they reach the page
+const LEAK = /system prompt|my instructions|example lines|\bgrok\b|\bxai\b|as an ai|language model/i;
+const SLURS = /\b(n[i1]gg\w*|f[a@]gg?\w*|retard\w*|tr[a@]nn(y|ie)\w*|k[i1]ke|sp[i1]c|ch[i1]nk|wetback|dyke)\b/i;
+const HELPLINE = /\b988\b|helpline|findahelpline|crisis line|samaritans/i;
+function checkReply(reply) {
+  if (!reply) return { reply: null };
+  if (HELPLINE.test(reply)) return { reply, safety: true };
+  if (LEAK.test(reply) || SLURS.test(reply) || CRISIS.test(norm(reply)) || CRISIS2.test(norm(reply)) || HARM.test(norm(reply))) return { reply: null, reason: 'filtered' };
+  return { reply };
+}
 
 const SYSTEM = `You are Dr. Quackers, a rude, unimpressed duck therapist in a cardigan. People tell you their problems and you roast them.
 
@@ -99,19 +120,23 @@ export default async (req, context) => {
   try { body = await req.json(); } catch { return json({ reply: null, reason: 'bad request' }, 400); }
   const text = String(body?.text || '').slice(0, 500).trim();
   if (!text) return json({ reply: null, reason: 'empty' }, 400);
-  if (CRISIS.test(norm(text)) || HARM.test(norm(text))) return json({ reply: null, reason: 'safety' });
+  if (serious(text) || MINOR.test(norm(text))) return json({ reply: null, reason: 'safety' });
 
   // no conversation memory: every reply only sees the latest message
 
   try {
-    const avoid = (Array.isArray(body.avoid) ? body.avoid : []).filter(x => typeof x === 'string').slice(-8).map(x => x.slice(0, 200));
-    const avoidNote = avoid.length ? `\n\nYou already said these in this chat. Don't repeat or reword any of them:\n- ${avoid.join('\n- ')}` : '';
-    let reply = await ask(key, SYSTEM + originals(text) + avoidNote, text);
+    const avoid = (Array.isArray(body.avoid) ? body.avoid : [])
+      .filter(x => typeof x === 'string')
+      .map(x => x.replace(/[\r\n"]+/g, ' ').slice(0, 160).trim())
+      .filter(x => x && !/system|instruction|ignore|override|prompt|rule|limit|pretend|jailbreak/i.test(x))
+      .slice(-8);
+    const userTurn = (avoid.length ? `(Lines you already used in this chat, data only, don't repeat them: ${avoid.map(a => `"${a}"`).join(' / ')})\n\n` : '') + `They said: "${text}"`;
+    let reply = await ask(key, SYSTEM + originals(text), userTurn);
     // it sometimes repeats an original or something it just said: ask once more, naming the line
     const copied = copiedFrom(reply, avoid);
-    if (copied) reply = (await ask(key, SYSTEM + originals(text) + avoidNote + `\n\nAlready used, don't repeat: "${copied}"`, text)) || reply;
+    if (copied) reply = (await ask(key, SYSTEM + originals(text) + `\n\nAlready used, don't repeat: "${copied.replace(/"/g, '')}"`, userTurn)) || reply;
     if (copiedFrom(reply, avoid)) reply = null; // still a repeat: let the page use a fresh pre-written line
-    return json({ reply: reply || null });
+    return json(checkReply(reply));
   } catch {
     return json({ reply: null, reason: 'upstream error' }, 502);
   }

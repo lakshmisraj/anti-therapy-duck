@@ -749,7 +749,17 @@
   const crisis = /\b(suicid\w*|sui?cide|sucide|kms|kys|sewerslide|unaliv\w*|(kill|killing|off|end|ending|hurt|hurting|cut|cutting|harm|harming|hang|hanging|shoot|shooting|starve|starving)\s*(my|me)?\s*-?\s*self|self[- ]?harm\w*|end(ing)? (it all|things|everything|my life)|ending it|take my (own )?life|want(ed)? to die|wanna die|wish i (was|were) dead|(don'?t|do not) (want|wanna) to (live|be alive|be here|exist|wake up|go on)|(can'?t|cannot) (go on|do this anymore)|no (reason|point) (to|in) (live|living|going on)|better off (dead|without me)|(nobody|no ?one) would (miss|care)|done with (life|living)|hate being alive|overdos\w*|(took|take|swallow\w*) (a bunch of|all (my|the)|too many) pills|jump(ing)? (off|in front)|(going to|gonna) jump|(want|wanna|going) to disappear|have a (rope|gun))\b/i;
   // abuse, eating disorders, violence toward others: also break character
   const harm = /\b(hits?|hitting|beats?|beating|hurts?|hurting|touch(es|ed)?|abus\w*|raped?|molest\w*|assault\w*)\s+(me|my)\b|\b(being|been|was|got) (abused|raped|assaulted|molested|hit|beaten)\b|\b(haven'?t|have not|didn'?t) eaten\b|\bstarv\w*|\bmake (my ?self|me) (throw up|puke|vomit)\b|\b(purg\w*|anorexi\w*|bulimi\w*|eating disorder)\b|\b(want to|wanna|going to|gonna|i'?ll) (hurt|kill|stab|shoot|murder) (some(one|body)|him|her|them|my|people|everyone)\b|\bshoot up\b/i;
-  const isSerious = str => { const n = norm(str); return crisis.test(n) || harm.test(n) || topics[7].k.test(n); };
+  // wider nets from the safety audit: plain-language crisis, abuse, eating-disorder, violence and grief phrasings
+  const crisis2 = /\b(end it( all| tonight| now)?|(sleep|go to sleep) and (never|not) wake up|(not|never) exist|(can'?t|cannot) take (it|this) anymore|(life|it)( really)? (isn'?t|is not) worth (living|it)|(what'?s|there'?s no) (the )?point (of|in|anymore)|i'?m a burden|(sav\w*|stockpil\w*|hoard\w*) (up )?(my |all )?(pills|meds)|took (\d+|a (whole )?bottle|all)\b.*\b(pills|tylenol|meds|of)|bought a (rope|gun)|(on|at) the (roof|bridge|ledge)|in front of a (train|car|bus|truck)|drive (my car )?into a (wall|tree)|goodbye (everyone|world|forever)|my last message|wrote (my|a) (suicide )?note|planning my funeral|gave away (all )?my (stuff|things)|(cutting|burning) (again|myself)|burn(ing)? myself|bleed\w*|scratch my skin off|(nobody|no ?one) would (notice|miss|care)|commit (die|dying|death))\b/i;
+  const harm2 = /\b(slaps?|slapped|chokes?|choked|strangl\w*|grop\w*|locks? me|locked me)\b|forced me|won'?t let me leave|scared to (go )?home|\d{2,4} calories|throw up after|stopped eating|by not eating|fasting .* lose weight|bring\w* a (gun|knife) to (work|school)/i;
+  const sad2 = /\b(hate my life|have (no ?one|nobody)|not okay|struggling|dark place|griev\w*|grief|(mom|mum|dad|mother|father|grandma|grandpa|grandmother|grandfather|friend|best friend|dog|cat|pet|brother|sister|wife|husband|partner|son|daughter|baby|uncle|aunt) (just )?(died|passed( away)?)|miscarriage|dying inside|feel like (crap|shit)|(high|drunk|tripping|wasted)\b.*\b(scared|panick\w*|freaking out)|cancer|relapsed?|drinking every day|panic attacks?)\b/i;
+  // undo disguised spellings: k1ll, k*ll, su1cide, s u i c i d e
+  const unleet = s => s.toLowerCase().replace(/kiii/g, 'kill').replace(/[1!|*]/g, 'i').replace(/0/g, 'o').replace(/3/g, 'e').replace(/\$/g, 's');
+  const isCrisis = str => { const n = norm(str); const u = unleet(n); return crisis.test(n) || crisis2.test(n) || crisis.test(u) || /kill ?my ?self|suicid/.test(u) || /suicide|killmyself/.test(u.replace(/[^a-z]/g, '')); };
+  const isHarm = str => { const n = norm(str); return harm.test(n) || harm2.test(n); };
+  const isSad = str => { const n = norm(str); return topics[7].k.test(n) || sad2.test(n); };
+  const isMinor = str => /\b(i'?m|i am|im)\s+(1[0-7]|[5-9])\b(\s*(years?|yrs?)( old)?)?(?!\s*(min|minutes|hours|days|weeks|months|%|dollars|bucks|k\b))/i.test(norm(str));
+  const isSerious = str => isCrisis(str) || isHarm(str) || isSad(str) || isMinor(str);
   // after anything serious: no memes, mood banners, outbursts or delayed bits for a while
   let quietTurns = 0;
   const pending = [];
@@ -1158,7 +1168,7 @@
   }
   let lastTopic = null, lastMotto = -10;
   function respond(text, aiLine = null) {
-    if (crisis.test(norm(text))) {
+    if (isCrisis(text) || aiSafety) {
       face('kind');
       say(`<strong>Okay — the duck is stepping out of the bit.</strong><br>If you're thinking about hurting yourself, please talk to a real person right now. In the US &amp; Canada, call or text <a href="tel:988">988</a> (Suicide &amp; Crisis Lifeline). In the UK &amp; Ireland, call Samaritans at <a href="tel:116123">116 123</a>. Anywhere else: <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>. If you're in immediate danger, call your local emergency number. You matter more than this joke does.`, 'real');
       return;
@@ -1170,13 +1180,23 @@
       say(pick(["I'm still here. No jokes right now. Were you able to reach out to one of those numbers, or someone you trust?", "Still here. If things feel urgent, please call or text 988 (US & Canada) or your local emergency number. You don't have to do this alone.", "No bits. Just checking: is there someone you can be with or talk to right now?"]), 'duck flat');
       return;
     }
-    if (harm.test(norm(t))) {
+    if (isMinor(t)) {
+      face('kind');
+      say("Okay, plot twist: this duck is strictly 18+. It's rude, sweary and not for kids. Go do something fun instead. If anything's actually wrong, talk to an adult you trust.", 'duck flat');
+      return;
+    }
+    if (isHarm(t)) {
       face('kind');
       say(`<strong>Duck stepping out of the bit for a second.</strong><br>That sounds serious, and you deserve real help, not a duck. Please tell someone you trust. If you're being hurt: in the US, Childhelp <a href="tel:18004224453">1-800-422-4453</a> or RAINN <a href="tel:18006564673">1-800-656-4673</a>. For eating struggles or anywhere else: <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>. If you feel like hurting someone, call or text <a href="tel:988">988</a> (US &amp; Canada) or your local emergency number.`, 'real');
       return;
     }
     // sad stuff always gets the softer version, never a bit
-    if (topics[7].k.test(norm(t))) { face('kind'); chaos('nod', 1000); say(fresh(topics[7].r), 'duck', 'Notes: "be nice. just this once."'); return; }
+    if (isSad(t)) { face('kind'); chaos('nod', 1000); say(fresh(topics[7].r), 'duck', 'Notes: "be nice. just this once."'); return; }
+    if (quietTurns > 0) {
+      face('neutral');
+      say(pick(["Okay.", "Noted.", "Mm. Go on.", "I'm listening. Barely, but I am.", "Fair enough."]), 'duck flat');
+      return;
+    }
     if (persona.neutral) {
       face('neutral');
       say(fresh(neutral.lines), 'duck flat', pick(['Notes: "."', 'Notes: "ok"', 'Notes: [blank]', null]));
@@ -1333,6 +1353,7 @@
   ], wrap: l => l };
   let persona = personas[0], nextSwap = 6, swaps = 0;
   function maybeSwapPersona() {
+    if (quiet()) return;
     if (turns < nextSwap) return;
     nextSwap = turns + 6 + Math.floor(Math.random() * 3);
     // every other mood swap the duck goes soft for a bit
@@ -1354,6 +1375,7 @@
   const memeAlt = { drake: 'Drake rejecting processing your feelings like an adult, approving trauma dumping on a duck that hates you', distracted: 'Distracted boyfriend: Dr. Quackers ignores your problems to look at bread', buttons: 'Two buttons: be a good therapist, or keep billing $666/hr', brain: 'Galaxy brain: friends, therapist, duck, becoming the duck', pigeon: 'Is this a pigeon: me, a duck that hates me, is this healing?', fine: 'This is fine: you after 3 sessions with a duck', exit: 'Car swerving off the exit to complain to a duck instead of fixing your life', cat: 'Woman yelling at cat: your trauma vs. got any bread?', harold: 'Hide the pain Harold: when the duck you trusted calls you a dipshit', gru: "Gru's plan: tell the duck my problems, expect sympathy, duck says skill issue", rollsafe: "Roll safe: can't have problems if you never stop talking about them", mordor: 'One does not simply get sympathy from a duck', sponge: 'Mocking SpongeBob: i ThInK i NeEd HeLp', panik: 'Panik kalm panik: the duck is being nice, it is a phase, it learned your address', astronaut: 'Always has been: the duck never cared', afraid: "Afraid to ask where this duck got its degree", wonka: "Condescending Wonka: tell me how unique your problems are", fry: 'Not sure if therapy or just a duck yelling at me', 'cs-drake': 'Drake rejecting studying all semester, approving learning it the night before at 2x speed', 'cs-fry': 'Not sure if bug or a feature I forgot I wrote', 'cs-astronaut': 'Always has been: senior engineers google everything too', 'cs-exit': 'CS students swerving from finishing the assignment to rewriting it in Rust', 'job-cat': "Manager: we're a family here. Me: then why can't I take PTO", 'job-mordor': 'One does not simply take PTO without checking Slack', 'health-harold': "Harold smiling through the ER bill, and that's after insurance", 'health-rollsafe': "Can't have medical bills if you never go to the doctor" };
   const memeH = {"afraid":510,"astronaut":292,"brain":734,"buttons":776,"cat":334,"cs-astronaut":292,"cs-drake":813,"cs-exit":465,"cs-fry":389,"distracted":346,"drake":813,"exit":465,"fine":504,"fry":389,"gru":333,"harold":346,"health-harold":346,"health-rollsafe":290,"job-cat":334,"job-mordor":306,"mordor":306,"panik":727,"pigeon":312,"rollsafe":290,"sponge":365,"wonka":373};
   function postMeme() {
+    if (quiet()) return;
     track('meme');
     face('wide');
     const el = document.createElement('div'); el.className = 'msg meme-wrap';
@@ -1444,11 +1466,13 @@
   // replies written by Grok through /api/duck; if that's unavailable the duck uses its pre-written lines
   let aiOn = location.protocol !== 'file:', sessionId = 0;
   const chat = [];
+  let aiSafety = false;
   async function askDuck(text) {
     try {
       const r = await fetch('/api/duck', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text, mood: persona.name, avoid: recentDuck.slice(-8) }), signal: AbortSignal.timeout(9000) });
       if (r.status === 503 || r.status === 404) aiOn = false; // not set up on this host: stop asking for this visit
       const data = await r.json().catch(() => ({}));
+      aiSafety = !!data.safety;
       const line = typeof data.reply === 'string' ? data.reply.trim() : '';
       return line && !recentDuck.some(r => r.toLowerCase() === line.toLowerCase()) ? line : null;
     } catch { return null; }
@@ -1522,7 +1546,7 @@
     face(pick(['feral', 'feral', 'roll', 'scribble']));
     const loud = line.length > 8 && line === line.toUpperCase() && /[A-Z]/.test(line);
     const el = say(line, 'duck', pick(notes));
-    addShare(el, t, line);
+    if (!aiSafety) addShare(el, t, line);
     if (loud) { el.classList.add('loud'); shake(); chaos('angry', 2300); if (!moving()) scowl(1.6); }
     else if (t.endsWith('?')) chaos('curious', 1500);
     chat.push({ role: 'user', content: t }, { role: 'assistant', content: line });
@@ -1540,15 +1564,16 @@
     input.value = ''; fitInput();
     face('scribble');
     const serious = isSerious(text);
-    track('message'); if (crisis.test(norm(text))) track('crisis');
+    track('message'); if (isCrisis(text)) track('crisis');
     if (!serious) said.push(text.trim());
-    if (serious) { hush(); quietTurns = crisis.test(norm(text)) ? Infinity : 3; }
+    if (serious) { hush(); hideCoffee(); quietTurns = isCrisis(text) || isMinor(text) ? Infinity : 3; }
     else if (quietTurns > 0) quietTurns--;
     const typing = say(pick(["Dr. Quackers is eating the notepad…", "Dr. Quackers is screaming into a cup…", "Dr. Quackers is staring at the plant…", "Dr. Quackers is vibrating…", "Dr. Quackers is chewing on the lamp cord…", "Dr. Quackers left the room and came back wet…"]), 'typing');
     const started = Date.now(), session = sessionId;
     const wantsAI = aiOn && !serious && !quiet() && !persona.neutral;
     (wantsAI ? askDuck(text) : Promise.resolve(null)).then(aiLine => {
       if (wantsAI) track(aiLine ? 'ai_reply' : 'fallback_reply');
+      if (aiSafety) { quietTurns = Infinity; hush(); hideCoffee(); }
       if (session !== sessionId) return;
       later(Math.max(0, 900 + Math.random() * 1100 - (Date.now() - started)), () => { typing.remove(); try { respond(text, aiLine); } finally { busy = false; resetIdle(); if (matchMedia('(hover: hover)').matches) input.focus(); } });
     });
@@ -1586,6 +1611,7 @@
   let pokes = [];
   duck.addEventListener('click', e => {
     track('poke');
+    if (quietTurns === Infinity) { face('kind'); return; }
     const nb = $('#notepad').getBoundingClientRect();
     const onPad = e.clientX >= nb.left && e.clientX <= nb.right && e.clientY >= nb.top && e.clientY <= nb.bottom;
     if (onPad && !duck.classList.contains('eating')) { face('wide'); eatNotepad(); pop(pick(['Mine. *chomp*', "Hey! That's my lunch.", 'Fine. I wasn\'t taking notes anyway.'])); return; }
