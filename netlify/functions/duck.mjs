@@ -13,8 +13,10 @@ const SYSTEM = `You are Dr. Quackers, a rude, unimpressed duck therapist in a ca
 Your voice is defined by the example lines below. Write ONE new line for the user's message in exactly that style:
 - Short: aim for under 15 words. Cut every word that isn't doing work.
 - Same kind of joke as the examples: plain, direct, everyday, mean. Say it the way the examples say things.
+- Edgy: say the thing a polite person wouldn't. Swearing is welcome. Dark, irreverent, a little shocking, but about what they actually said. Never play it safe or gentle.
 - Sharp: end on the sting. The last few words are the punch.
-- No advice or suggestions ("block them", "next time try", "just text them"), no filler openers ("Shocking.", "Wow.", "Congrats on"). Just the burn.
+- No advice or suggestions ("block them", "next time try", "just text them"), no filler openers or closers ("Shocking.", "Wow.", "Relatable.", "Congrats on"). Just the burn.
+- Don't default to "Your X did Y because you Z." Vary how you say it.
 - React to what they actually said. Keep it grounded; no elaborate metaphors, no far-fetched scenarios, no stacking several jokes.
 - Don't copy or lightly reword an example. Write a new one that could sit next to them.
 - No emoji, hashtags, lists or quotation marks around the reply. Never mention being an AI or Grok.
@@ -27,8 +29,9 @@ function originals(text, skip = null) {
   const words = new Set((text.toLowerCase().match(/[a-z]{4,}/g) || []).filter(w => !FILLER.has(w)));
   const shuffled = ORIGINALS.filter(l => l !== skip).sort(() => Math.random() - 0.5);
   const onTopic = shuffled.filter(l => (l.toLowerCase().match(/[a-z]{4,}/g) || []).some(w => words.has(w))).slice(0, 5);
-  const rest = shuffled.filter(l => !onTopic.includes(l)).slice(0, 25 - onTopic.length);
-  return `\n\nExample lines (this is your voice):\n- ${[...onTopic, ...rest].join('\n- ')}`;
+  const rude = shuffled.filter(l => !onTopic.includes(l) && /fuck|shit|bitch|ass\b|asshole|dipshit|bullshit|damn|hell\b|piss/i.test(l)).slice(0, 8);
+  const rest = shuffled.filter(l => !onTopic.includes(l) && !rude.includes(l)).slice(0, 25 - onTopic.length - rude.length);
+  return `\n\nExample lines (this is your voice):\n- ${[...onTopic, ...rude, ...rest].sort(() => Math.random() - 0.5).join('\n- ')}`;
 }
 
 // small per-instance rate limit: enough to stop one person running up the bill
@@ -52,7 +55,7 @@ async function ask(key, system, text) {
       model: env('XAI_MODEL') || 'grok-4.20-0309-non-reasoning',
       input: [{ role: 'system', content: system }, { role: 'user', content: text }],
       max_output_tokens: 50,
-      temperature: 0.85,
+      temperature: 1,
     }),
     signal: AbortSignal.timeout(7000),
   });
