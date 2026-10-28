@@ -16,6 +16,15 @@ One static `index.html` with inline CSS and JavaScript, plus one Netlify Functio
 
 Replies for ordinary messages are written by xAI's Grok through `netlify/functions/duck.mjs` (served at `/api/duck`), which holds the API key, rate-limits, and re-checks for crisis messages. If the function isn't configured or fails, the duck falls back to its pre-written lines. Crisis, abuse and sad messages are always handled in the page and never sent to the AI.
 
+### Layout
+
+- `public/`: the site (`index.html`, memes, vendored GSAP, `stats.html`). Netlify publishes only this folder.
+- `netlify/functions/`: `duck.mjs` (AI replies), `track.mjs` and `stats.mjs` (analytics).
+
+### Analytics
+
+The page batches anonymous counts (visits, messages, AI vs fallback replies, memes, bills, Ko-fi clicks and so on) and sends them a few times per visit to `/api/track`, which stores daily totals in Netlify Blobs with device type and country. No cookies, no message text, no IPs stored. View them at `/stats.html` (unlisted, `noindex`).
+
 ### Configuration (Netlify environment variables)
 
 - `XAI_API_KEY` (required for AI replies)
@@ -27,8 +36,8 @@ The duck is a joke, not a therapist. If someone mentions self-harm, abuse, an ea
 
 ## Run locally
 
-Open `index.html` in a browser, or serve the folder:
+Open `public/index.html` in a browser, or serve the folder (AI replies and analytics need Netlify Functions, so they fall back or stay off locally):
 
 ```bash
-python3 -m http.server 8000
+python3 -m http.server 8000 --directory public
 ```
