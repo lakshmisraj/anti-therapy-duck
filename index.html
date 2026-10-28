@@ -209,7 +209,7 @@
     .meter b { font-size: 18px; }
     .office { flex: none; height: 26vh; height: 26dvh; min-height: 120px; justify-content: center; }
     #duck { height: 100%; width: auto; max-width: 100%; }
-    .diploma, .plant { display: none; }
+    .diploma, .plant, .poster { display: none; }
     .bubble { top: 2px; right: 0; max-width: 55%; font-size: 12px; padding: 6px 9px; }
     .session { flex: 1; min-height: 0; height: auto; box-shadow: 4px 4px 0 var(--ink); }
     .session-head { padding: 6px 10px; gap: 8px; font-size: 11px; }
@@ -269,10 +269,6 @@
   .nope #duckBody { animation: nope .6s ease-in-out; transform-origin: 210px 380px; }
   @keyframes nope { 20% { transform: rotate(-3deg); } 40% { transform: rotate(3deg); } 60% { transform: rotate(-2deg); } 80% { transform: rotate(2deg); } }
   /* the classics, now saved for real moments */
-  /* spinning around in the chair, like an office chair */
-  .office { perspective: 900px; }
-  #duck.spin { animation: swivel 1s ease-in-out; }
-  @keyframes swivel { to { transform: rotateY(360deg); } }
   /* eating the notepad: it goes to the beak, gets chomped smaller, a fresh one pops back */
   #notepad { transform-box: view-box; transform-origin: 303px 300px; }
   .eating #notepad { animation: eatpad 2.4s ease-in forwards; }
@@ -285,9 +281,6 @@
   .respawn #notepad { animation: respawn .5s cubic-bezier(.2, 1.6, .4, 1); }
   @keyframes respawn { from { transform: translateY(40px) scale(.3); opacity: 0; } }
   /* human-ish gestures, no wings involved */
-  #glasses { transition: transform .2s; }
-  .adjust #glasses { animation: adjust .7s ease-out; }
-  @keyframes adjust { 35% { transform: translateY(-6px); } 60% { transform: translateY(-6px); } }
   .sigh #duckBody { animation: sigh 1.5s ease-in-out; transform-origin: 210px 380px; }
   @keyframes sigh { 35% { transform: scale(1.035, 1.05); } 75% { transform: scale(.985, .96) translateY(4px); } }
   .shrug #duckBody { animation: shrug .8s ease-in-out; transform-origin: 210px 380px; }
@@ -295,8 +288,6 @@
   .shrug #browL, .shrug #browR { transform: translateY(-8px); }
   .skeptic #browR { transform: translateY(-11px); }
   .skeptic #browL { transform: translateY(3px); }
-  .eyeroll .pupil { animation: eyeroll 1s ease-in-out; }
-  @keyframes eyeroll { 0% { transform: translate(-9px, 2px); } 30% { transform: translate(-6px, -10px); } 55% { transform: translate(6px, -11px); } 80% { transform: translate(9px, -2px); } 100% { transform: translate(0, 2px); } }
   .laugh #duckBody { animation: laugh .13s ease-in-out 8 alternate; transform-origin: 210px 380px; }
   @keyframes laugh { to { transform: translateY(-4px); } }
   .laugh .lid { transform: scaleY(.75) !important; }
@@ -305,12 +296,7 @@
   .footL, .footR { transform-box: fill-box; transform-origin: 50% 100%; }
   #duckInner { transform-box: view-box; transform-origin: 210px 385px; }
   .walk .feet, .teeter .feet, .onefoot .feet { opacity: 1; }
-  .walk #duckBody { animation: walkPath 6s linear; }
-  @keyframes walkPath { 0% { transform: none; } 8% { transform: translateY(-24px); } 40%, 58% { transform: translate(-520px, -24px); } 92% { transform: translateY(-24px); } 100% { transform: none; } }
-  .walk #duckInner { animation: waddle .3s ease-in-out 20 alternate; }
   @keyframes waddle { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
-  .walk .footL { animation: step .3s ease-in-out 20 alternate; }
-  .walk .footR { animation: step .3s ease-in-out 20 alternate-reverse; }
   @keyframes step { to { transform: translateY(-7px); } }
   .teeter #duckBody, .onefoot #duckBody { animation: standUp 3.4s ease-in-out; }
   @keyframes standUp { 12%, 88% { transform: translateY(-24px); } }
@@ -331,12 +317,50 @@
   .balance #duckInner { animation: compensate 4.6s ease-in-out; }
   @keyframes compensate { 28% { transform: rotate(4deg); } 40% { transform: rotate(-5deg); } 52% { transform: rotate(4deg); } 64% { transform: rotate(-3deg); } 85% { transform: none; } }
   .balance .pen { opacity: 0; }
+  /* livelier antics: bouncing, dancing, slouching, leaning in, rocking, falling off, hiccups, sneezes */
+  .bounce #duckBody { animation: bounce 1.6s ease-in-out; transform-origin: 210px 385px; }
+  @keyframes bounce { 12% { transform: translateY(8px) scale(1.05, .92); } 28% { transform: translateY(-62px) scale(.95, 1.06); } 42% { transform: translateY(6px) scale(1.05, .92); } 58% { transform: translateY(-38px); } 72% { transform: translateY(4px) scale(1.03, .95); } 86% { transform: translateY(-12px); } }
+  .shimmy #duckInner { animation: shimmy .26s ease-in-out 10 alternate; }
+  @keyframes shimmy { from { transform: rotate(-6deg) translateX(-8px); } to { transform: rotate(6deg) translateX(8px); } }
+  .shimmy .lid, .slouch .lid { transform: scaleY(.7) !important; }
+  .slouch #duckBody { animation: slouch 3s ease-in-out; transform-origin: 210px 385px; }
+  @keyframes slouch { 30%, 70% { transform: translateY(46px) scaleY(.9); } 84% { transform: translateY(-8px); } }
+  #duck { transform-origin: 50% 92%; }
+  .leanin { animation: leanin 3.2s ease-in-out; }
+  @keyframes leanin { 30%, 72% { transform: scale(1.28) translateY(14px); } }
+  .leanin .pupil { animation: stare 3.2s ease-in-out; }
+  .leanin .lid { transform: scaleY(.5) !important; }
+  @keyframes stare { 30%, 72% { transform: translate(0, 3px); } }
+  .rock { animation: rock .6s ease-in-out 5 alternate; }
+  @keyframes rock { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+  .falloff #duckBody { animation: falloff 3.2s ease-in-out; transform-origin: 210px 385px; }
+  @keyframes falloff { 15% { transform: rotate(18deg) translateX(20px); } 32% { transform: translate(150px, 56px) rotate(84deg); } 58% { transform: translate(150px, 56px) rotate(84deg); } 80% { transform: translate(24px, -30px) rotate(-8deg); } }
+  .falloff .feet { opacity: 1; }
+  .hiccup #duckBody { animation: hiccup 2s linear; }
+  @keyframes hiccup { 8% { transform: translateY(-16px); } 14% { transform: none; } 44% { transform: translateY(-16px); } 50% { transform: none; } 78% { transform: translateY(-18px); } 84% { transform: none; } }
+  .sneeze #duckBody { animation: sneeze 1.5s ease-in; transform-origin: 210px 385px; }
+  @keyframes sneeze { 30% { transform: rotate(-7deg) translateY(-6px) scale(1.04); } 45% { transform: rotate(-9deg) translateY(-8px) scale(1.05); } 52% { transform: rotate(11deg) translateY(8px) scale(.96); } 70% { transform: rotate(-2deg); } }
+  .sneeze .lid { animation: squeeze 1.5s ease-in; }
+  @keyframes squeeze { 35%, 60% { transform: scaleY(.95); } }
+  /* the unapproachable set */
+  .lid-low .lid { transform: scaleY(.6) !important; transition: transform .3s !important; }
+  .lid-glare .lid { transform: scaleY(.3) !important; transition: transform .3s !important; }
+  .poster { position: absolute; top: 3%; right: 9%; width: 112px; background: #fdf1d8; border: 6px solid var(--chair-dark); padding: 8px 8px 7px; text-align: center; transform: rotate(3deg); transform-origin: 50% 0; box-shadow: 2px 3px 0 rgba(0,0,0,.15); font: 800 13px/1.1 "Fraunces", serif; color: var(--olive); }
+  .poster-art { display: block; width: 100%; height: auto; margin-bottom: 5px; }
+  .poster .crack { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+  .poster.cracked .crack { opacity: 1; }
+  .cig, .smoke circle { pointer-events: none; }
+  .smoking .cig { opacity: 1; }
+  .smoke circle { opacity: 0; transform-box: fill-box; transform-origin: center; }
+  .smoking .ember { animation: ember 1.2s ease-in-out infinite alternate; }
+  @keyframes ember { to { fill: #ffb347; } }
+  .smoking .lid { transform: scaleY(.6) !important; transition: transform .3s !important; }
+  .leanin { animation-duration: 3.2s; }
   /* chewing: a short wobble */
   .vibrate #duckBody { animation: vib .12s 4; }
   @keyframes vib { 50% { transform: translate(3px, -2px) rotate(1deg); } }
   body.shake .wrap { animation: shake .45s; }
   @keyframes shake { 25% { transform: translate(-4px, 1px); } 50% { transform: translate(3px, -1px); } 75% { transform: translate(-2px, 0); } }
-  .feral .pupil { transition: transform .35s ease-out; }
   .msg.duck.loud { background: var(--rust); color: var(--paper); text-transform: uppercase; letter-spacing: .02em; animation: pop .2s ease-out; }
   .msg.duck.loud small { color: #fff; }
 
@@ -351,6 +375,11 @@
   </header>
 
   <section class="office" aria-label="The office">
+    <div class="poster" id="poster" aria-hidden="true">
+      <svg viewBox="0 0 100 60" class="poster-art"><circle cx="50" cy="44" r="18" fill="#f2b84b"/><path d="M50 18 v-10 M28 30 l-8 -6 M72 30 l8 -6 M20 46 h-10 M80 46 h10" stroke="#f2b84b" stroke-width="4" stroke-linecap="round"/><rect x="0" y="50" width="100" height="10" fill="#9fc4a8"/></svg>
+      <span id="posterText">BREATHE.</span>
+      <svg class="crack" viewBox="0 0 100 130" preserveAspectRatio="none"><path d="M62 0 L54 28 L68 46 L47 70 L59 96 L44 130 M54 28 L28 40 M47 70 L84 80 M68 46 L92 38" fill="none" stroke="#333" stroke-width="1.6"/></svg>
+    </div>
     <div class="diploma"><strong>Doctor of Quackology</strong>Pond University<br><s>Accredited</s> Drawn in crayon<br>Est. in a dream</div>
     <div class="bubble" id="bubble" aria-hidden="true"></div>
     <svg id="duck" viewBox="0 0 420 420" role="button" tabindex="0" aria-label="Dr. Quackers, a yellow duck in an armchair with wild googly eyes. Poke him.">
@@ -402,6 +431,9 @@
         <!-- wing -->
         <path id="wing" d="M110 280 q-10 50 50 60 q-10 -40 -50 -60z" fill="var(--duck-shade)" stroke="#d99a10" stroke-width="3" stroke-linejoin="round"/>
         <!-- small reactions: blush, nervous sweat, angry steam -->
+        <!-- cigarette, only out while smoking -->
+        <g class="fxg cig"><g transform="rotate(14 236 211)"><rect x="236" y="207" width="44" height="7" rx="2" fill="#fff" stroke="#9a9a9a" stroke-width="1"/><rect x="236" y="207" width="11" height="7" rx="2" fill="#d9a066"/></g><circle class="ember" cx="279" cy="222" r="4" fill="#ff5a1f"/></g>
+        <g class="smoke" fill="#b9b2a6"><circle cx="283" cy="214" r="6"/><circle cx="283" cy="214" r="6"/><circle cx="283" cy="214" r="6"/></g>
         <g class="fxg blushg"><ellipse cx="148" cy="200" rx="15" ry="8" fill="#ff8fa3"/><ellipse cx="272" cy="200" rx="15" ry="8" fill="#ff8fa3"/></g>
         <path class="fxg" id="sweat" d="M294 116 q9 13 0 20 q-9 -7 0 -20z" fill="#9fdcff" stroke="#3f97cc" stroke-width="2"/>
         <g class="fxg steam" fill="none" stroke="var(--ink-soft)" stroke-width="4" stroke-linecap="round"><path d="M138 96 q-8 -10 0 -20 q8 -10 0 -20"/><path d="M282 96 q8 -10 0 -20 q-8 -10 0 -20"/></g>
@@ -411,7 +443,6 @@
         <g class="acc" id="accBandaid"><g transform="rotate(-28 252 104)"><rect x="224" y="95" width="56" height="18" rx="9" fill="#f2c9a0" stroke="#c99a6e" stroke-width="2"/><rect x="244" y="95" width="16" height="18" fill="#e7b487"/><circle cx="232" cy="104" r="1.6" fill="#c99a6e"/><circle cx="272" cy="104" r="1.6" fill="#c99a6e"/></g></g>
         <g class="acc" id="accShades"><rect x="149" y="145" width="58" height="34" rx="10" fill="#111"/><rect x="219" y="145" width="58" height="34" rx="10" fill="#111"/><path d="M207 158 h12" stroke="#111" stroke-width="5"/><path d="M160 152 l10 -2 M230 152 l10 -2" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/></g>
         <g class="acc" id="accParty"><path d="M176 92 L238 86 L214 6 Z" fill="var(--rust)"/><path d="M186 70 L230 66 M196 44 L224 41" stroke="var(--mustard)" stroke-width="6"/><circle cx="214" cy="8" r="9" fill="var(--paper)"/></g>
-        <g class="acc" id="accCap"><path d="M176 90 v16 q36 14 72 0 v-16" fill="#222"/><path d="M140 84 L212 60 L284 84 L212 108 Z" fill="#222"/><path d="M212 84 L270 92 V122" stroke="var(--mustard)" stroke-width="4" fill="none"/><rect x="264" y="120" width="12" height="16" rx="2" fill="var(--mustard)"/></g>
         <text class="zzz" x="290" y="100" font-size="22">z</text>
         <text class="zzz" x="300" y="90" font-size="28">z</text>
         <text class="zzz" x="312" y="78" font-size="34">Z</text>
@@ -461,6 +492,11 @@
   <button type="button" class="x" id="billToastX" aria-label="Dismiss">×</button>
 </div>
 
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/MotionPathPlugin.min.js"></script>
+<script src="vendor/Physics2DPlugin.min.js"></script>
+<script src="vendor/CustomEase.min.js"></script>
+<script src="vendor/CustomWiggle.min.js"></script>
 <script>
 (() => {
   const $ = s => document.querySelector(s);
@@ -713,24 +749,42 @@
     duck.classList.toggle('feral', mood === 'feral');
     duck.classList.toggle('asleep', mood === 'asleep');
     duck.classList.toggle('scribble', mood === 'scribble');
-    const lid = { neutral: 0.35, bored: 0.55, asleep: 1, roll: 0.45, wide: 0, scribble: 0.4, kind: 0.2 }[mood] ?? 0.35;
+    duck.classList.toggle('scowl', mood === 'scowl');
+    const lid = { neutral: 0.35, bored: 0.55, asleep: 1, roll: 0.45, wide: 0, scribble: 0.4, kind: 0.2, scowl: 0.55 }[mood] ?? 0.35;
     lids.forEach(l => l.style.transform = `scaleY(${lid})`);
-    const look = { roll: [0, -10], bored: [-8, 3], scribble: [10, 8], asleep: [0, 0], wide: [0, 0], kind: [-4, 2] }[mood] || [0, 2];
-    pupils.forEach(p => p.style.transform = `translate(${look[0]}px, ${look[1]}px)`);
-    if (mood === 'feral') lids.forEach(l => l.style.transform = 'scaleY(0)');
-    const tilt = { roll: 'M152 116 L200 128', wide: 'M152 112 L200 118', kind: 'M152 128 L200 124' }[mood] || 'M152 124 L200 132';
-    const tiltR = { roll: 'M226 128 L274 116', wide: 'M226 118 L274 112', kind: 'M226 124 L274 128' }[mood] || 'M226 132 L274 124';
+    const look = { roll: [0, -10], bored: [-8, 3], scribble: [10, 8], asleep: [0, 0], wide: [0, 0], kind: [-4, 2], scowl: [0, 3] }[mood] || [0, 2];
+    gsap.to(pupils, { x: look[0], y: look[1], duration: .25, overwrite: 'auto' });
+    if (mood === 'feral') lids.forEach(l => l.style.transform = 'scaleY(0.48)');
+    const tilt = { roll: 'M152 116 L200 128', wide: 'M152 112 L200 118', kind: 'M152 128 L200 124', scowl: 'M150 114 L204 140' }[mood] || 'M152 124 L200 132';
+    const tiltR = { roll: 'M226 128 L274 116', wide: 'M226 118 L274 112', kind: 'M226 124 L274 128', scowl: 'M222 140 L276 114' }[mood] || 'M226 132 L274 124';
     $('#browL').setAttribute('d', tilt); $('#browR').setAttribute('d', tiltR);
   }
   face('feral');
 
+  // ---- motion, driven by GSAP and its plugins ----
+  gsap.registerPlugin(MotionPathPlugin, Physics2DPlugin, CustomEase, CustomWiggle);
+  CustomWiggle.create('shiver', { wiggles: 6, type: 'easeOut' });
+  CustomWiggle.create('waddle', { wiggles: 12, type: 'uniform' });
+  CustomEase.create('slump', 'M0,0 C0.3,0 0.4,1.08 0.6,1.02 0.75,0.98 0.85,1 1,1');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const inner = $('#duckInner'), glasses = $('#glasses'), notepad = $('#notepad');
+  const ORIGIN = '210 385';
+  let current = null;
+  const moving = () => current && current.isActive();
+  function run(tl) { if (current) current.kill(); current = tl; return tl; }
+  function settle() {
+    if (current) current.kill(); current = null;
+    gsap.set([inner, glasses], { clearProps: 'transform' });
+    gsap.set(pupils, { x: 0, y: 2 });
+    duck.classList.remove('lid-low', 'lid-glare', 'walk', 'smoking');
+  }
+
   // eyes: mostly watching the chat, the odd glance around, and blinking
   const towardChat = () => matchMedia('(max-width: 820px)').matches ? [0, 8] : [8, 4];
   setInterval(() => {
-    if (!duck.classList.contains('feral')) return;
-    if (Math.random() < 0.3) { crazyEyes(1100); return; }
+    if (!duck.classList.contains('feral') || moving()) return;
     const [x, y] = Math.random() < 0.75 ? towardChat() : [Math.random() * 16 - 8, Math.random() * 8 - 6];
-    pupils.forEach(p => p.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`);
+    gsap.to(pupils, { x, y, duration: .45, ease: 'power2.out', overwrite: 'auto' });
   }, 2800);
   (function blinkLoop() {
     setTimeout(() => {
@@ -738,31 +792,131 @@
       blinkLoop();
     }, 2500 + Math.random() * 3500);
   })();
-  // wild googly eyes for a moment (yelling, getting poked)
+  // wild eyes for a moment (being poked)
   function crazyEyes(ms = 1400) {
-    const end = Date.now() + ms;
-    (function jitter() {
-      pupils.forEach(p => p.style.transform = `translate(${(Math.random() * 22 - 11).toFixed(1)}px, ${(Math.random() * 22 - 11).toFixed(1)}px)`);
-      if (Date.now() < end) setTimeout(jitter, 110);
-    })();
+    gsap.to(pupils, { x: 'random(-11, 11)', y: 'random(-11, 11)', duration: .1, repeat: Math.round(ms / 110), repeatRefresh: true, ease: 'none', overwrite: 'auto' });
   }
+
+  const posters = ['BREATHE.', 'HANG IN THERE', 'YOU ARE ENOUGH', 'LIVE, LAUGH, HEAL', 'IT GETS BETTER', 'BE KIND TO YOURSELF'];
+  // scowls, hurls the notepad at the motivational poster along an arc, the poster cracks and drops with real gravity
+  function smashPoster() {
+    const poster = $('#poster');
+    if (!poster.offsetParent || poster.classList.contains('falling')) return false;
+    face('scowl');
+    const pad = notepad.getBoundingClientRect(), pr = poster.getBoundingClientRect();
+    const k = duck.getBoundingClientRect().width / 420;
+    const tx = ((pr.left + pr.width / 2) - (pad.left + pad.width / 2)) / k;
+    const ty = ((pr.top + pr.height / 2) - (pad.top + pad.height / 2)) / k;
+    poster.classList.add('falling');
+    return run(gsap.timeline({ onComplete: () => face('feral') })
+      .to(notepad, { x: 14, y: 30, rotation: 20, svgOrigin: '303 300', duration: .45, ease: 'power2.in' })              // wind up
+      .to(notepad, { motionPath: { path: [{ x: 14, y: 30 }, { x: tx * .45, y: ty - 120 }, { x: tx, y: ty }], curviness: 1.4 }, rotation: -420, scale: .6, duration: .55, ease: 'power1.in' })
+      .set(notepad, { opacity: 0 })
+      .add(() => poster.classList.add('cracked'))
+      .to(poster, { rotation: -14, duration: .5, ease: 'shiver' })                                                       // impact
+      .to(poster, { duration: 1.6, physics2D: { velocity: 140, angle: 250, gravity: 1100 }, rotation: -95, opacity: 0, ease: 'none' })
+      .set(notepad, { x: 0, y: 40, rotation: 0, scale: .3 }, '-=1.2')
+      .to(notepad, { y: 0, scale: 1, opacity: 1, duration: .5, ease: 'back.out(2)' }, '-=.9')                        // fresh notepad
+      .add(() => {
+        gsap.delayedCall(4, () => {
+          $('#posterText').textContent = pick(posters.filter(x => x !== $('#posterText').textContent));
+          poster.classList.remove('cracked', 'falling');
+          gsap.fromTo(poster, { x: 0, y: -18, rotation: 3, opacity: 0 }, { y: 0, opacity: 1, duration: .6, ease: 'bounce.out' });
+        });
+      }));
+  }
+  // lights a cigarette; puffs drift up and sideways, eyes go heavy
+  function smoke() {
+    duck.classList.add('smoking');
+    const puffs = gsap.utils.toArray('.smoke circle');
+    const tl = gsap.timeline({ onComplete: () => duck.classList.remove('smoking') });
+    for (let i = 0; i < 6; i++) {
+      const c = puffs[i % puffs.length];
+      tl.fromTo(c, { x: 0, y: 0, scale: .5, opacity: 0, transformOrigin: '50% 50%' },
+        { keyframes: [{ opacity: .75, duration: .4 }, { opacity: 0, duration: 1.6 }], x: 'random(10, 32)', y: -75, scale: 2.2, duration: 2, ease: 'sine.out' }, i * .75);
+    }
+    return run(tl.to({}, { duration: .4 }));
+  }
+  function scowl(hold = 1.6) {
+    face('scowl');
+    return run(gsap.timeline({ onComplete: () => face('feral') })
+      .to(inner, { scale: 1.04, y: -5, svgOrigin: ORIGIN, duration: .35, ease: 'power3.out' })
+      .to([$('#browL'), $('#browR')], { y: 2, duration: .4, ease: 'shiver' }, '<')
+      .to({}, { duration: hold })
+      .to(inner, { scale: 1, y: 0, svgOrigin: ORIGIN, duration: .45, ease: 'power2.inOut' }));
+  }
+  const moves = {
+    // looks at you over the top of its glasses
+    glare: () => { duck.classList.add('lid-glare'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('lid-glare') })
+      .to(glasses, { y: 13, duration: .5, ease: 'power2.out' })
+      .to(pupils, { x: 0, y: -9, duration: .4 }, '<.1')
+      .to({}, { duration: 1.8 })
+      .to(glasses, { y: 0, duration: .4, ease: 'back.out(2.5)' })
+      .to(pupils, { y: 2, duration: .3 }, '<')); },
+    // turns away and pretends you're not there
+    ignore: () => { duck.classList.add('lid-low'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('lid-low') })
+      .to(inner, { rotation: -6, x: -8, svgOrigin: ORIGIN, duration: .6, ease: 'power2.out' })
+      .to(pupils, { x: -12, y: -3, duration: .4 }, '<')
+      .to({}, { duration: 1.6 })
+      .to(inner, { rotation: 0, x: 0, svgOrigin: ORIGIN, duration: .5, ease: 'power2.inOut' })
+      .to(pupils, { x: 0, y: 2, duration: .4 }, '<')); },
+    // a slow full eye-roll along an arc, then a sigh
+    eyeroll: () => run(gsap.timeline()
+      .to(pupils, { motionPath: { path: [{ x: -9, y: 2 }, { x: -6, y: -10 }, { x: 6, y: -11 }, { x: 9, y: -2 }, { x: 0, y: 2 }], curviness: 1.5 }, duration: 1.1, ease: 'sine.inOut' })
+      .to(inner, { scaleX: 1.03, scaleY: 1.05, svgOrigin: ORIGIN, duration: .5, ease: 'sine.inOut' })
+      .to(inner, { scaleX: .99, scaleY: .96, y: 4, svgOrigin: ORIGIN, duration: .6, ease: 'sine.inOut' })
+      .to(inner, { scaleX: 1, scaleY: 1, y: 0, svgOrigin: ORIGIN, duration: .4 })),
+    sigh: () => run(gsap.timeline()
+      .to(inner, { scaleX: 1.035, scaleY: 1.05, svgOrigin: ORIGIN, duration: .55, ease: 'sine.inOut' })
+      .to(inner, { scaleX: .985, scaleY: .95, y: 5, svgOrigin: ORIGIN, duration: .7, ease: 'sine.inOut' })
+      .to(inner, { scaleX: 1, scaleY: 1, y: 0, svgOrigin: ORIGIN, duration: .45 })),
+    skeptic: () => { chaos('skeptic', 1800); return run(gsap.timeline().to({}, { duration: 1.8 })); },
+    // pushes its glasses back up, unimpressed
+    adjust: () => run(gsap.timeline().to(glasses, { y: -6, duration: .18, ease: 'power2.out' }).to(glasses, { y: 0, duration: .35, ease: 'power2.inOut' }, '+=.25')),
+    scowl: () => scowl(),
+    // leans in uncomfortably close and stares
+    leanin: () => { face('scowl'); duck.classList.add('lid-low'); return run(gsap.timeline({ onComplete: () => { duck.classList.remove('lid-low'); face('feral'); } })
+      .to(duck, { scale: 1.26, y: 14, transformOrigin: '50% 92%', duration: .9, ease: 'power3.out' })
+      .to(pupils, { x: 0, y: 3, duration: .3 }, '<')
+      .to({}, { duration: 1.4 })
+      .to(duck, { scale: 1, y: 0, duration: .7, ease: 'power2.inOut', clearProps: 'transform' })); },
+    // sinks into the chair, couldn't care less, hauls itself back up
+    slouch: () => { duck.classList.add('lid-low'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('lid-low') })
+      .to(inner, { y: 46, scaleY: .9, svgOrigin: ORIGIN, duration: 1, ease: 'slump' })
+      .to({}, { duration: 1.2 })
+      .to(inner, { y: -8, scaleY: 1, svgOrigin: ORIGIN, duration: .45, ease: 'power2.out' })
+      .to(inner, { y: 0, duration: .3, ease: 'power1.in' })); },
+    smoking: () => smoke(),
+    smash: () => smashPoster() || smoke(),
+    // walks out on you, leaves the chair empty, eventually comes back
+    walk: () => { face('feral'); duck.classList.add('walk'); return run(gsap.timeline({ onComplete: () => duck.classList.remove('walk') })
+      .to(inner, { y: -24, svgOrigin: ORIGIN, duration: .4, ease: 'power2.out' })
+      .to(inner, { x: -520, duration: 2.2, ease: 'none' })
+      .to(inner, { rotation: 7, svgOrigin: ORIGIN, duration: 2.2, ease: 'waddle' }, '<')
+      .to('.footL', { y: -7, duration: .16, repeat: 13, yoyo: true }, '<')
+      .to('.footR', { y: -7, duration: .16, repeat: 13, yoyo: true, delay: .16 }, '<')
+      .to({}, { duration: .9 })
+      .to(inner, { x: 0, duration: 2.2, ease: 'none' })
+      .to(inner, { rotation: 7, svgOrigin: ORIGIN, duration: 2.2, ease: 'waddle' }, '<')
+      .to('.footL', { y: -7, duration: .16, repeat: 13, yoyo: true }, '<')
+      .to('.footR', { y: -7, duration: .16, repeat: 13, yoyo: true, delay: .16 }, '<')
+      .to(inner, { y: 0, rotation: 0, duration: .35, ease: 'power2.in' })); },
+  };
+
   function eatNotepad() {
-    if (duck.classList.contains('eating')) return;
+    if (duck.classList.contains('eating') || moving()) return;
     chaos('eating', 2450);
-    setTimeout(() => chaos('talk', 1500), 550);
     setTimeout(() => chaos('respawn', 550), 2500);
   }
-  // human-ish tics, played at random whenever the duck is just sitting there
-  const tics = [['eyeroll', 1000], ['sigh', 1500], ['shrug', 1500], ['skeptic', 1600], ['adjust', 700], ['laugh', 1100], ['nod', 1000], ['wink', 450]];
-  const classics = [['spin', 1000], ['googly', 1200]];
-  const antics = [['walk', 6000], ['balance', 4600], ['teeter', 3400], ['onefoot', 3400]];
-  const bodyBusy = ['walk', 'balance', 'teeter', 'onefoot', 'eating'];
-  const ticBusy = () => ['talk', 'spin', 'vibrate', 'hop', 'flinch', 'asleep', ...bodyBusy, ...tics.map(x => x[0])].some(c => duck.classList.contains(c));
-  // keep it balanced: tics, classic moves and antics each get a fair share, never the same thing twice running
-  const families = [[tics, 4.5], [classics, 2.8], [antics, 2.7]];
+  // what the duck does when it's just sitting there: a balanced mix, one at a time, never the same twice running
+  const tics = ['eyeroll', 'sigh', 'skeptic', 'adjust', 'glare', 'ignore'];
+  const classics = ['scowl', 'leanin', 'slouch'];
+  const antics = ['smoking', 'smash', 'walk'];
+  const families = [[tics, 4], [classics, 3.5], [antics, 2.5]];
+  const ticBusy = () => moving() || ['vibrate', 'hop', 'flinch', 'asleep', 'eating', 'skeptic', 'nod', 'nope'].some(c => duck.classList.contains(c));
   let lastMove = null, lastFamily = null, familyStreak = 0;
   function humanTic() {
-    if (quiet() || ticBusy() || $('#bill').open) return;
+    if (reduceMotion || quiet() || ticBusy() || $('#bill').open) return;
     let fam;
     do {
       let roll = Math.random() * 10;
@@ -770,14 +924,11 @@
     } while (fam === lastFamily && familyStreak >= 1 && Math.random() < 0.7);
     familyStreak = fam === lastFamily ? familyStreak + 1 : 0; lastFamily = fam;
     let move;
-    do { move = pick(fam); } while (move[0] === lastMove && fam.length > 1);
-    lastMove = move[0];
-    const [cls, ms] = move;
-    if (cls === 'googly') { chaos('vibrate', 500); crazyEyes(ms); return; }
-    if (cls === 'teeter') face('wide'); else if (cls === 'walk' || cls === 'onefoot') face('feral');
-    chaos(cls, ms);
+    do { move = pick(fam); } while (move === lastMove && fam.length > 1);
+    lastMove = move;
+    moves[move]();
   }
-  (function ticLoop() { setTimeout(() => { humanTic(); ticLoop(); }, 6000 + Math.random() * 5000); })();
+  (function ticLoop() { setTimeout(() => { humanTic(); ticLoop(); }, 4000 + Math.random() * 3500); })();
   function talk(text) { chaos('talk', Math.min(1800, Math.max(500, text.length * 28))); }
   function hearts(n) {
     const office = document.querySelector('.office');
@@ -787,9 +938,9 @@
       office.append(h); setTimeout(() => h.remove(), 2300);
     }, i * 140);
   }
-  const bodyMoves = ['spin', 'hop', 'flinch', 'nod', 'sigh', 'shrug', 'laugh', 'vibrate', 'walk', 'balance', 'teeter', 'onefoot'];
+  const bodyMoves = ['hop', 'flinch', 'nod', 'sigh', 'shrug', 'laugh', 'vibrate', 'walk', 'balance', 'teeter', 'onefoot', 'bounce', 'shimmy', 'slouch', 'rock', 'falloff', 'hiccup', 'sneeze', 'leanin'];
   function chaos(cls, ms) {
-    if (bodyMoves.includes(cls) && ['walk', 'balance', 'teeter', 'onefoot'].some(c => c !== cls && duck.classList.contains(c))) return; duck.classList.remove(cls); void duck.offsetWidth; duck.classList.add(cls); setTimeout(() => duck.classList.remove(cls), ms); }
+    if (bodyMoves.includes(cls) && typeof current !== 'undefined' && current && current.isActive()) return; duck.classList.remove(cls); void duck.offsetWidth; duck.classList.add(cls); setTimeout(() => duck.classList.remove(cls), ms); }
   function shake() { document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake'); }
 
   // don't overdo any one gag: remember what the duck said lately
@@ -818,6 +969,46 @@
 
   const notes = ["Notes: \"BREAD BREAD BREAD BREAD\"", "Notes: drew 40 geese. they're watching.", "Notes: \"client is a goose?? investigate\"", "Notes: [chewed]", "Notes: \"who is Gerald\"", "Notes: wrote my name 300 times", "Notes: \"it's in the walls\"", "Notes: [notepad is now soup]", null];
 
+  // answering the actual question, sort of
+  const yesNo = [
+    "Yes. And I can't believe you needed a duck for that.",
+    "No. Next question. Make it better.",
+    "Absolutely. Then come back and tell me how it went wrong.",
+    "Do the opposite of whatever you were leaning towards. Your instincts have a 0% hit rate.",
+    "Yes, but you won't. You never do. That's the real answer.",
+    "Technically yes. Emotionally? Babe. No.",
+    "Flip a coin. If you're disappointed by the result, you already knew. If you're relieved, you also already knew. Why are you here.",
+  ];
+  const whyQ = [
+    "Why? Because you keep doing the same thing and expecting a different duck.",
+    "Same reason as always: you. You're the common denominator.",
+    "Because the universe looked at you and said 'eh, why not'.",
+    "Why does anything happen? Bad decisions, mostly. Yours, specifically.",
+    "I'd explain why, but you'd nod and then do it again on Thursday.",
+  ];
+  // pulls the thing you're upset about out of your message so the roast is about IT
+  const stop = new Set('the a an and or but so i im i\'m me my mine you your it its it\'s is am are was were be been this that these those to of in on at for with about just really very so too like what why how when who do does did have has had not no dont don\'t cant can\'t can will would should could feel feeling think want get got keep always never today again ever even still much more lot all some any every one thing things stuff'.split(' '));
+  function reflect(t) {
+    const my = t.match(/\bmy ([a-z']{3,})/i);
+    let w = my ? 'your ' + my[1].toLowerCase() : null;
+    if (!w) {
+      const words = (t.toLowerCase().match(/[a-z']{4,}/g) || []).filter(x => !stop.has(x));
+      if (!words.length) return null;
+      w = words.sort((a, b) => b.length - a.length)[0];
+    }
+    w = Array.from(w).slice(0, 40).join('');
+    const W = w[0].toUpperCase() + w.slice(1);
+    return pick([
+      `${W}? Wow. Truly a unique struggle. Nobody in history has ever had a problem with ${w}.`,
+      `So ${w} is ruining your life. Bold of ${w}. Bolder of you to let it.`,
+      `You came to a duck about ${w}. Sit with that for a second.`,
+      `Let me write that down: '${w}'. *writes 'dramatic' instead*`,
+      `Have you considered that ${w} isn't the problem, and you are?`,
+      `I'm going to need you to stop talking about ${w} like it's a personality trait.`,
+      `${W}. Okay. On a scale of one to ${w}, how much of this is your fault? Correct answer: most.`,
+      `Ah, ${w}. The thing you'll still be complaining about in five years, unchanged, because you did nothing.`,
+    ]);
+  }
   let lastTopic = null, lastMotto = -10;
   function respond(text) {
     if (crisis.test(norm(text))) {
@@ -844,29 +1035,31 @@
       say(fresh(neutral.lines), 'duck flat', pick(['Notes: "."', 'Notes: "ok"', 'Notes: [blank]', null]));
       return;
     }
-    if (!quiet() && turns > 1 && Math.random() < 0.25) { pick(events)(t); return; }
-    let pool = persona.lines, mood = pick(['feral', 'feral', 'wide', 'roll', 'scribble']);
     const hit = topics.find(x => x.k.test(t));
-    if (!quiet() && Math.random() < 0.035) pool = creator;
-    else if (hit && (hit !== lastTopic || Math.random() < 0.4) && Math.random() < 0.75) pool = hit.r;
+    // random bits only when nothing you said has an obvious answer
+    if (!quiet() && turns > 1 && !hit && !t.endsWith('?') && Math.random() < 0.08) { pick(events)(t); return; }
+    let pool = persona.lines, mood = pick(['feral', 'feral', 'wide', 'roll', 'scribble']), reflected = null;
+    if (hit && (hit !== lastTopic || Math.random() < 0.85)) pool = hit.r;
     else if (t.length < 6) { pool = short; mood = 'roll'; }
     else if (t.length > 8 && t === t.toUpperCase() && /[A-Z]/.test(t)) { pool = shouting; mood = 'wide'; }
-    else if (t.endsWith('?') && Math.random() < 0.5) pool = questions;
-    else if (Math.random() < 0.3) pool = generic;
+    else if (/^(should|can|could|do|does|did|is|am|are|was|will|would)\b.*\?$/i.test(t)) pool = yesNo;
+    else if (/^why\b/i.test(t)) pool = whyQ;
+    else if (t.endsWith('?')) pool = questions;
+    else if (!quiet() && Math.random() < 0.035) pool = creator;
+    else if ((reflected = reflect(t)) && Math.random() < 0.85) pool = null;
+    else pool = Math.random() < 0.5 ? generic : persona.lines;
     face(mood);
     lastTopic = hit && pool === hit.r ? hit : null;
-    let line = tame(pool);
+    let line = pool ? tame(pool) : reflected;
     // now and then, the motto
-    if (!quiet() && turns - lastMotto > 5 && Math.random() < 0.08) { line = "It's you and an annoying duck against the world."; lastMotto = turns; }
+    if (!quiet() && !hit && !t.endsWith('?') && turns - lastMotto > 5 && Math.random() < 0.08) { line = "It's you and an annoying duck against the world."; lastMotto = turns; }
     if (pool !== persona.lines && pool !== creator && Math.random() < 0.35) line = persona.wrap(line);
     const loud = pool === shouting || Math.random() < .15;
     const el = say(loud ? line.toUpperCase() : line, 'duck', pick(notes));
-    if (loud) { el.classList.add('loud'); shake(); chaos('angry', 2300); chaos('vibrate', 500); crazyEyes(1500); }
+    if (loud) { el.classList.add('loud'); shake(); chaos('angry', 2300); if (!moving()) scowl(1.6); }
     else if (t.endsWith('?')) chaos('curious', 1500);
-    if (/\b(thanks|thank you|ty|you'?re (funny|great|the best)|love you)\b/i.test(t)) chaos('blush', 2000);
     if (persona.name.startsWith('Gerald')) chaos('sweat', 1700);
     // the odd wink once the line has landed
-    else if (!loud && Math.random() < 0.12) later(Math.min(1800, Math.max(500, line.length * 28)) + 250, () => chaos('wink', 450));
     doodle(t);
     talk(line);
     if (!loud && Math.random() < 0.35) later(Math.min(1800, Math.max(500, line.length * 28)) + 200, humanTic);
@@ -885,7 +1078,6 @@
   }
   function wear(id, ms = 2200) { const g = document.getElementById(id); g.classList.add('on'); later(ms, () => g.classList.remove('on')); }
   const fx = {
-    cs: () => wear('accCap'),
     work: () => wear('accTie'),
     health: () => wear(pick(['accBandaid', 'accSteth'])),
     random: () => wear(pick(['accShades', 'accParty'])),
@@ -1001,7 +1193,7 @@
     persona = kind === 'neutral' ? neutral : kind === 'guest' ? pick(personas.slice(1)) : personas[0];
     if (persona.neutral) nextSwap = turns + 1 + Math.floor(Math.random() * 2);
     $('#mood').textContent = persona.name;
-    chaos('spin', 1000); // personality change
+    if (!moving()) scowl(1.2); // personality change
     const el = document.createElement('div'); el.className = 'msg sys'; el.textContent = persona.neutral ? `😐 Dr. Quackers has gone flat. (${persona.name})` : `⚠️ Dr. Quackers' mood changed: ${persona.name}`;
     log.append(el); log.scrollTop = log.scrollHeight;
   }
@@ -1013,7 +1205,7 @@
   const memeAlt = { drake: 'Drake rejecting processing your feelings like an adult, approving trauma dumping on a duck that hates you', distracted: 'Distracted boyfriend: Dr. Quackers ignores your problems to look at bread', buttons: 'Two buttons: be a good therapist, or keep billing $666/hr', brain: 'Galaxy brain: friends, therapist, duck, becoming the duck', pigeon: 'Is this a pigeon: me, a duck that hates me, is this healing?', fine: 'This is fine: you after 3 sessions with a duck', exit: 'Car swerving off the exit to complain to a duck instead of fixing your life', cat: 'Woman yelling at cat: your trauma vs. got any bread?', harold: 'Hide the pain Harold: when the duck you trusted calls you a dipshit', gru: "Gru's plan: tell the duck my problems, expect sympathy, duck says skill issue", rollsafe: "Roll safe: can't have problems if you never stop talking about them", mordor: 'One does not simply get sympathy from a duck', sponge: 'Mocking SpongeBob: i ThInK i NeEd HeLp', panik: 'Panik kalm panik: the duck is being nice, it is a phase, it learned your address', astronaut: 'Always has been: the duck never cared', afraid: "Afraid to ask where this duck got its degree", wonka: "Condescending Wonka: tell me how unique your problems are", fry: 'Not sure if therapy or just a duck yelling at me', 'cs-drake': 'Drake rejecting studying all semester, approving learning it the night before at 2x speed', 'cs-fry': 'Not sure if bug or a feature I forgot I wrote', 'cs-astronaut': 'Always has been: senior engineers google everything too', 'cs-exit': 'CS students swerving from finishing the assignment to rewriting it in Rust', 'job-cat': "Manager: we're a family here. Me: then why can't I take PTO", 'job-mordor': 'One does not simply take PTO without checking Slack', 'health-harold': "Harold smiling through the ER bill, and that's after insurance", 'health-rollsafe': "Can't have medical bills if you never go to the doctor" };
   const memeH = {"afraid":510,"astronaut":292,"brain":734,"buttons":776,"cat":334,"cs-astronaut":292,"cs-drake":813,"cs-exit":465,"cs-fry":389,"distracted":346,"drake":813,"exit":465,"fine":504,"fry":389,"gru":333,"harold":346,"health-harold":346,"health-rollsafe":290,"job-cat":334,"job-mordor":306,"mordor":306,"panik":727,"pigeon":312,"rollsafe":290,"sponge":365,"wonka":373};
   function postMeme() {
-    face('wide'); chaos('spin', 1000);
+    face('wide');
     const el = document.createElement('div'); el.className = 'msg meme-wrap';
     // lean towards a meme about whatever you were just talking about
     const themed = memes.filter(m => lastCat && m.startsWith({ cs: 'cs-', work: 'job-', health: 'health-' }[lastCat] || '#'));
@@ -1144,7 +1336,7 @@
     const onPad = e.clientX >= nb.left && e.clientX <= nb.right && e.clientY >= nb.top && e.clientY <= nb.bottom;
     if (onPad && !duck.classList.contains('eating')) { face('wide'); eatNotepad(); pop(pick(['Mine. *chomp*', "Hey! That's my lunch.", 'Fine. I wasn\'t taking notes anyway.'])); return; }
     pokes = pokes.filter(t => Date.now() - t < 3000).concat(Date.now());
-    if (pokes.length >= 3) { pokes = []; chaos('spin', 1000); crazyEyes(1200); }
+    if (pokes.length >= 3) { pokes = []; if (!moving()) moves.leanin(); return; }
     face('wide'); chaos('flinch', 350); crazyEyes(900); if (!quiet() && !document.querySelector('.acc.on') && Math.random() < 0.25) fx.random(); pop(pick(["DON'T FUCKING TOUCH ME", "Touch me again and I bite your fucking finger off.", "Hands off, asshole.", "Boop me one more time. I dare you.", "FUCK OFF (affectionate)"])); setTimeout(() => face('feral'), 1200); });
 
   $('#end').addEventListener('click', () => restart());
@@ -1235,13 +1427,13 @@
   };
   document.querySelectorAll('[data-pay]').forEach(b => b.addEventListener('click', () => {
     billTimers.forEach(clearTimeout);
-    $('#bill').close(); chaos('spin', 1000); face('wide');
+    $('#bill').close(); face('feral'); if (!moving()) smoke(); // paid. lights one up.
     say(pick(paid[b.dataset.pay]), 'duck', 'Notes: "PAID. buy 40 loaves."');
     start = Date.now();
     setTimeout(() => say("Same time next week. Bring the same problem. I'll bring the same lack of interest.", 'duck'), 2200);
     setTimeout(() => face('feral'), 1600);
   }));
-  function restart() { hideToast(); document.querySelectorAll('.acc.on').forEach(g => g.classList.remove('on')); document.querySelectorAll('.prop').forEach(e => e.remove()); hush(); billTimers.forEach(clearTimeout); quietTurns = 0; busy = false; lastPicks.length = 0; $('#plant').classList.remove('wilt'); log.innerHTML = ''; start = Date.now(); turns = 0; nextSwap = 6; swaps = 0; persona = personas[0]; $('#mood').textContent = persona.name; face('feral'); greet(); }
+  function restart() { settle(); gsap.set('#poster', { clearProps: 'all' }); gsap.set(notepad, { clearProps: 'all' }); $('#poster').classList.remove('cracked', 'falling', 'fresh'); hideToast(); document.querySelectorAll('.acc.on').forEach(g => g.classList.remove('on')); document.querySelectorAll('.prop').forEach(e => e.remove()); hush(); billTimers.forEach(clearTimeout); quietTurns = 0; busy = false; lastPicks.length = 0; $('#plant').classList.remove('wilt'); log.innerHTML = ''; start = Date.now(); turns = 0; nextSwap = 6; swaps = 0; persona = personas[0]; $('#mood').textContent = persona.name; face('feral'); greet(); }
 
   function greet() { later(400, () => say("Oh, fuck. A client. Sit down. Not there. NOT THERE. …Whatever. What's your fucking problem?", 'duck', 'Notes: "ugh."')); }
   greet(); resetIdle();
