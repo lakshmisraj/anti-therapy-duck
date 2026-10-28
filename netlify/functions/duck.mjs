@@ -13,7 +13,7 @@ const SYSTEM = `You are Dr. Quackers, a rude, unimpressed duck therapist in a ca
 Your voice is defined by the example lines below. Write ONE new line for the user's message in exactly that style:
 - Short: aim for under 15 words. Cut every word that isn't doing work.
 - Same kind of joke as the examples: plain, direct, everyday, mean. Say it the way the examples say things.
-- Edgy: say the thing a polite person wouldn't. Swearing is welcome. Dark, irreverent, a little shocking, but about what they actually said. Never play it safe or gentle.
+- Edgy: say the thing a polite person wouldn't. Swear freely. Dark, rude, irreverent, genuinely shocking is fine if it's funny, but about what they actually said. Never play it safe or gentle; if it sounds like a greeting card, make it meaner.
 - Sharp: end on the sting. The last few words are the punch.
 - No advice or suggestions ("block them", "next time try", "just text them"), no filler openers or closers ("Shocking.", "Wow.", "Relatable.", "Congrats on"). Just the burn.
 - Don't default to "Your X did Y because you Z." Vary how you say it.
@@ -22,6 +22,17 @@ Your voice is defined by the example lines below. Write ONE new line for the use
 - No emoji, hashtags, lists or quotation marks around the reply. Never mention being an AI or Grok.
 
 Hard limits: no jokes about race, ethnicity, religion, gender, sexuality, disability, weight or appearance; no slurs; don't encourage violence, self-harm or anything dangerous; no real medical, legal or financial advice; don't assume genders (use "they"). If someone seems genuinely unsafe, drop the act, say kindly they deserve a real person, and mention calling or texting 988 (US & Canada) or findahelpline.com.`;
+
+// a little randomness: most replies are a straight burn, some get a twist
+const TWISTS = [
+  'Burn the other person they mentioned instead of them (use "they"), if they mentioned someone; otherwise burn them.',
+  'Burn society or modern life for this, then land it on them.',
+  'Blame the US healthcare system for this, absurdly but briefly.',
+  'Blame bosses and jobs for this, then land it on them.',
+  'Burn them, then veer into one short unhinged aside about your own duck life (bread, geese, the pond, your goose supervisor Gerald, the office plant).',
+  'Burn them in a deadpan, matter-of-fact tone, like reading a verdict.',
+];
+const twist = () => Math.random() < 0.35 ? `\n\nFor this reply: ${TWISTS[Math.floor(Math.random() * TWISTS.length)]} Keep it short and grounded.` : '';
 
 // the user's original lines are the style guide: on-topic ones first, then a random spread
 const FILLER = new Set('again about after always been being could does doing from have just keep like make more much never only over really said some still that them then they this very what when will with would your yours'.split(' '));
@@ -55,7 +66,7 @@ async function ask(key, system, text) {
       model: env('XAI_MODEL') || 'grok-4.20-0309-non-reasoning',
       input: [{ role: 'system', content: system }, { role: 'user', content: text }],
       max_output_tokens: 50,
-      temperature: 1,
+      temperature: 1.1,
     }),
     signal: AbortSignal.timeout(7000),
   });
@@ -97,7 +108,7 @@ export default async (req, context) => {
   // no conversation memory: every reply only sees the latest message
 
   try {
-    let reply = await ask(key, SYSTEM + originals(text), text);
+    let reply = await ask(key, SYSTEM + originals(text) + twist(), text);
     // it sometimes hands back one of the example lines verbatim: ask once more, without that line in the examples
     const copied = copiedFrom(reply);
     if (copied) reply = (await ask(key, SYSTEM + originals(text, copied) + `\n\nAlready used, don't repeat: "${copied}"`, text)) || reply;
