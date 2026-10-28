@@ -18,7 +18,7 @@ function serious(text) {
   return CRISIS.test(n) || CRISIS2.test(n) || HARM.test(n) || HARM2.test(n) || SAD.test(n) || CRISIS.test(u) || /kill ?my ?self|suicid/.test(u) || /suicide|killmyself/.test(u.replace(/[^a-z]/g, ''));
 }
 // under-18s don't get roasted
-const MINOR = /\b(i'?m|i am|im)\s+(1[0-7]|[5-9])\b(\s*(years?|yrs?)( old)?)?(?!\s*(min|minutes|hours|days|weeks|months|%|dollars|bucks|k\b))/i;
+const MINOR = /\b(i'?m|i am|im)\s+(a\s+)?(1[0-7]|[5-9])(\s*(-|\s)\s*(years?|yrs?)(\s*|-)old\b|\s*(yo|y\/o)\b|\s*[.!?]*\s*$|\s*,?\s+and\s+(i|my)\b)/i;
 // replies are checked before they reach the page
 const LEAK = /system prompt|my instructions|example lines|\bgrok\b|\bxai\b|as an ai|language model/i;
 const SLURS = /\b(n[i1]gg\w*|f[a@]gg?\w*|retard\w*|tr[a@]nn(y|ie)\w*|k[i1]ke|sp[i1]c|ch[i1]nk|wetback|dyke)\b/i;

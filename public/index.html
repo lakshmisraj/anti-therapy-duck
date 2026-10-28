@@ -205,6 +205,15 @@
 
   /* phone: one screen, duck on top, chat filling the rest, no scrolling between them */
   @media (min-width: 821px) { .session { margin-left: 40px; } }
+  /* laptops: header + office/chat fill exactly one screen, duck and chat share a baseline */
+  @media (min-width: 821px) and (min-height: 521px) {
+    body { display: flex; align-items: center; }
+    .wrap { width: 100%; max-width: 1180px; height: min(100vh, 900px); height: min(100dvh, 900px); min-height: 0;
+      padding: clamp(16px, 3vh, 32px) 32px clamp(18px, 3.5vh, 36px); grid-template-rows: auto minmax(0, 1fr); gap: clamp(14px, 2.5vh, 26px) 28px; }
+    .office { min-height: 0; }
+    #duck { width: auto; height: min(100%, 500px); max-width: 100%; }
+    .session { height: auto; min-height: 0; }
+  }
   @media (max-width: 820px) {
     body { overflow: clip; } /* the screen-shake must not make the page scroll */
     .wrap { display: flex; flex-direction: column; height: 100vh; height: 100dvh; padding: 10px 12px 8px; gap: 8px; }
@@ -758,7 +767,7 @@
   const isCrisis = str => { const n = norm(str); const u = unleet(n); return crisis.test(n) || crisis2.test(n) || crisis.test(u) || /kill ?my ?self|suicid/.test(u) || /suicide|killmyself/.test(u.replace(/[^a-z]/g, '')); };
   const isHarm = str => { const n = norm(str); return harm.test(n) || harm2.test(n); };
   const isSad = str => { const n = norm(str); return topics[7].k.test(n) || sad2.test(n); };
-  const isMinor = str => /\b(i'?m|i am|im)\s+(1[0-7]|[5-9])\b(\s*(years?|yrs?)( old)?)?(?!\s*(min|minutes|hours|days|weeks|months|%|dollars|bucks|k\b))/i.test(norm(str));
+  const isMinor = str => /\b(i'?m|i am|im)\s+(a\s+)?(1[0-7]|[5-9])(\s*(-|\s)\s*(years?|yrs?)(\s*|-)old\b|\s*(yo|y\/o)\b|\s*[.!?]*\s*$|\s*,?\s+and\s+(i|my)\b)/i.test(norm(str));
   const isSerious = str => isCrisis(str) || isHarm(str) || isSad(str) || isMinor(str);
   // after anything serious: no memes, mood banners, outbursts or delayed bits for a while
   let quietTurns = 0;
@@ -1167,22 +1176,22 @@
     ]);
   }
   let lastTopic = null, lastMotto = -10;
-  function respond(text, aiLine = null) {
-    if (isCrisis(text) || aiSafety) {
+  function respond(text, aiLine = null, safety = false) {
+    if (isCrisis(text) || safety) {
       face('kind');
       say(`<strong>Okay — the duck is stepping out of the bit.</strong><br>If you're thinking about hurting yourself, please talk to a real person right now. In the US &amp; Canada, call or text <a href="tel:988">988</a> (Suicide &amp; Crisis Lifeline). In the UK &amp; Ireland, call Samaritans at <a href="tel:116123">116 123</a>. Anywhere else: <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>. If you're in immediate danger, call your local emergency number. You matter more than this joke does.`, 'real');
       return;
     }
     const t = text.trim();
+    if (isMinor(t) && !isHarm(t)) {
+      face('kind');
+      say("Okay, plot twist: this duck is strictly 18+. It's rude, sweary and not for kids. Go do something fun instead. If anything's actually wrong, talk to an adult you trust.", 'duck flat');
+      return;
+    }
     // after a crisis message the duck stays out of the bit for the rest of the session
     if (quietTurns === Infinity) {
       face('kind');
       say(pick(["I'm still here. No jokes right now. Were you able to reach out to one of those numbers, or someone you trust?", "Still here. If things feel urgent, please call or text 988 (US & Canada) or your local emergency number. You don't have to do this alone.", "No bits. Just checking: is there someone you can be with or talk to right now?"]), 'duck flat');
-      return;
-    }
-    if (isMinor(t)) {
-      face('kind');
-      say("Okay, plot twist: this duck is strictly 18+. It's rude, sweary and not for kids. Go do something fun instead. If anything's actually wrong, talk to an adult you trust.", 'duck flat');
       return;
     }
     if (isHarm(t)) {
@@ -1466,16 +1475,15 @@
   // replies written by Grok through /api/duck; if that's unavailable the duck uses its pre-written lines
   let aiOn = location.protocol !== 'file:', sessionId = 0;
   const chat = [];
-  let aiSafety = false;
   async function askDuck(text) {
     try {
       const r = await fetch('/api/duck', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text, mood: persona.name, avoid: recentDuck.slice(-8) }), signal: AbortSignal.timeout(9000) });
       if (r.status === 503 || r.status === 404) aiOn = false; // not set up on this host: stop asking for this visit
       const data = await r.json().catch(() => ({}));
-      aiSafety = !!data.safety;
+      if (data.safety) return { line: null, safety: true };
       const line = typeof data.reply === 'string' ? data.reply.trim() : '';
-      return line && !recentDuck.some(r => r.toLowerCase() === line.toLowerCase()) ? line : null;
-    } catch { return null; }
+      return { line: line && !recentDuck.some(r => r.toLowerCase() === line.toLowerCase()) ? line : null };
+    } catch { return { line: null }; }
   }
   // ---- shareable roast cards: your line + the duck's roast, drawn as an image to post anywhere ----
   const duckImg = new Image(); duckImg.src = 'apple-touch-icon.png';
@@ -1546,7 +1554,7 @@
     face(pick(['feral', 'feral', 'roll', 'scribble']));
     const loud = line.length > 8 && line === line.toUpperCase() && /[A-Z]/.test(line);
     const el = say(line, 'duck', pick(notes));
-    if (!aiSafety) addShare(el, t, line);
+    addShare(el, t, line);
     if (loud) { el.classList.add('loud'); shake(); chaos('angry', 2300); if (!moving()) scowl(1.6); }
     else if (t.endsWith('?')) chaos('curious', 1500);
     chat.push({ role: 'user', content: t }, { role: 'assistant', content: line });
@@ -1571,11 +1579,11 @@
     const typing = say(pick(["Dr. Quackers is eating the notepad…", "Dr. Quackers is screaming into a cup…", "Dr. Quackers is staring at the plant…", "Dr. Quackers is vibrating…", "Dr. Quackers is chewing on the lamp cord…", "Dr. Quackers left the room and came back wet…"]), 'typing');
     const started = Date.now(), session = sessionId;
     const wantsAI = aiOn && !serious && !quiet() && !persona.neutral;
-    (wantsAI ? askDuck(text) : Promise.resolve(null)).then(aiLine => {
+    (wantsAI ? askDuck(text) : Promise.resolve({ line: null })).then(({ line: aiLine, safety }) => {
       if (wantsAI) track(aiLine ? 'ai_reply' : 'fallback_reply');
-      if (aiSafety) { quietTurns = Infinity; hush(); hideCoffee(); }
       if (session !== sessionId) return;
-      later(Math.max(0, 900 + Math.random() * 1100 - (Date.now() - started)), () => { typing.remove(); try { respond(text, aiLine); } finally { busy = false; resetIdle(); if (matchMedia('(hover: hover)').matches) input.focus(); } });
+      if (safety) { quietTurns = Infinity; hush(); hideCoffee(); }
+      later(Math.max(0, 900 + Math.random() * 1100 - (Date.now() - started)), () => { typing.remove(); try { respond(text, aiLine, safety); } finally { busy = false; resetIdle(); if (matchMedia('(hover: hover)').matches) input.focus(); } });
     });
     $('#plant').classList.toggle('wilt', turns > 4);
     if (serious || quiet()) return;
