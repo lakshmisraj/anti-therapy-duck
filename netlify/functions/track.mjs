@@ -2,7 +2,7 @@
 // No cookies, no message text, no IPs stored: just event counts, device type and country.
 import { getStore } from '@netlify/blobs';
 
-const EVENTS = new Set(['visit', 'message', 'ai_reply', 'fallback_reply', 'crisis', 'meme', 'bill_open', 'bill_paid', 'dispute', 'coffee_shown', 'coffee_click', 'info_open', 'poke', 'new_session']);
+const EVENTS = new Set(['visit', 'message', 'ai_reply', 'fallback_reply', 'crisis', 'meme', 'bill_open', 'bill_paid', 'dispute', 'coffee_shown', 'coffee_click', 'info_open', 'poke', 'new_session', 'share']);
 const PAYMENTS = new Set(['bread', 'coins', 'soul', 'insurance']);
 
 // small per-instance rate limit so nobody can flood the counters

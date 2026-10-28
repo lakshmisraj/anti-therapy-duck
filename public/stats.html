@@ -91,6 +91,7 @@
       ['Messages', fmt(msgs), visits ? (msgs / visits).toFixed(1) + ' per visit' : ''],
       ['AI replies', pct(ai, ai + fb), `${fmt(ai)} from Grok, ${fmt(fb)} fallback`],
       ['Memes shown', fmt(sum(days, 'meme')), ''],
+      ['Roasts shared', fmt(sum(days, 'share')), 'share cards made'],
       ['Ko-fi clicks', fmt(sum(days, 'coffee_click')), `pop-up shown ${fmt(sum(days, 'coffee_shown'))}×`],
       ['Duck pokes', fmt(sum(days, 'poke')), ''],
       ['Crisis breaks', fmt(sum(days, 'crisis')), 'helplines shown'],
@@ -133,7 +134,7 @@
   }
 
   function table(days) {
-    const cols = [['visit', 'Visits'], ['message', 'Messages'], ['ai_reply', 'AI'], ['fallback_reply', 'Fallback'], ['coffee_click', 'Ko-fi']];
+    const cols = [['visit', 'Visits'], ['message', 'Messages'], ['ai_reply', 'AI'], ['fallback_reply', 'Fallback'], ['share', 'Shared'], ['coffee_click', 'Ko-fi']];
     $('#table').innerHTML = `<table><thead><tr><th>Day</th>${cols.map(c => `<th>${c[1]}</th>`).join('')}</tr></thead><tbody>${[...days].reverse().map(d => `<tr><td>${d.day}</td>${cols.map(c => `<td>${fmt(d.events[c[0]] || 0)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
   }
 

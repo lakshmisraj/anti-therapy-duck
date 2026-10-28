@@ -133,6 +133,9 @@
   @keyframes pop { from { opacity: 0; transform: translateY(4px); } }
   .msg.you { align-self: flex-end; background: #e9ddc4; border: 1.5px solid var(--ink-soft); border-bottom-right-radius: 4px; }
   .msg.duck { align-self: flex-start; background: var(--duck); border: 1.5px solid var(--ink); border-bottom-left-radius: 4px; font-family: "Fraunces", serif; font-size: 16px; }
+  .share-btn { display: block; margin: 8px 0 0 auto; padding: 3px 10px; font: 500 12px "DM Mono", monospace; background: transparent; color: var(--ink-soft); border: 1.5px solid var(--ink-soft); border-radius: 999px; box-shadow: none; cursor: pointer; }
+  .share-btn:hover { background: var(--paper); color: var(--ink); }
+  .msg.duck.loud .share-btn { color: var(--paper); border-color: var(--paper); }
   .msg.duck small { display: block; font-family: "DM Mono", monospace; font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
   .msg.sys { align-self: center; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--rust); border: 1.5px solid var(--rust); border-radius: 999px; background: var(--paper); padding: 4px 12px; }
   .msg.plantmsg { align-self: flex-start; background: #dfe8c8; border: 1.5px solid var(--olive); font-style: italic; }
@@ -1193,6 +1196,7 @@
     if (pool !== persona.lines && pool !== creator && Math.random() < 0.35) line = persona.wrap(line);
     const loud = pool === shouting || Math.random() < .15;
     const el = say(loud ? line.toUpperCase() : line, 'duck', pick(notes));
+    addShare(el, t, loud ? line.toUpperCase() : line);
     chat.push({ role: 'user', content: t }, { role: 'assistant', content: line });
     if (loud) { el.classList.add('loud'); shake(); chaos('angry', 2300); if (!moving()) scowl(1.6); }
     else if (t.endsWith('?')) chaos('curious', 1500);
@@ -1440,10 +1444,76 @@
       return line && !recentDuck.some(r => r.toLowerCase() === line.toLowerCase()) ? line : null;
     } catch { return null; }
   }
+  // ---- shareable roast cards: your line + the duck's roast, drawn as an image to post anywhere ----
+  const duckImg = new Image(); duckImg.src = 'apple-touch-icon.png';
+  function wrapLines(ctx, text, max) {
+    const lines = []; let cur = '';
+    for (const w of text.split(/\s+/)) { const t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width > max && cur) { lines.push(cur); cur = w; } else cur = t; }
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function panel(ctx, x, y, w, h, fill, stroke) { ctx.beginPath(); ctx.roundRect(x, y, w, h, 34); ctx.fillStyle = fill; ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = stroke; ctx.stroke(); }
+  async function roastCard(you, roast) {
+    try { await document.fonts.ready; } catch {}
+    const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#f1e3c4'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#ead7b0'; for (let x = 76; x < W; x += 152) ctx.fillRect(x, 0, 76, H);
+    // the office plaque
+    ctx.fillStyle = '#3a2414'; ctx.beginPath(); ctx.roundRect(70, 70, W - 140, 176, 14); ctx.fill();
+    ctx.fillStyle = '#d99a1e'; ctx.font = '800 80px Fraunces, Georgia, serif'; ctx.fillText('Dr. Quackers', 112, 168);
+    ctx.fillStyle = '#f3dfb2'; ctx.font = 'italic 500 34px Fraunces, Georgia, serif'; ctx.fillText('Anti-Therapist · Unlicensed · Unbothered', 114, 218);
+    if (duckImg.complete && duckImg.naturalWidth) ctx.drawImage(duckImg, W / 2 - 130, 282, 260, 260);
+    // what you said
+    ctx.font = '500 38px "DM Mono", Menlo, monospace';
+    const yl = wrapLines(ctx, you, 700).slice(0, 3);
+    const yw = Math.min(W - 220, Math.max(...yl.map(l => ctx.measureText(l).width)) + 76), yh = yl.length * 52 + 56;
+    let y = 590;
+    panel(ctx, W - 110 - yw, y, yw, yh, '#e9ddc4', '#6a4a30');
+    ctx.fillStyle = '#3a2414'; yl.forEach((l, i) => ctx.fillText(l, W - 110 - yw + 38, y + 68 + i * 52));
+    // the roast, as big as fits
+    y += yh + 40;
+    let size = 64, rl;
+    do { ctx.font = `700 ${size}px Fraunces, Georgia, serif`; rl = wrapLines(ctx, roast, W - 300); size -= 4; } while (rl.length * size * 1.25 > H - y - 230 && size > 34);
+    const lh = (size + 4) * 1.25, rh = rl.length * lh + 70;
+    panel(ctx, 110, y, W - 220, rh, '#ffd23f', '#3a2414');
+    ctx.fillStyle = '#3a2414'; rl.forEach((l, i) => ctx.fillText(l, 150, y + 34 + lh * (i + 0.8)));
+    // where to get your own
+    ctx.textAlign = 'center';
+    ctx.font = '800 44px Fraunces, Georgia, serif'; ctx.fillText('Get roasted by a duck →', W / 2, H - 120);
+    ctx.font = '500 34px "DM Mono", Menlo, monospace'; ctx.fillStyle = '#b8481f'; ctx.fillText(location.host || 'duck-with-no-fucks.netlify.app', W / 2, H - 68);
+    return c;
+  }
+  async function shareRoast(you, roast, btn) {
+    btn.disabled = true;
+    track('share'); flushStats();
+    const label = btn.textContent, done = msg => { btn.textContent = msg; setTimeout(() => { btn.textContent = label; }, 2500); };
+    try {
+      const blob = await new Promise(res => roastCard(you, roast).then(c => c.toBlob(res, 'image/png')));
+      const file = new File([blob], 'dr-quackers-roast.png', { type: 'image/png' });
+      const url = location.origin + '/', text = `A duck roasted me: "${roast}"`;
+      if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], text, url });
+      else {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+        try { await navigator.clipboard.writeText(`${text} ${url}`); done('✓ Image saved, link copied'); } catch { done('✓ Image saved'); }
+      }
+    } catch (e) { if (e && e.name !== 'AbortError') done('Couldn’t share'); }
+    finally { btn.disabled = false; }
+  }
+  function addShare(el, you, roast) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'share-btn'; b.textContent = '↗ Share';
+    b.setAttribute('aria-label', 'Share this roast as an image');
+    b.addEventListener('click', () => shareRoast(you, roast, b));
+    el.append(b);
+  }
+
   function aiReply(t, line) {
     face(pick(['feral', 'feral', 'roll', 'scribble']));
     const loud = line.length > 8 && line === line.toUpperCase() && /[A-Z]/.test(line);
     const el = say(line, 'duck', pick(notes));
+    addShare(el, t, line);
     if (loud) { el.classList.add('loud'); shake(); chaos('angry', 2300); if (!moving()) scowl(1.6); }
     else if (t.endsWith('?')) chaos('curious', 1500);
     chat.push({ role: 'user', content: t }, { role: 'assistant', content: line });
