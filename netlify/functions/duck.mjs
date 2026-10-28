@@ -142,7 +142,13 @@ export default async (req, context) => {
       .flatMap(o => o.content || [])
       .filter(c => c.type === 'output_text')
       .map(c => c.text).join(' ');
-    const reply = String(out || '').replace(/\s+/g, ' ').replace(/^["“](.*)["”]$/, '$1').trim().slice(0, 320);
+    let reply = String(out || '').replace(/\s+/g, ' ').replace(/^["“](.*)["”]$/, '$1').trim();
+    // keep it a quick burn: if it rambles past ~30 words, keep just the first full sentence
+    if (reply.split(' ').length > 30) {
+      const first = reply.match(/^.+?[.!?](?=\s|$)/);
+      if (first && first[0].split(' ').length >= 5) reply = first[0];
+    }
+    reply = reply.slice(0, 320);
     return json({ reply: reply || null });
   } catch {
     return json({ reply: null, reason: 'upstream error' }, 502);
