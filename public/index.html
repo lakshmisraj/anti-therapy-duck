@@ -503,7 +503,7 @@
   </div>
 </dialog>
 
-<div class="info-panel" id="infoPanel" role="dialog" aria-label="About Dr. Quackers" hidden>Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br>Entertainment only, not medical or mental-health advice. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.</div>
+<div class="info-panel" id="infoPanel" role="dialog" aria-label="About Dr. Quackers" hidden>Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br>Entertainment only, not medical or mental-health advice. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.<br><a id="infoCoffee" href="#" target="_blank" rel="noopener">☕ Buy my creator a coffee</a></div>
 
 <div class="billtoast" id="coffeeToast" role="status" hidden>
   <span>Still here? Buy my creator a coffee so I can afford therapy. ☕</span>
@@ -1547,6 +1547,7 @@
 
   $('#end').addEventListener('click', () => { track('new_session'); restart(); });
   const info = $('#infoPanel'), infoBtn = $('#infoBtn');
+  if (COFFEE_URL) { $('#infoCoffee').href = COFFEE_URL; $('#infoCoffee').addEventListener('click', () => { track('coffee_click'); flushStats(); }); } else $('#infoCoffee').remove();
   const showInfo = open => { info.hidden = !open; infoBtn.setAttribute('aria-expanded', String(open)); };
   infoBtn.addEventListener('click', e => { e.stopPropagation(); if (info.hidden) track('info_open'); showInfo(info.hidden); });
   document.addEventListener('click', e => { if (!info.hidden && !info.contains(e.target)) showInfo(false); });
@@ -1613,17 +1614,18 @@
   }
   $('#billToastBtn').addEventListener('click', () => { hideToast(); openBill(); });
 
-  // once per visit, after the 5th message: a nudge to buy the creator a coffee (only if a link is set)
-  let coffeeTimer;
+  // once per page load, after the 5th message: a nudge to buy the creator a coffee (only if a link is set)
+  let coffeeTimer, coffeeShown = false;
   const hideCoffee = () => { clearTimeout(coffeeTimer); $('#coffeeToast').hidden = true; };
   function coffeeToast() {
     if (!COFFEE_URL || quiet() || $('#bill').open) return;
-    try { if (sessionStorage.getItem('duck-coffee')) return; sessionStorage.setItem('duck-coffee', '1'); } catch {}
+    if (coffeeShown) return;
+    coffeeShown = true;
     $('#coffeeLink').href = COFFEE_URL;
     track('coffee_shown');
     hideToast();
     $('#coffeeToast').hidden = false;
-    coffeeTimer = setTimeout(hideCoffee, 10000);
+    coffeeTimer = setTimeout(hideCoffee, 20000);
   }
   $('#coffeeX').addEventListener('click', hideCoffee);
   $('#coffeeLink').addEventListener('click', () => { track('coffee_click'); flushStats(); setTimeout(hideCoffee, 300); });
