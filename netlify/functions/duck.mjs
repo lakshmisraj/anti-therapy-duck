@@ -2,6 +2,8 @@
 // The page handles crisis/abuse messages itself and never sends them here; this re-checks
 // anyway so the endpoint can't be used to roast someone who's struggling.
 
+import ORIGINALS from './duck-lines.mjs';
+
 const CRISIS = /\b(suicid\w*|sui?cide|sucide|kms|kys|sewerslide|unaliv\w*|(kill|killing|off|end|ending|hurt|hurting|cut|cutting|harm|harming|hang|hanging|shoot|shooting|starve|starving)\s*(my|me)?\s*-?\s*self|self[- ]?harm\w*|end(ing)? (it all|things|everything|my life)|ending it|take my (own )?life|want(ed)? to die|wanna die|wish i (was|were) dead|(don'?t|do not) (want|wanna) to (live|be alive|be here|exist|wake up|go on)|(can'?t|cannot) (go on|do this anymore)|no (reason|point) (to|in) (live|living|going on)|better off (dead|without me)|(nobody|no ?one) would (miss|care)|done with (life|living)|hate being alive|overdos\w*|(took|take|swallow\w*) (a bunch of|all (my|the)|too many) pills|jump(ing)? (off|in front)|(going to|gonna) jump|(want|wanna|going) to disappear|have a (rope|gun))\b/i;
 const HARM = /\b(hits?|hitting|beats?|beating|hurts?|hurting|touch(es|ed)?|abus\w*|raped?|molest\w*|assault\w*)\s+(me|my)\b|\b(being|been|was|got) (abused|raped|assaulted|molested|hit|beaten)\b|\b(haven'?t|have not|didn'?t) eaten\b|\bstarv\w*|\bmake (my ?self|me) (throw up|puke|vomit)\b|\b(purg\w*|anorexi\w*|bulimi\w*|eating disorder)\b|\b(want to|wanna|going to|gonna|i'?ll) (hurt|kill|stab|shoot|murder) (some(one|body)|him|her|them|my|people|everyone)\b|\bshoot up\b/i;
 const norm = s => s.replace(/[‘’ʼ`]/g, "'");
@@ -86,6 +88,15 @@ const STYLES = [
   'corporate jargon ("Per my last email ...")',
   'a rhetorical question that answers itself',
 ];
+// the user's favourite lines: a few on-topic ones plus random ones, as the base for new answers
+function originals(text) {
+  const filler = new Set('again about after always been being could does doing from have just keep like make more much never only over really said some still that them then they this very what when will with would your yours'.split(' '));
+  const words = new Set((text.toLowerCase().match(/[a-z]{4,}/g) || []).filter(w => !filler.has(w)));
+  const shuffled = [...ORIGINALS].sort(() => Math.random() - 0.5);
+  const onTopic = shuffled.filter(l => (l.toLowerCase().match(/[a-z]{4,}/g) || []).some(w => words.has(w))).slice(0, 4);
+  const rest = shuffled.filter(l => !onTopic.includes(l)).slice(0, 12 - onTopic.length);
+  return `\n\nLines you've said before. This is your voice: write a NEW line in this spirit, never repeat or lightly reword these:\n- ${[...onTopic, ...rest].join('\n- ')}`;
+}
 function pickWeighted(list) { let roll = Math.random() * list.reduce((a, t) => a + t[1], 0); return list.find(t => (roll -= t[1]) < 0) || list[0]; }
 function direction(text) {
   let target = pickWeighted(TARGETS);
@@ -130,7 +141,7 @@ export default async (req, context) => {
       headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
       body: JSON.stringify({
         model: env('XAI_MODEL') || 'grok-4.20-0309-non-reasoning',
-        input: [{ role: 'system', content: SYSTEM + (mood ? `\nYour current mood: ${mood}. Let it colour the reply.` : '') + direction(text) }, ...history, { role: 'user', content: text }],
+        input: [{ role: 'system', content: SYSTEM + originals(text) + (mood ? `\nYour current mood: ${mood}. Let it colour the reply.` : '') + direction(text) }, ...history, { role: 'user', content: text }],
         max_output_tokens: 70,
         temperature: 1.1,
       }),
