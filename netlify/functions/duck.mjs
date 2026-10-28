@@ -100,7 +100,7 @@ export default async (req, context) => {
       .flatMap(o => o.content || [])
       .filter(c => c.type === 'output_text')
       .map(c => c.text).join(' ');
-    const reply = String(out || '').replace(/\s+/g, ' ').replace(/^["'“]|["'”]$/g, '').trim().slice(0, 320);
+    const reply = String(out || '').replace(/\s+/g, ' ').replace(/^["“](.*)["”]$/, '$1').trim().slice(0, 320);
     return json({ reply: reply || null });
   } catch {
     return json({ reply: null, reason: 'upstream error' }, 502);
