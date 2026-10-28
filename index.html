@@ -502,7 +502,7 @@
   </div>
 </dialog>
 
-<div class="info-panel" id="infoPanel" role="dialog" aria-label="About Dr. Quackers" hidden>Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br>Entertainment only, not medical or mental-health advice. Messages are sent to an AI (xAI's Grok) to write the duck's replies; this site doesn't store them. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.</div>
+<div class="info-panel" id="infoPanel" role="dialog" aria-label="About Dr. Quackers" hidden>Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br>Entertainment only, not medical or mental-health advice. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.</div>
 
 <div class="billtoast" id="billToast" role="status" hidden>
   <span id="billToastText">🧾 Your bill is ready.</span>
@@ -1050,10 +1050,11 @@
     setTimeout(() => chaos('respawn', 550), 2500);
   }
   // what the duck does when it's just sitting there: a balanced mix, one at a time, never the same twice running
-  const tics = ['eyeroll', 'sigh', 'skeptic', 'adjust', 'glare', 'ignore', 'notes', 'cleanglasses', 'plantstare', 'readfile'];
-  const classics = ['scowl', 'leanin', 'slouch', 'phone', 'coffee', 'whiskey', 'countmoney', 'sleepmask'];
-  const antics = ['smoking', 'smokering', 'smash', 'walk', 'newspaper', 'headphones', 'tossnotepad'];
-  const families = [[tics, 3.5], [classics, 3.5], [antics, 3]];
+  // whole-body moves come up most, then props, then face-only tics
+  const bodyList = ['walk', 'smash', 'tossnotepad', 'slouch', 'leanin', 'ignore', 'plantstare'];
+  const propList = ['phone', 'coffee', 'whiskey', 'countmoney', 'sleepmask', 'newspaper', 'headphones', 'smoking', 'smokering', 'readfile'];
+  const faceList = ['eyeroll', 'sigh', 'skeptic', 'adjust', 'glare', 'notes', 'cleanglasses', 'scowl'];
+  const families = [[bodyList, 6], [propList, 2.5], [faceList, 1.5]];
   const ticBusy = () => moving() || ['vibrate', 'hop', 'flinch', 'asleep', 'eating', 'skeptic', 'nod', 'nope'].some(c => duck.classList.contains(c));
   let lastMove = null, lastFamily = null, familyStreak = 0;
   function humanTic() {
