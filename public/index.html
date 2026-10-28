@@ -127,7 +127,7 @@
   .session-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 2px solid var(--ink); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
   .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--rust); margin-right: 6px; animation: blink 3s ease-in-out infinite; }
   @keyframes blink { 50% { opacity: .2; } }
-  .log { flex: 1; overflow-y: auto; scroll-behavior: smooth; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px;
+  .log { flex: 1; overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px;
     background-image: repeating-linear-gradient(transparent 0 25px, #ecdcc0 25px 26px); }
   .msg { max-width: 85%; padding: 10px 14px; border-radius: 16px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; animation: pop .2s ease-out; }
   @keyframes pop { from { opacity: 0; transform: translateY(4px); } }
@@ -1096,13 +1096,20 @@
     }
     return line;
   }
+  let pinned = true;
+  log.addEventListener('scroll', () => { pinned = log.scrollHeight - log.scrollTop - log.clientHeight < 80; });
+  const toEnd = () => requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
+  new MutationObserver(() => {
+    // memes handle their own scroll so the caption above the image stays visible
+    if (pinned && !log.lastElementChild?.classList.contains('meme-wrap')) toEnd();
+  }).observe(log, { childList: true, subtree: true, characterData: true });
   function say(text, cls = 'duck', note) {
     if (cls.startsWith('duck')) { recentDuck.push(text); if (recentDuck.length > 8) recentDuck.shift(); }
     const el = document.createElement('div');
     el.className = 'msg ' + cls;
     if (cls === 'real') el.innerHTML = text; else el.textContent = text;
     if (note) { const s = document.createElement('small'); s.textContent = note; el.append(s); }
-    log.append(el); log.scrollTop = log.scrollHeight;
+    log.append(el);
     return el;
   }
   function pop(text) { bubble.textContent = text; bubble.classList.add('show'); clearTimeout(pop.t); pop.t = setTimeout(() => bubble.classList.remove('show'), 3800); }
@@ -1337,7 +1344,7 @@
     $('#mood').textContent = persona.name;
     if (!moving()) scowl(1.2); // personality change
     const el = document.createElement('div'); el.className = 'msg sys'; el.textContent = persona.neutral ? `😐 Dr. Quackers has gone flat. (${persona.name})` : `⚠️ Dr. Quackers' mood changed: ${persona.name}`;
-    log.append(el); log.scrollTop = log.scrollHeight;
+    log.append(el);
   }
 
 
@@ -1354,9 +1361,10 @@
     const themed = memes.filter(m => lastCat && m.startsWith({ cs: 'cs-', work: 'job-', health: 'health-' }[lastCat] || '#'));
     const name = themed.length && Math.random() < 0.6 ? fresh(themed) : fresh(memes);
     el.innerHTML = `<div class="meme-intro">${fresh(memeIntros)}</div><img class="meme-img" src="memes/${name}.webp" width="520" height="${memeH[name] || 520}" alt="Meme: ${memeAlt[name]}">`;
-    log.append(el); log.scrollTop = log.scrollHeight;
+    log.append(el);
     // scroll so the caption above the meme stays in view
     const showMeme = () => {
+      if (!pinned) return;
       const over = el.getBoundingClientRect().top - log.getBoundingClientRect().top;
       log.scrollTop = el.offsetHeight > log.clientHeight - 16 ? log.scrollTop + over - 8 : log.scrollHeight;
     };
@@ -1527,6 +1535,7 @@
   function send(text) {
     if (busy || !text.trim()) return;
     busy = true; turns++;
+    pinned = true;
     say(text, 'you');
     input.value = ''; fitInput();
     face('scribble');
