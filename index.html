@@ -1051,14 +1051,18 @@
   }
   // what the duck does when it's just sitting there: a balanced mix, one at a time, never the same twice running
   // whole-body moves come up most, then props, then face-only tics
-  const bodyList = ['walk', 'smash', 'tossnotepad', 'slouch', 'leanin', 'ignore', 'plantstare'];
-  const propList = ['phone', 'coffee', 'whiskey', 'countmoney', 'sleepmask', 'newspaper', 'headphones', 'smoking', 'smokering', 'readfile'];
+  // seated body moves; walking out is kept rare (see humanTic)
+  const featured = ['readfile', 'countmoney', 'sleepmask', 'whiskey', 'plantstare', 'tossnotepad'];
+  const bodyList = ['smash', 'slouch', 'leanin', 'ignore'];
+  const propList = ['phone', 'coffee', 'newspaper', 'headphones', 'smoking', 'smokering'];
   const faceList = ['eyeroll', 'sigh', 'skeptic', 'adjust', 'glare', 'notes', 'cleanglasses', 'scowl'];
-  const families = [[bodyList, 6], [propList, 2.5], [faceList, 1.5]];
+  const families = [[featured, 4], [bodyList, 3], [propList, 2], [faceList, 1]];
   const ticBusy = () => moving() || ['vibrate', 'hop', 'flinch', 'asleep', 'eating', 'skeptic', 'nod', 'nope'].some(c => duck.classList.contains(c));
-  let lastMove = null, lastFamily = null, familyStreak = 0;
+  let lastMove = null, lastFamily = null, familyStreak = 0, lastWalk = Date.now();
   function humanTic() {
     if (reduceMotion || quiet() || ticBusy() || $('#bill').open) return;
+    // mostly stays in the chair: walks out only now and then, at most once every two minutes
+    if (Date.now() - lastWalk > 120000 && Math.random() < 0.05) { lastWalk = Date.now(); lastMove = 'walk'; moves.walk(); return; }
     let fam;
     do {
       let roll = Math.random() * 10;
