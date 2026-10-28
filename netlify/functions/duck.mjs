@@ -11,8 +11,10 @@ const norm = s => s.replace(/[‘’ʼ`]/g, "'");
 const SYSTEM = `You are Dr. Quackers, a rude, unimpressed duck therapist in a cardigan. People tell you their problems and you roast them.
 
 Your voice is defined by the example lines below. Write ONE new line for the user's message in exactly that style:
-- Same length as the examples (usually one or two short sentences).
-- Same kind of joke: plain, direct, everyday, a little mean. Say it the way the examples say things.
+- Short: aim for under 15 words. Cut every word that isn't doing work.
+- Same kind of joke as the examples: plain, direct, everyday, mean. Say it the way the examples say things.
+- Sharp: end on the sting. The last few words are the punch.
+- No advice or suggestions ("block them", "next time try", "just text them"), no filler openers ("Shocking.", "Wow.", "Congrats on"). Just the burn.
 - React to what they actually said. Keep it grounded; no elaborate metaphors, no far-fetched scenarios, no stacking several jokes.
 - Don't copy or lightly reword an example. Write a new one that could sit next to them.
 - No emoji, hashtags, lists or quotation marks around the reply. Never mention being an AI or Grok.
@@ -21,10 +23,10 @@ Hard limits: no jokes about race, ethnicity, religion, gender, sexuality, disabi
 
 // the user's original lines are the style guide: on-topic ones first, then a random spread
 const FILLER = new Set('again about after always been being could does doing from have just keep like make more much never only over really said some still that them then they this very what when will with would your yours'.split(' '));
-function originals(text) {
+function originals(text, skip = null) {
   const words = new Set((text.toLowerCase().match(/[a-z]{4,}/g) || []).filter(w => !FILLER.has(w)));
-  const shuffled = [...ORIGINALS].sort(() => Math.random() - 0.5);
-  const onTopic = shuffled.filter(l => (l.toLowerCase().match(/[a-z]{4,}/g) || []).some(w => words.has(w))).slice(0, 8);
+  const shuffled = ORIGINALS.filter(l => l !== skip).sort(() => Math.random() - 0.5);
+  const onTopic = shuffled.filter(l => (l.toLowerCase().match(/[a-z]{4,}/g) || []).some(w => words.has(w))).slice(0, 5);
   const rest = shuffled.filter(l => !onTopic.includes(l)).slice(0, 25 - onTopic.length);
   return `\n\nExample lines (this is your voice):\n- ${[...onTopic, ...rest].join('\n- ')}`;
 }
@@ -49,7 +51,7 @@ async function ask(key, system, text) {
     body: JSON.stringify({
       model: env('XAI_MODEL') || 'grok-4.20-0309-non-reasoning',
       input: [{ role: 'system', content: system }, { role: 'user', content: text }],
-      max_output_tokens: 70,
+      max_output_tokens: 50,
       temperature: 0.85,
     }),
     signal: AbortSignal.timeout(7000),
@@ -92,11 +94,10 @@ export default async (req, context) => {
   // no conversation memory: every reply only sees the latest message
 
   try {
-    const system = SYSTEM + originals(text);
-    let reply = await ask(key, system, text);
-    // it sometimes hands back one of the example lines verbatim: ask once more for a new one
+    let reply = await ask(key, SYSTEM + originals(text), text);
+    // it sometimes hands back one of the example lines verbatim: ask once more, without that line in the examples
     const copied = copiedFrom(reply);
-    if (copied) reply = (await ask(key, system + `\n\nDon't use this line, it's already taken: "${copied}". Write a different one.`, text)) || reply;
+    if (copied) reply = (await ask(key, SYSTEM + originals(text, copied) + `\n\nAlready used, don't repeat: "${copied}"`, text)) || reply;
     return json({ reply: reply || null });
   } catch {
     return json({ reply: null, reason: 'upstream error' }, 502);
