@@ -8,6 +8,11 @@
 <link rel="canonical" href="https://duck-with-no-fucks.netlify.app/">
 <meta name="theme-color" content="#3a2414">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dr. Quackers">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Dr. Quackers, Zero Fucks">
 <meta property="og:description" content="The anti-therapy duck. Tell it your problems. It says fuck you.">
@@ -175,6 +180,7 @@
   .info-panel { position: fixed; left: 16px; bottom: 16px; z-index: 25; width: min(360px, calc(100% - 32px)); background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-radius: 6px; box-shadow: 4px 4px 0 var(--ink); padding: 12px 14px; font-size: 13px; line-height: 1.45; }
   .info-panel[hidden] { display: none; }
   .info-panel:focus { outline: none; }
+  .install-btn { margin-top: 8px; padding: 6px 12px; font: 500 13px "DM Mono", monospace; background: var(--mustard); color: var(--ink); border: 2px solid var(--ink); border-radius: 6px; box-shadow: none; cursor: pointer; }
   .info-panel a { color: var(--rust); }
 
   .meter { text-align: right; font-size: 13px; color: var(--ink-soft); }
@@ -506,7 +512,7 @@
 
 </div>
 
-<div class="info-panel" id="infoPanel" role="dialog" aria-label="About Dr. Quackers" tabindex="-1" hidden>Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br>Entertainment only, not medical or mental-health advice. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.<br><a id="infoCoffee" href="#" target="_blank" rel="noopener">☕ Buy my creator a coffee</a></div>
+<div class="info-panel" id="infoPanel" role="dialog" aria-label="About Dr. Quackers" tabindex="-1" hidden>Dr. Quackers is a duck. Not a doctor. Not a therapist. A total asshole. Please see an actual human professional for actual human problems.<br>Entertainment only, not medical or mental-health advice. Struggling? Call or text <a href="tel:988">988</a> (US &amp; Canada) or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.<br><a id="infoCoffee" href="#" target="_blank" rel="noopener">☕ Buy my creator a coffee</a><span id="installRow" hidden><br><button type="button" id="installBtn" class="install-btn">📲 Install the duck</button></span><span id="iosInstall" hidden><br>📲 Install: tap Share, then “Add to Home Screen”.</span></div>
 
 <div class="billtoast" id="coffeeToast" role="status" hidden>
   <span id="coffeeText">Still here? Buy my creator a coffee so I can afford therapy. ☕</span>
@@ -1657,6 +1663,15 @@
   $('#end').addEventListener('click', () => { track('new_session'); restart(); });
   const info = $('#infoPanel'), infoBtn = $('#infoBtn');
   if (COFFEE_URL) { $('#infoCoffee').href = COFFEE_URL; $('#infoCoffee').addEventListener('click', () => { track('coffee_click'); flushStats(); showInfo(false); thankForCoffee(); }); } else $('#infoCoffee').remove();
+  // installable app: Chrome/Edge/Android hand us an install prompt; iPhones need Share > Add to Home Screen
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('/sw.js').catch(() => {});
+  let installPrompt = null;
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; $('#installRow').hidden = false; });
+  addEventListener('appinstalled', () => { installPrompt = null; $('#installRow').hidden = true; track('installed'); });
+  $('#installBtn').addEventListener('click', async () => { if (!installPrompt) return; track('install_click'); installPrompt.prompt(); try { await installPrompt.userChoice; } catch {} installPrompt = null; $('#installRow').hidden = true; });
+  if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) $('#iosInstall').hidden = false;
+  if (standalone) track('app_open');
   const showInfo = open => { info.hidden = !open; infoBtn.setAttribute('aria-expanded', String(open)); if (open) info.focus(); };
   infoBtn.addEventListener('click', e => { e.stopPropagation(); if (info.hidden) track('info_open'); showInfo(info.hidden); });
   document.addEventListener('click', e => { if (!info.hidden && !info.contains(e.target)) showInfo(false); });

@@ -1,0 +1,22 @@
+{
+  "id": "/",
+  "name": "Dr. Quackers, Zero Fucks",
+  "short_name": "Dr. Quackers",
+  "description": "The anti-therapy duck. Tell it your problems. It roasts you. 18+.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f1e3c4",
+  "theme_color": "#3a2414",
+  "categories": ["entertainment", "lifestyle"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "/screenshot-phone.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "The duck roasting your boss" },
+    { "src": "/screenshot-wide.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide", "label": "Dr. Quackers' office" }
+  ]
+}
